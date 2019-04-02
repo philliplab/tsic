@@ -10,9 +10,12 @@ Depends:
     knitr,
     optparse,
     rmarkdown,
-    tidyr
+    tidyr,
+    lubridate,
+    purrr
 Suggests:
     testthat
 License: GPL-3
 https: https://github.com/philliplab/tsic
 RoxygenNote: 6.1.1
+
