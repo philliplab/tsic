@@ -6,13 +6,19 @@
 #' @export
 
 make_vlines_dat <- function(in_dat){
-  vlines <- in_dat[,c('assay', 'visit_date', 'result')]
-  vlines %>% map_if(is.factor, as.character) %>% as_tibble -> vlines
+  vlines <- unique(in_dat$test)
+  vlines <- vlines[!grepl("Aggregate", vlines)]
+  vlines <- strsplit(vlines, '_')
+  vlines <- lapply(vlines, function(x){data.frame(assay = x[1], visit_date = x[2], result = x[3], stringsAsFactors = FALSE)})
+  all_dat <- NULL
+  for (i in vlines){
+    all_dat <- rbind(all_dat, i)
+  }
+  vlines <- all_dat
   vlines$facet_lab <- paste(vlines$assay, '\n', gsub('-', '', vlines$visit_date), '\n', vlines$result, sep = '')
   vlines$visit_date <- as_date(vlines$visit_date)
   return(vlines)
 }
-
 
 #' Plots a patients timelines
 #'
@@ -44,8 +50,7 @@ patient_plot <- function(lrs, vlines){
 
 wrapped_patient_plot <- function(dat){
   vlines <- make_vlines_dat(dat)
-  lrs <- make_lrs_dat(dat)
-  x <- patient_plot(lrs, vlines)
+  x <- patient_plot(dat, vlines)
   return(x)
 }
 
