@@ -32,12 +32,27 @@ if (FALSE){
   result <- '-'
 
   range_start <- '2017-02-01'
-  range_end <- '2017-05-31'
+  range_end <- '2017-10-31'
   visit_date <- '2017-04-01'
   min_prob <- 0
   max_prob <- 1
 
   assay <- 'Abbott Architect HIV Ag/Ab Combo'
+
+  result_set <- structure(list(ptid = c(102967486L, 102967486L, 102967486L, 102967486L,
+    102967486L, 102967486L, 102967486L, 102967486L, 102967486L, 102967486L,
+    102967486L, 102967486L, 102967486L, 102967486L), visit_date = c("2017-05-02",
+    "2017-05-02", "2017-05-30", "2017-05-30", "2017-06-30", "2017-06-30",
+    "2017-06-30", "2017-07-11", "2017-07-11", "2017-07-11", "2017-07-28",
+    "2017-08-10", "2017-08-27", "2017-09-24"), assay = c("elisa",
+    "rnapcr", "elisa", "rnapcr", "elisa", "geenius", "rnapcr", "elisa",
+    "geenius", "rnapcr", "rnapcr", "rnapcr", "rnapcr", "rnapcr"),
+        o_result = c(2L, 2L, 2L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L,
+        1L, 1L, 1L), result = c("-", "-", "-", "+", "+", "+", "+",
+        "+", "+", "+", "+", "+", "+", "+")), row.names = c(NA, 14L
+    ), class = "data.frame")
+
+
 }
 
 #' Probabilities of certain test results
@@ -100,7 +115,16 @@ interpret_result <- function(assay_dynamics, result, range_start, range_end, vis
         )
 }
 
-interpret_result_set <- function(result, range_start = NULL, range_end = NULL){ #{{{
+#' Given a set of results, construct DDI_1 probability curves
+#'
+#' Calls interpret_result on a set of test results and aggregate the results into a data.frame
+#'
+#' @param result_set A data.frame of all the test results and dates for a patient
+#' @param range_start The date furthest into the past that should be considered as a plausible day for DDI_1.
+#' @param range_end The most recent date that should be considered as a plausible day for DDI_1.
+# @export
+
+interpret_result_set <- function(result_set, range_start = NULL, range_end = NULL){
   if (is.null(range_start)){
     range_start <- min(ymd(result$visit_date)) %m-% months(1)
   }
@@ -110,9 +134,9 @@ interpret_result_set <- function(result, range_start = NULL, range_end = NULL){ 
   }
 
   dat <- data.frame(date = as_date(ymd(range_start):ymd(range_end)))
-  for (r_indx in 1:nrow(result)){
-    c_result <- result[r_indx,]
-    assay_dynamics <- get(paste(c_result$assay, '_dynamics', sep = ''))
+  for (r_indx in 1:nrow(result_set)){
+    c_result <- result_set[r_indx,]
+    assay_dynamics <- get_assay_dynamics(assay = c_result$assay)
     i_result <- interpret_result(assay_dynamics = assay_dynamics,
                                  result = c_result$result,
                                  range_start = range_start,
@@ -126,7 +150,7 @@ interpret_result_set <- function(result, range_start = NULL, range_end = NULL){ 
     dat <- merge(dat, p_result)
   }
   return(dat)
-} #}}}
+}
 
 # Parse and prepare data
 parse_data <- function(file_name){ #{{{
