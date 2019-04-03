@@ -4,12 +4,10 @@
 \alias{estimate_lb_med_ub}
 \title{Estimate the LB, UB and median for DDI_1}
 \usage{
-estimate_lb_med_ub(x, y)
+estimate_lb_med_ub(dat)
 }
 \arguments{
-\item{x}{The dates of the ecdf}
-
-\item{y}{The probabilities of the ecdf}
+\item{dat}{An interpreted resultset in long format}
 }
 \description{
 Estimate the LB, UB and median for DDI_1

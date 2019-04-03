@@ -36,12 +36,12 @@ convert_aggregate_into_ecdf <- function(dat){
 
 #' Estimate the LB, UB and median for DDI_1
 #'
-#' @param x The dates of the ecdf
-#' @param y The probabilities of the ecdf
+#' @param dat An interpreted resultset in long format
 #' @export
 
-estimate_lb_med_ub <- function(x, y){
-  result <- approx(x = y, y = as_datetime(x), xout = c(0.025, 0.5, 0.975))
+estimate_lb_med_ub <- function(dat){
+  aggre_ecdf <- convert_aggregate_into_ecdf(dat)
+  result <- approx(x = aggre_ecdf$y, y = as_datetime(aggre_ecdf$x), xout = c(0.025, 0.5, 0.975))
   dates <- as_datetime(result$y)
   return(dates)
 }
