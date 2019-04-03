@@ -17,6 +17,14 @@ make_vlines_dat <- function(in_dat){
   vlines <- all_dat
   vlines$facet_lab <- paste(vlines$assay, '\n', gsub('-', '', vlines$visit_date), '\n', vlines$result, sep = '')
   vlines$visit_date <- as_date(vlines$visit_date)
+
+  lb_med_ub <- estimate_lb_med_ub(in_dat)
+  vlines <- rbind(vlines, 
+    data.frame(assay = "Aggregate",
+               visit_date = lb_med_ub,
+               result = NA,
+               facet_lab = "Aggregate"))
+
   return(vlines)
 }
 
