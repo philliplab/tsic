@@ -1,4 +1,3 @@
-
 #' Assay dynamics (assuming linear behaviour)
 #'
 #' Returns the probability of testing positive x days after DDI_1
@@ -26,6 +25,8 @@ linear_assay_dynamics <- function(x, diagnostic_delay, spread = 1.5){
 
 
 # old assay dynamics
+
+if (FALSE){
 
 totalnucleicacid_dynamics <- matrix(data = c(0, 0, #{{{
                                              1, 0,
@@ -278,3 +279,4 @@ all_assay_dynamics <- rbind( #{{{
              days = geenius_dynamics[,1],
              prob = geenius_dynamics[,2])) #}}}
 
+}
