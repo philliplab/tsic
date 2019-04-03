@@ -88,6 +88,7 @@ prob_test_result_given_days_to_visit <- function(assay_dynamics, result, days_to
 #' @param visit_date The date of the visit on whose sample the test result was observed
 #' @param min_prob The most 'certain' you are that the given test results excludes dates far from the actual visit. Think of this as a chance that the test may give an incorrect result.
 #' @param max_prob The most 'certain' you are that the given test results excludes dates far from the actual visit. Think of this as a chance that the test may give an incorrect result. TODO: Think more about what this actually means.
+#' @export
 
 interpret_result <- function(assay_dynamics, result, range_start, range_end, visit_date, 
                              min_prob = 0.00, max_prob = 1.00){
@@ -122,7 +123,7 @@ interpret_result <- function(assay_dynamics, result, range_start, range_end, vis
 #' @param result_set A data.frame of all the test results and dates for a patient
 #' @param range_start The date furthest into the past that should be considered as a plausible day for DDI_1.
 #' @param range_end The most recent date that should be considered as a plausible day for DDI_1.
-# @export
+#' @export
 
 interpret_result_set <- function(result_set, range_start = NULL, range_end = NULL){
   if (is.null(range_start)){
