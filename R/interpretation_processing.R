@@ -7,7 +7,7 @@
 
 convert_interpretation_to_long <- function(interpretation_set){
 #  rs <- interpret_result_set(in_dat)
-  rs <- interprestation_set
+  rs <- interpretation_set
   lrs <- gather(rs, key = 'test', value = 'prob', -date)
   
   all_tests <- lrs %>% 
