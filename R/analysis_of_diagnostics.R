@@ -36,6 +36,8 @@ if (FALSE){
   visit_date <- '2017-04-01'
   min_prob <- 0
   max_prob <- 1
+
+  assay <- 'Abbott Architect HIV Ag/Ab Combo'
 }
 
 #' Probabilities of certain test results

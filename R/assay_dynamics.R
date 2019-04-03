@@ -23,6 +23,20 @@ linear_assay_dynamics <- function(x, diagnostic_delay, spread = 1.5){
   return(y)
 }
 
+#' Get dynamics functions for an assay
+#'
+#' Constructs the assay dynamics list with suitable parameter set given the name of an assay
+#'
+#' @param assay The name of the assay whose dynamics are required.
+#' @export
+
+get_assay_dynamics <- function(assay){
+  if (assay == 'Abbott Architect HIV Ag/Ab Combo'){
+    return(list(fun = get('linear_assay_dynamics'),
+                params = list(diagnostic_delay = 10.8)))
+  }
+}
+
 
 # old assay dynamics
 
