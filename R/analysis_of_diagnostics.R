@@ -1,296 +1,59 @@
 # Note that this predicts the time since a rna assay with a 50% chance of testing positive at a viral load of 1 and not the true infection date.
 
+
 # Each diagnostic test result provides information about an interval in which the patient could have been infected.
 # A negative result provides a short (recent) interval in which the patient may have been infected (eclipse phase) and a much longer interval during which the patient could not have been infected.
 # A positive result provides a short (recent) interval in which the patint may not have been infected (eclipse phase) and a much longer interval during which the patient could have been infected.
+
 
 # TODO:
 # Package the plotting into a single function
 # Code to process the input data
 # Code to produce a document with the results for each patient
 
-library(ggplot2)
-library(lubridate)
-library(tidyr)
-library(dplyr)
-library(purrr)
 
-# Assay details
-totalnucleicacid_dynamics <- matrix(data = c(0, 0, #{{{
-                                             1, 0,
-                                             2, 0.01,
-                                             3, 0.05,
-                                             4, 0.275,
-                                             5, 0.5,
-                                             6, 0.725,
-                                             7, 0.95,
-                                             8, 0.99,
-                                             9, 1,
-                                             10, 1,
-                                             11, 1,
-                                             12, 1,
-                                             13, 1,
-                                             14, 1,
-                                             15, 1,
-                                             16, 1,
-                                             17, 1,
-                                             18, 1,
-                                             19, 1,
-                                             20, 1,
-                                             21, 1,
-                                             22, 1,
-                                             23, 1,
-                                             24, 1,
-                                             25, 1,
-                                             26, 1,
-                                             27, 1,
-                                             28, 1,
-                                             29, 1,
-                                             30, 1),
-                                             ncol = 2,
-                                             byrow = TRUE) #}}}
 
-rnapcr_dynamics <- matrix(data = c(0, 0, #{{{
-                                   1, 0,
-                                   2, 0,
-                                   3, 0,
-                                   4, 0,
-                                   5, 0,
-                                   6, 0.01,
-                                   7, 0.05,
-                                   8, 0.1785714,
-                                   9, 0.3071429,
-                                   10, 0.4357143,
-                                   11, 0.5642857,
-                                   12, 0.6928571,
-                                   13, 0.8214286,
-                                   14, 0.95,
-                                   15, 0.99,
-                                   16, 1,
-                                   17, 1,
-                                   18, 1,
-                                   19, 1,
-                                   20, 1,
-                                   21, 1,
-                                   22, 1,
-                                   23, 1,
-                                   24, 1,
-                                   25, 1,
-                                   26, 1,
-                                   27, 1,
-                                   28, 1,
-                                   29, 1,
-                                   30, 1),
-                                   ncol = 2,
-                                   byrow = TRUE) #}}}
 
-elisa_dynamics <- matrix(data = c(0, 0, #{{{
-                                   1, 0,
-                                   2, 0,
-                                   3, 0,
-                                   4, 0,
-                                   5, 0,
-                                   6, 0,
-                                   7, 0,
-                                   8, 0,
-                                   9, 0,
-                                   10, 0,
-                                   11, 0,
-                                   12, 0.01,
-                                   13, 0.05,
-                                   14, 0.1318182,
-                                   15, 0.2136364,
-                                   16, 0.2954545,
-                                   17, 0.3772727,
-                                   18, 0.4590909,
-                                   19, 0.5409091,
-                                   20, 0.6227273,
-                                   21, 0.7045455,
-                                   22, 0.7863636,
-                                   23, 0.8681818,
-                                   24, 0.95,
-                                   25, 0.99,
-                                   26, 1,
-                                   27, 1,
-                                   28, 1,
-                                   29, 1,
-                                   30, 1),
-                                   ncol = 2,
-                                   byrow = TRUE) #}}}
 
-westernblot_dynamics <- matrix(data = c(0, 0, #{{{
-                                        1, 0,
-                                        2, 0,
-                                        3, 0,
-                                        4, 0,
-                                        5, 0,
-                                        6, 0,
-                                        7, 0,
-                                        8, 0,
-                                        9, 0,
-                                        10, 0,
-                                        11, 0.01,
-                                        12, 0.05,
-                                        13, 0.1318182,
-                                        14, 0.2136364,
-                                        15, 0.2954545,
-                                        16, 0.3772727,
-                                        17, 0.4590909,
-                                        18, 0.5409091,
-                                        19, 0.6227273,
-                                        20, 0.7045455,
-                                        21, 0.7863636,
-                                        22, 0.8681818,
-                                        23, 0.95,
-                                        24, 0.99,
-                                        25, 1,
-                                        26, 1,
-                                        27, 1,
-                                        28, 1,
-                                        29, 1,
-                                        30, 1),
-                                        ncol = 2,
-                                        byrow = TRUE) #}}}
 
-geenius_dynamics <- matrix(data = c(0, 0, #{{{
-                                    1, 0,
-                                    2, 0,
-                                    3, 0,
-                                    4, 0,
-                                    5, 0,
-                                    6, 0,
-                                    7, 0,
-                                    8, 0,
-                                    9, 0,
-                                    10, 0.025,
-                                    11, 0.050,
-                                    12, 0.075,
-                                    13, 0.100,
-                                    14, 0.125,
-                                    15, 0.150,
-                                    16, 0.175,
-                                    17, 0.200,
-                                    18, 0.225,
-                                    19, 0.250,
-                                    20, 0.275,
-                                    21, 0.300,
-                                    22, 0.325,
-                                    23, 0.350,
-                                    24, 0.375,
-                                    25, 0.400,
-                                    26, 0.425,
-                                    27, 0.450,
-                                    28, 0.475,
-                                    29, 0.500,
-                                    30, 0.525,
-                                    31, 0.550,
-                                    32, 0.575,
-                                    33, 0.600,
-                                    34, 0.625,
-                                    35, 0.650,
-                                    36, 0.675,
-                                    37, 0.700,
-                                    38, 0.725,
-                                    39, 0.750,
-                                    40, 0.775,
-                                    41, 0.800,
-                                    42, 0.825,
-                                    43, 0.850,
-                                    44, 0.875,
-                                    45, 0.900,
-                                    46, 0.925,
-                                    47, 0.950,
-                                    48, 0.975,
-                                    49, 1,
-                                    50, 1,
-                                    51, 1,
-                                    52, 1,
-                                    53, 1,
-                                    54, 1,
-                                    55, 1,
-                                    56, 1,
-                                    57, 1,
-                                    58, 1,
-                                    59, 1,
-                                    60, 1),
-                                    ncol = 2,
-                                    byrow = TRUE) #}}}
+##############
+# Start here
+##############
 
-geenius_dynamics_old <- matrix(data = c(0, 0, #{{{
-                                        1, 0,
-                                        2, 0,
-                                        3, 0,
-                                        4, 0,
-                                        5, 0,
-                                        6, 0,
-                                        7, 0,
-                                        8, 0,
-                                        9, 0,
-                                        10, 0,
-                                        11, 0,
-                                        12, 0,
-                                        13, 0.01,
-                                        14, 0.05,
-                                        15, 0.1318182,
-                                        16, 0.2136364,
-                                        17, 0.2954545,
-                                        18, 0.3772727,
-                                        19, 0.4590909,
-                                        20, 0.5409091,
-                                        21, 0.6227273,
-                                        22, 0.7045455,
-                                        23, 0.7863636,
-                                        24, 0.8681818,
-                                        25, 0.95,
-                                        26, 0.99,
-                                        27, 1,
-                                        28, 1,
-                                        29, 1,
-                                        30, 1),
-                                        ncol = 2,
-                                        byrow = TRUE) #}}}
+# TODO: delete this
+if (FALSE){
+  # debugging / dev scribbles
+  assay_dynamics <- list(fun = linear_assay_dynamics,
+                         params = list(diagnostic_delay = 10))
+  days_since_ddi_1 <- 9
+  days_since_ddi_1 <- 10
+  days_since_ddi_1 <- 3
+  result <- '+'
+  result <- '-'
+}
 
-all_assay_dynamics <- rbind( #{{{
-  data.frame(assay = 'totalnucleicacid',
-             days = totalnucleicacid_dynamics[,1],
-             prob = totalnucleicacid_dynamics[,2]),
-  data.frame(assay = 'rnapcr',
-             days = rnapcr_dynamics[,1],
-             prob = rnapcr_dynamics[,2]),
-  data.frame(assay = 'elisa',
-             days = elisa_dynamics[,1],
-             prob = elisa_dynamics[,2]),
-  data.frame(assay = 'westernblot',
-             days = westernblot_dynamics[,1],
-             prob = westernblot_dynamics[,2]),
-  data.frame(assay = 'geenius',
-             days = geenius_dynamics[,1],
-             prob = geenius_dynamics[,2])) #}}}
+#' Probabilities of certain test results
+#'
+#' Turns assay dynamics into the probability of observing a specified test result a given number of days since DDI_1
+#'
+#' @param assay_dynamics A list providing the assay_dynamics, (TODO: elaborate)
+#' @param result '+' or '-' indicating the test result.
+#' @param days_since_ddi_1 The number of days between DDI_1 and the test result.
+#' @export
 
 # Processing a patient's results
-prob_test_result_if_initial_infection_on_given_day <- function(assay_dynamics, result, days_to_visit){ #{{{
-  if (days_to_visit > max(assay_dynamics[,1])){
-    if (result == "+"){
-      return(1)
-    } else if (result == "-"){
-      return(0)
-    }
-  } else if (days_to_visit < 0) {
-    if (result == "+"){
-      return(0)
-    } else if (result == "-"){
-      return(1)
-    }
+prob_test_result_given_time_since_ddi_1 <- function(assay_dynamics, result, days_since_ddi_1){
+  assay_dynamics$params$x <- days_since_ddi_1
+  x <- do.call(assay_dynamics$fun, assay_dynamics$params)
+
+  if (result == "+"){
+    return(x)
+  } else if (result == "-"){
+    return(1-x)
   } else {
-    if (result == "+"){
-      return(assay_dynamics[assay_dynamics[,1] == days_to_visit, 2])
-    } else if (result == "-"){
-      return(1-assay_dynamics[assay_dynamics[,1] == days_to_visit, 2])
-    } else {
-      stop("not implemented")
-    }
+    stop('result must be "+" or "-"')
   }
-} #}}}
+}
 
 interpret_result <- function(assay_dynamics, result, range_start, range_end, visit_date, 
                              min_prob = 0.00, max_prob = 1.00){ #{{{
