@@ -31,9 +31,20 @@ linear_assay_dynamics <- function(x, diagnostic_delay, spread = 1.5){
 #' @export
 
 get_assay_dynamics <- function(assay){
-  if (assay == 'Abbott Architect HIV Ag/Ab Combo'){
+  if (assay %in% c('Abbott Architect HIV Ag/Ab Combo', 'elisa')){
     return(list(fun = get('linear_assay_dynamics'),
                 params = list(diagnostic_delay = 10.8)))
+  } else if (assay %in% c('rnapcr')){
+    return(list(fun = get('linear_assay_dynamics'),
+                params = list(diagnostic_delay = 10.8)))
+  } else if (assay %in% c('geenius')){
+    return(list(fun = get('linear_assay_dynamics'),
+                params = list(diagnostic_delay = 10.8)))
+  } else if (assay %in% c('totalnucleicacid')){
+    return(list(fun = get('linear_assay_dynamics'),
+                params = list(diagnostic_delay = 10.8)))
+  } else {
+    stop(paste(assay, ' is not available'))
   }
 }
 
