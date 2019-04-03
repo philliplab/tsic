@@ -127,11 +127,10 @@ interpret_result <- function(assay_dynamics, result, range_start, range_end, vis
 
 interpret_result_set <- function(result_set, range_start = NULL, range_end = NULL){
   if (is.null(range_start)){
-    range_start <- min(ymd(result$visit_date)) %m-% months(1)
+    range_start <- min(ymd(result_set$visit_date)) %m-% months(1)
   }
-
   if (is.null(range_end)){
-    range_end <- max(ymd(result$visit_date)) %m+% months(1)
+    range_end <- max(ymd(result_set$visit_date)) %m+% months(1)
   }
 
   dat <- data.frame(date = as_date(ymd(range_start):ymd(range_end)))
