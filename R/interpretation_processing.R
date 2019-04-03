@@ -19,6 +19,33 @@ convert_interpretation_to_long <- function(interpretation_set){
   return(lrs)
 }
 
+#' Convert Aggregate prob curve into an ecdf.
+#'
+#' @param dat An interpreted resultset in long format
+#' @export
+
+convert_aggregate_into_ecdf <- function(dat){
+  dat <- subset(dat, test == 'Aggregate')
+  dat <- dat[order(dat$date),]
+  y <- cumsum(dat$prob)
+  y <- y/max(y)
+  x <- dat$date
+
+  return(list(x = x, y = y))
+}
+
+#' Estimate the LB, UB and median for DDI_1
+#'
+#' @param x The dates of the ecdf
+#' @param y The probabilities of the ecdf
+#' @export
+
+estimate_lb_med_ub <- function(x, y){
+  result <- approx(x = y, y = as_datetime(x), xout = c(0.025, 0.5, 0.975))
+  dates <- as_datetime(result$y)
+  return(dates)
+}
+
 #remove_non_informative_results <- function(in_dat){ #{{{
 ## for each patient, for each test
 ## remove all entries where:
