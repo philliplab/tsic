@@ -99,16 +99,16 @@ interpret_result <- function(assay_dynamics, result, range_start, range_end, vis
 #' Calls interpret_result on a set of test results and aggregate the results into a data.frame
 #'
 #' @param result_set A data.frame of all the test results and dates for a patient
-#' @param range_start The date furthest into the past that should be considered as a plausible day for DDI_1.
-#' @param range_end The most recent date that should be considered as a plausible day for DDI_1.
+#' @param range_start The date furthest into the past that should be considered as a plausible day for DDI_1. Can be NULL, then defaults to 2 months before the earliest result.
+#' @param range_end The most recent date that should be considered as a plausible day for DDI_1. Can be NULL, then defaults to 1 week after the most recent result.
 #' @export
 
 interpret_result_set <- function(result_set, range_start = NULL, range_end = NULL){
   if (is.null(range_start)){
-    range_start <- min(ymd(result_set$visit_date)) %m-% months(1)
+    range_start <- min(ymd(result_set$visit_date)) %m-% months(2)
   }
   if (is.null(range_end)){
-    range_end <- max(ymd(result_set$visit_date)) %m+% months(1)
+    range_end <- max(ymd(result_set$visit_date)) %m+% weeks(1)
   }
 
   dat <- data.frame(date = as_date(ymd(range_start):ymd(range_end)))
