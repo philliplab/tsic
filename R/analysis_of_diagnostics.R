@@ -186,210 +186,210 @@ parse_data_first_mock <- function(file_name){
   return(ldat)
 }
 
-remove_non_informative_results <- function(in_dat){ #{{{
-# for each patient, for each test
-# remove all entries where:
-# the result is negative and the next result is also negative
-# the result is positive and the previous result is also positive
-  trimmed_dat <- in_dat[0,]
-  c_ptid <- unique(in_dat$ptid)[5]
-  for (c_ptid in unique(in_dat$ptid)){
-    c_dat_pt <- subset(in_dat, ptid == c_ptid)
-    c_assay <- 'rnapcr'
-    c_assay <- unique(c_dat_pt$assay)[1]
-    for (c_assay in unique(c_dat_pt$assay)){
-      c_dat_as <- subset(c_dat_pt, assay == c_assay)
-      if (nrow(c_dat_as) == 1){
-        trimmed_dat <- rbind(trimmed_dat, c_dat_as)
-      } else {
-        c_dat_as <- c_dat_as[order(c_dat_as$visit_date),]
-        if (length(unique(c_dat_as$result)) == 1){
-          if (unique(c_dat_as$result) == '-'){
-            # If only negative results present, only the last one is informative
-            trimmed_dat <- rbind(trimmed_dat,
-                                 c_dat_as[c_dat_as$visit_dat == max(c_dat_as$visit_dat),])
-          } else {
-            # If only positive results present, only the first one is informative
-            trimmed_dat <- rbind(trimmed_dat,
-                                 c_dat_as[c_dat_as$visit_dat == min(c_dat_as$visit_dat),])
-          }
-        } else {
-          for (indx in 1:(nrow(c_dat_as)-1)){
-            if (c_dat_as$result[indx] == '-' & c_dat_as$result[indx+1] != '-'){
-              # a negative test immediately followed by another negative test is not informative
-              trimmed_dat <- rbind(trimmed_dat, c_dat_as[indx,])
-            }
-          }
-          for (indx in nrow(c_dat_as):2){
-            if (c_dat_as$result[indx] == '+' & c_dat_as$result[indx-1] != '+'){
-              # a positive test immediately preceeded by another positive test is not informative
-              trimmed_dat <- rbind(trimmed_dat, c_dat_as[indx,])
-            }
-          }
-        }
-      }
-    }
-  }
-  return(trimmed_dat)
-} #}}}
-
-make_vlines_dat <- function(in_dat){ #{{{
-  vlines <- in_dat[,c('assay', 'visit_date', 'result')]
-  vlines %>% map_if(is.factor, as.character) %>% as_tibble -> vlines
-  vlines$facet_lab <- paste(vlines$assay, '\n', gsub('-', '', vlines$visit_date), '\n', vlines$result, sep = '')
-  vlines$visit_date <- as_date(vlines$visit_date)
-  return(vlines)
-} #}}}
-
-make_lrs_dat <- function(in_dat){ #{{{
-  rs <- interpret_result_set(in_dat)
-  lrs <- gather(rs, key = 'test', value = 'prob', -date)
-  
-  all_tests <- lrs %>% 
-    group_by(date) %>%
-    summarize(test = 'Aggregate',
-              prob = prod(prob))
-  lrs <- rbind(lrs, all_tests)
-  lrs$facet_lab <- gsub('_', '\n', lrs$test)
-  return(lrs)
-} #}}}
-
-# Plotting
-patient_plot <- function(lrs, vlines){ #{{{
-  x <- ggplot(lrs, aes(x = date, y = prob, col = facet_lab)) + 
-    facet_grid(rows = vars(facet_lab)) + 
-    geom_line() +
-    theme(legend.position = 'none') +
-    labs(y = 'Probability of observed result given initial\ninfection on day indicated by x-axis',
-         x = 'Date of intial infection') +
-    geom_vline(data = vlines, aes(xintercept = visit_date), col = 'black') +
-    scale_x_date(date_breaks = "months", date_labels = "%b-%y")
-  return(x)
-} #}}}
-
-wrapped_patient_plot <- function(dat){ #{{{
-  vlines <- make_vlines_dat(dat)
-  lrs <- make_lrs_dat(dat)
-  x <- patient_plot(lrs, vlines)
-  return(x)
-} #}}}
-
-if (FALSE){
-  # scribbles to make picture for DnE 2019
-  str(ct_dat)
-  x_dat <- ct_dat
-  x_dat <- x_dat[!(x_dat$assay == 'elisa' & x_dat$result == '+'),]
-  x_dat <- x_dat[!(x_dat$assay == 'rnapcr' & x_dat$result == '-'),]
-  wrapped_patient_plot(x_dat)
-
-
-  print('hello')
-
-
-  # end of DnE 2019 presentation scribbles
-
-
-  file_name <- '/home/phillipl/projects/hiv-founder-id/data/mock_amp_infection_timing_db/mock_list27Aug2018.csv'
-  in_dat <- parse_data(file_name)
-  c_pat <- in_dat$ptid[10]
-  vlines <- make_vlines_dat(subset(in_dat, ptid == c_pat))
-  lrs <- make_lrs_dat(subset(in_dat, ptid == c_pat))
-  x <- patient_plot(lrs, vlines)
-  print('hello')
-
-
-  ###################################################################
-    # old stuff
-  ggplot(all_assay_dynamics, aes(col = assay, x = days, y = prob)) +
-    geom_line() +
-    labs(y = "Probability of testing positive",
-         x = "Days since infection",
-         col = "Assay")
-
-  ggplot(all_assay_dynamics, aes(col = assay, x = days, y = 1-prob)) +
-    geom_line() +
-    labs(y = "Probability of testing negative",
-         x = "Days since infection",
-         col = "Assay")
-
-  assay_dynamics <- rnapcr_dynamics
-  result <- "-"
-  days_to_visit <- 9
-
-
-  file_name <- '/home/phillipl/projects/hiv-founder-id/data/mock_amp_infection_timing_db/mock_list27Aug2018.csv'
-
-  range_start = "2017-05-25"
-  range_end = "2017-10-03"
-
-  result <- list('r1' = list(assay = 'rnapcr',
-                             visit_date = '2017-08-01',
-                             result = '+'),
-                 'r2' = list(assay = 'elisa',
-                             visit_date = '2017-08-01',
-                             result = '-'),
-                 'r3' = list(assay = 'rnapcr',
-                             visit_date = '2017-09-05',
-                             result = '+'),
-                 'r4' = list(assay = 'elisa',
-                             visit_date = '2017-09-05',
-                             result = '+'))
-
-  result_df <-
-  do.call(rbind, lapply(result, as.data.frame))
-
-  rs <-
-  interpret_result_set(result_df, range_start, range_end)
-
-  vlines <-
-  do.call("rbind", lapply(result, as.data.frame))
-  vlines %>% map_if(is.factor, as.character) %>% as_tibble -> vlines
-  vlines$facet_lab <- paste(vlines$assay, '\n', gsub('-', '', vlines$visit_date), '\n', vlines$result, sep = '')
-  vlines$visit_date <- as_date(vlines$visit_date)
-
-  lrs <-
-  gather(rs, key = 'test', value = 'prob', -date)
-
-  all_tests <-
-  lrs %>% 
-    group_by(date) %>%
-    summarize(test = 'Aggregate',
-              prob = prod(prob))
-  lrs <- rbind(lrs, all_tests)
-  lrs$facet_lab <- gsub('_', '\n', lrs$test)
-
-  patient_plot(lrs, vlines)
-
-
-  x <-
-  interpret_result(assay_dynamics = rnapcr_dynamics, 
-                   result = '+', 
-                   range_start = "2017-05-25", 
-                   range_end = "2017-10-03", 
-                   visit_date = "2017-08-01")
-  i_result <- x
-
-
-  prob_test_result_if_initial_infection_on_given_day(assay_dynamics = rnapcr_dynamics,
-                                                     result = '+',
-                                                     days_to_visit = 10)
-
-  #prob_test_result_if_initial_infection_on_given_day <- function(assay_dynamics, result, days_to_visit){
-
-  interpret_result_set_deprecated <- function(result, range_start, range_end){ #{{{
-    dat <- data.frame(date = as_date(ymd(range_start):ymd(range_end)))
-    for (r_indx in 1:length(result)){
-      c_result <- result[[r_indx]]
-      assay_dynamics <- get(paste(c_result[['assay']], '_dynamics', sep = ''))
-      i_result <- interpret_result(assay_dynamics = assay_dynamics,
-                                   result = c_result$result,
-                                   range_start = range_start,
-                                   range_end = range_end,
-                                   visit_date = c_result$visit_date)
-      p_result <- i_result[,c('days', 'prob')]
-      names(p_result) <- c('date', paste(c_result[['assay']], '_', gsub("-", "", c_result$visit_date), '_', c_result$result, sep = '') )
-      dat <- merge(dat, p_result)
-    }
-    return(dat)
-  } #}}}
-}
+#remove_non_informative_results <- function(in_dat){ #{{{
+## for each patient, for each test
+## remove all entries where:
+## the result is negative and the next result is also negative
+## the result is positive and the previous result is also positive
+#  trimmed_dat <- in_dat[0,]
+#  c_ptid <- unique(in_dat$ptid)[5]
+#  for (c_ptid in unique(in_dat$ptid)){
+#    c_dat_pt <- subset(in_dat, ptid == c_ptid)
+#    c_assay <- 'rnapcr'
+#    c_assay <- unique(c_dat_pt$assay)[1]
+#    for (c_assay in unique(c_dat_pt$assay)){
+#      c_dat_as <- subset(c_dat_pt, assay == c_assay)
+#      if (nrow(c_dat_as) == 1){
+#        trimmed_dat <- rbind(trimmed_dat, c_dat_as)
+#      } else {
+#        c_dat_as <- c_dat_as[order(c_dat_as$visit_date),]
+#        if (length(unique(c_dat_as$result)) == 1){
+#          if (unique(c_dat_as$result) == '-'){
+#            # If only negative results present, only the last one is informative
+#            trimmed_dat <- rbind(trimmed_dat,
+#                                 c_dat_as[c_dat_as$visit_dat == max(c_dat_as$visit_dat),])
+#          } else {
+#            # If only positive results present, only the first one is informative
+#            trimmed_dat <- rbind(trimmed_dat,
+#                                 c_dat_as[c_dat_as$visit_dat == min(c_dat_as$visit_dat),])
+#          }
+#        } else {
+#          for (indx in 1:(nrow(c_dat_as)-1)){
+#            if (c_dat_as$result[indx] == '-' & c_dat_as$result[indx+1] != '-'){
+#              # a negative test immediately followed by another negative test is not informative
+#              trimmed_dat <- rbind(trimmed_dat, c_dat_as[indx,])
+#            }
+#          }
+#          for (indx in nrow(c_dat_as):2){
+#            if (c_dat_as$result[indx] == '+' & c_dat_as$result[indx-1] != '+'){
+#              # a positive test immediately preceeded by another positive test is not informative
+#              trimmed_dat <- rbind(trimmed_dat, c_dat_as[indx,])
+#            }
+#          }
+#        }
+#      }
+#    }
+#  }
+#  return(trimmed_dat)
+#} #}}}
+#
+#make_vlines_dat <- function(in_dat){ #{{{
+#  vlines <- in_dat[,c('assay', 'visit_date', 'result')]
+#  vlines %>% map_if(is.factor, as.character) %>% as_tibble -> vlines
+#  vlines$facet_lab <- paste(vlines$assay, '\n', gsub('-', '', vlines$visit_date), '\n', vlines$result, sep = '')
+#  vlines$visit_date <- as_date(vlines$visit_date)
+#  return(vlines)
+#} #}}}
+#
+#make_lrs_dat <- function(in_dat){ #{{{
+#  rs <- interpret_result_set(in_dat)
+#  lrs <- gather(rs, key = 'test', value = 'prob', -date)
+#  
+#  all_tests <- lrs %>% 
+#    group_by(date) %>%
+#    summarize(test = 'Aggregate',
+#              prob = prod(prob))
+#  lrs <- rbind(lrs, all_tests)
+#  lrs$facet_lab <- gsub('_', '\n', lrs$test)
+#  return(lrs)
+#} #}}}
+#
+## Plotting
+#patient_plot <- function(lrs, vlines){ #{{{
+#  x <- ggplot(lrs, aes(x = date, y = prob, col = facet_lab)) + 
+#    facet_grid(rows = vars(facet_lab)) + 
+#    geom_line() +
+#    theme(legend.position = 'none') +
+#    labs(y = 'Probability of observed result given initial\ninfection on day indicated by x-axis',
+#         x = 'Date of intial infection') +
+#    geom_vline(data = vlines, aes(xintercept = visit_date), col = 'black') +
+#    scale_x_date(date_breaks = "months", date_labels = "%b-%y")
+#  return(x)
+#} #}}}
+#
+#wrapped_patient_plot <- function(dat){ #{{{
+#  vlines <- make_vlines_dat(dat)
+#  lrs <- make_lrs_dat(dat)
+#  x <- patient_plot(lrs, vlines)
+#  return(x)
+#} #}}}
+#
+#if (FALSE){
+#  # scribbles to make picture for DnE 2019
+#  str(ct_dat)
+#  x_dat <- ct_dat
+#  x_dat <- x_dat[!(x_dat$assay == 'elisa' & x_dat$result == '+'),]
+#  x_dat <- x_dat[!(x_dat$assay == 'rnapcr' & x_dat$result == '-'),]
+#  wrapped_patient_plot(x_dat)
+#
+#
+#  print('hello')
+#
+#
+#  # end of DnE 2019 presentation scribbles
+#
+#
+#  file_name <- '/home/phillipl/projects/hiv-founder-id/data/mock_amp_infection_timing_db/mock_list27Aug2018.csv'
+#  in_dat <- parse_data(file_name)
+#  c_pat <- in_dat$ptid[10]
+#  vlines <- make_vlines_dat(subset(in_dat, ptid == c_pat))
+#  lrs <- make_lrs_dat(subset(in_dat, ptid == c_pat))
+#  x <- patient_plot(lrs, vlines)
+#  print('hello')
+#
+#
+#  ###################################################################
+#    # old stuff
+#  ggplot(all_assay_dynamics, aes(col = assay, x = days, y = prob)) +
+#    geom_line() +
+#    labs(y = "Probability of testing positive",
+#         x = "Days since infection",
+#         col = "Assay")
+#
+#  ggplot(all_assay_dynamics, aes(col = assay, x = days, y = 1-prob)) +
+#    geom_line() +
+#    labs(y = "Probability of testing negative",
+#         x = "Days since infection",
+#         col = "Assay")
+#
+#  assay_dynamics <- rnapcr_dynamics
+#  result <- "-"
+#  days_to_visit <- 9
+#
+#
+#  file_name <- '/home/phillipl/projects/hiv-founder-id/data/mock_amp_infection_timing_db/mock_list27Aug2018.csv'
+#
+#  range_start = "2017-05-25"
+#  range_end = "2017-10-03"
+#
+#  result <- list('r1' = list(assay = 'rnapcr',
+#                             visit_date = '2017-08-01',
+#                             result = '+'),
+#                 'r2' = list(assay = 'elisa',
+#                             visit_date = '2017-08-01',
+#                             result = '-'),
+#                 'r3' = list(assay = 'rnapcr',
+#                             visit_date = '2017-09-05',
+#                             result = '+'),
+#                 'r4' = list(assay = 'elisa',
+#                             visit_date = '2017-09-05',
+#                             result = '+'))
+#
+#  result_df <-
+#  do.call(rbind, lapply(result, as.data.frame))
+#
+#  rs <-
+#  interpret_result_set(result_df, range_start, range_end)
+#
+#  vlines <-
+#  do.call("rbind", lapply(result, as.data.frame))
+#  vlines %>% map_if(is.factor, as.character) %>% as_tibble -> vlines
+#  vlines$facet_lab <- paste(vlines$assay, '\n', gsub('-', '', vlines$visit_date), '\n', vlines$result, sep = '')
+#  vlines$visit_date <- as_date(vlines$visit_date)
+#
+#  lrs <-
+#  gather(rs, key = 'test', value = 'prob', -date)
+#
+#  all_tests <-
+#  lrs %>% 
+#    group_by(date) %>%
+#    summarize(test = 'Aggregate',
+#              prob = prod(prob))
+#  lrs <- rbind(lrs, all_tests)
+#  lrs$facet_lab <- gsub('_', '\n', lrs$test)
+#
+#  patient_plot(lrs, vlines)
+#
+#
+#  x <-
+#  interpret_result(assay_dynamics = rnapcr_dynamics, 
+#                   result = '+', 
+#                   range_start = "2017-05-25", 
+#                   range_end = "2017-10-03", 
+#                   visit_date = "2017-08-01")
+#  i_result <- x
+#
+#
+#  prob_test_result_if_initial_infection_on_given_day(assay_dynamics = rnapcr_dynamics,
+#                                                     result = '+',
+#                                                     days_to_visit = 10)
+#
+#  #prob_test_result_if_initial_infection_on_given_day <- function(assay_dynamics, result, days_to_visit){
+#
+#  interpret_result_set_deprecated <- function(result, range_start, range_end){ #{{{
+#    dat <- data.frame(date = as_date(ymd(range_start):ymd(range_end)))
+#    for (r_indx in 1:length(result)){
+#      c_result <- result[[r_indx]]
+#      assay_dynamics <- get(paste(c_result[['assay']], '_dynamics', sep = ''))
+#      i_result <- interpret_result(assay_dynamics = assay_dynamics,
+#                                   result = c_result$result,
+#                                   range_start = range_start,
+#                                   range_end = range_end,
+#                                   visit_date = c_result$visit_date)
+#      p_result <- i_result[,c('days', 'prob')]
+#      names(p_result) <- c('date', paste(c_result[['assay']], '_', gsub("-", "", c_result$visit_date), '_', c_result$result, sep = '') )
+#      dat <- merge(dat, p_result)
+#    }
+#    return(dat)
+#  } #}}}
+#}
