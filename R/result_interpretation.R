@@ -30,6 +30,11 @@ if (FALSE){
         "+", "+", "+", "+", "+", "+", "+")), row.names = c(NA, 14L
     ), class = "data.frame")
 
+  file_name <- '/fridge/data/AMP/mock_amp_infection_timing_db/mock_list27Aug2018.csv'
+  dat <- parse_data_first_mock(file_name)
+
+  x <- remove_non_informative_results(dat)
+  
 
 }
 
