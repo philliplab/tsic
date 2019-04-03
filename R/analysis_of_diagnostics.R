@@ -30,6 +30,12 @@ if (FALSE){
   days_since_ddi_1 <- 3
   result <- '+'
   result <- '-'
+
+  range_start <- '2017-02-01'
+  range_end <- '2017-05-31'
+  visit_date <- '2017-04-01'
+  min_prob <- 0
+  max_prob <- 1
 }
 
 #' Probabilities of certain test results
@@ -38,12 +44,11 @@ if (FALSE){
 #'
 #' @param assay_dynamics A list providing the assay_dynamics, (TODO: elaborate)
 #' @param result '+' or '-' indicating the test result.
-#' @param days_since_ddi_1 The number of days between DDI_1 and the test result.
+#' @param days_to_visit The number of days between DDI_1 and the test result.
 #' @export
 
-# Processing a patient's results
-prob_test_result_given_time_since_ddi_1 <- function(assay_dynamics, result, days_since_ddi_1){
-  assay_dynamics$params$x <- days_since_ddi_1
+prob_test_result_given_days_to_visit <- function(assay_dynamics, result, days_to_visit){
+  assay_dynamics$params$x <- days_to_visit
   x <- do.call(assay_dynamics$fun, assay_dynamics$params)
 
   if (result == "+"){
@@ -55,8 +60,20 @@ prob_test_result_given_time_since_ddi_1 <- function(assay_dynamics, result, days
   }
 }
 
+#' Probability of DDI_1 curve implied by test result
+#'
+#' Compute a curve of probabilities of observing a specified test result on a specified date assuming the day of DDI_1. Thus assume individually that each day in a range of dates is the DDI_1 and then compute the probability of observing the specified result.
+#'
+#' @param assay_dynamics A list providing the assay_dynamics, (TODO: elaborate)
+#' @param result '+' or '-' indicating the test result.
+#' @param range_start The date furthest into the past that should be considered as a plausible day for DDI_1.
+#' @param range_end The most recent date that should be considered as a plausible day for DDI_1.
+#' @param visit_date The date of the visit on whose sample the test result was observed
+#' @param min_prob The most 'certain' you are that the given test results excludes dates far from the actual visit. Think of this as a chance that the test may give an incorrect result.
+#' @param max_prob The most 'certain' you are that the given test results excludes dates far from the actual visit. Think of this as a chance that the test may give an incorrect result. TODO: Think more about what this actually means.
+
 interpret_result <- function(assay_dynamics, result, range_start, range_end, visit_date, 
-                             min_prob = 0.00, max_prob = 1.00){ #{{{
+                             min_prob = 0.00, max_prob = 1.00){
   days_vec <- NULL
   prob_vec <- NULL
   d2v_vec <- NULL
@@ -67,9 +84,9 @@ interpret_result <- function(assay_dynamics, result, range_start, range_end, vis
 
     days_vec <- c(days_vec, as_date(i))
     prob_vec <- c(prob_vec, 
-                  prob_test_result_if_initial_infection_on_given_day(assay_dynamics = assay_dynamics, 
-                                                                     result = result, 
-                                                                     days_to_visit = days_to_visit)
+                  prob_test_result_given_days_to_visit(assay_dynamics = assay_dynamics, 
+                                                       result = result, 
+                                                       days_to_visit = days_to_visit)
                   )
     d2v_vec <- c(d2v_vec, days_to_visit)
   }
@@ -79,7 +96,7 @@ interpret_result <- function(assay_dynamics, result, range_start, range_end, vis
                     prob = prob_vec,
                     d2v = d2v_vec)
         )
-} #}}}
+}
 
 interpret_result_set <- function(result, range_start = NULL, range_end = NULL){ #{{{
   if (is.null(range_start)){
