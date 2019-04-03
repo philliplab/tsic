@@ -152,8 +152,14 @@ interpret_result_set <- function(result_set, range_start = NULL, range_end = NUL
   return(dat)
 }
 
-# Parse and prepare data
-parse_data <- function(file_name){ #{{{
+#' Parse and prepare the data for the first mock dataset
+#'
+#' This script will load the input file and prepare it for processing. It is currently specifically designed to be used with the mock datasets. A more general version of this function must be written.
+#'
+#' @param file_name Full path the the csv file
+#' @export
+
+parse_data_first_mock <- function(file_name){
   dat <- read.csv(file_name, stringsAsFactors = FALSE)
   ldat <- gather(dat, key = 'test', value = 'result', elisa, geenius, rnapcr, totalnucleicacid, westernblot)
   ldat <- ldat %>% arrange(ptid, drawdt, test) %>% filter(!is.na(result))
@@ -178,7 +184,7 @@ parse_data <- function(file_name){ #{{{
   names(ldat)[names(ldat) == 'result'] <- 'o_result'
   names(ldat)[names(ldat) == 'p_result'] <- 'result'
   return(ldat)
-} #}}}
+}
 
 remove_non_informative_results <- function(in_dat){ #{{{
 # for each patient, for each test
