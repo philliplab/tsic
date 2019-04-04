@@ -37,6 +37,48 @@ convert_aggregate_into_ecdf <- function(dat){
   }
 }
 
+#' Interpolates - single point
+#'
+#' Crappy function needed because internal approx fails
+#' @param x, y vectors giving the coordinates of the points to be interpolated.
+#' @param xout Single value specifying where interpolation is to take place.
+
+manual_approx_one <- function(x, y, xout){
+  ord_vec <- order(x)
+  x <- x[ord_vec]
+  y <- y[ord_vec]
+  for (i in 1:length(x)){
+    if (x[i] >= xout){
+      x2 <- x[i]
+      x1 <- x[i-1]
+      break
+    }
+  }
+  if (x2 == xout){
+    return(y[i])
+  } else {
+    top_gap <- x2 - xout
+    bot_gap <- xout - x1
+    tot_gap <- x2 - x1
+    return((bot_gap/tot_gap)*y[i] + (top_gap/tot_gap)*y[i-1])
+  }
+}
+
+#' Interpolates - multiple points
+#'
+#' Crappy function needed because internal approx fails
+#' @param x, y vectors giving the coordinates of the points to be interpolated.
+#' @param xout Vector of values specifying where interpolation is to take place.
+
+manual_approx <- function(x, y, xout){
+  result <- NULL
+  for (c_xout in xout){
+    result <- c(result, manual_approx_one(x, y, c_xout))
+  }
+  return(result)
+}
+
+
 #' Estimate the LB, UB and median for DDI_1
 #'
 #' @param dat An interpreted resultset in long format
@@ -47,8 +89,10 @@ estimate_lb_med_ub <- function(dat){
   if (is.null(aggre_ecdf)){
     return(NULL)
   } else {
-    result <- approx(x = aggre_ecdf$y, y = as_datetime(aggre_ecdf$x), xout = c(0.025, 0.5, 0.975))
-    dates <- as_datetime(result$y)
+    result <- manual_approx(x = aggre_ecdf$y, y = as.numeric(as_datetime(aggre_ecdf$x)), xout = c(0.025, 0.5, 0.975))
+    dates <- as_datetime(result)
+#    result <- approx(x = aggre_ecdf$y, y = as_datetime(aggre_ecdf$x), xout = c(0.025, 0.5, 0.975))
+#    dates <- as_datetime(result$y)
     return(dates)
   }
 }
