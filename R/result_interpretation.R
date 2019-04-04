@@ -1,6 +1,7 @@
 # TODO: delete this
 if (FALSE){
   # debugging / dev scribbles
+  library(tsic)
   assay_dynamics <- list(fun = linear_assay_dynamics,
                          params = list(diagnostic_delay = 10))
   days_since_ddi_1 <- 9
@@ -30,12 +31,21 @@ if (FALSE){
         "+", "+", "+", "+", "+", "+", "+")), row.names = c(NA, 14L
     ), class = "data.frame")
 
+
   file_name <- '/fridge/data/AMP/mock_amp_infection_timing_db/mock_list27Aug2018.csv'
   dat <- parse_data_first_mock(file_name)
+  trim_dat <- remove_non_informative_results(dat)
 
-  x <- remove_non_informative_results(dat)
-  
+  interesting_pats <- c(102967486, 164801194, 138619851, 152897561, 272947687, 270376325, 851444678, 898704272, 926943329)
+  c_ptid <- interesting_pats[3]
 
+  # 4 is fail
+  # 6 is supreme weirdo
+
+  c_dat <- subset(dat, ptid == c_ptid)
+  c_interp <- interpret_result_set(c_dat)
+  l_interp <- convert_interpretation_to_long(c_interp)
+  wrapped_patient_plot(l_interp)
 }
 
 #' Probabilities of certain test results
