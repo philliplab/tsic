@@ -46,8 +46,35 @@ patient_plot <- function(lrs, vlines){
     labs(y = 'Probability of observed result given initial\ninfection on day indicated by x-axis',
          x = 'Date of intial infection') +
     geom_vline(data = vlines, aes(xintercept = visit_date), col = 'black') +
+#    geom_text(data = vlines, 
+#              aes(x = visit_date, y = 0.05, label = result), 
+#              col = 'black', size = 10, 
+#              hjust = 0, nudge_x = 0.05,
+#              vjust = 0) +
     scale_x_date(date_breaks = "months", date_labels = "%b-%y")
   return(x)
+}
+
+#' Plots a patients timelines compactly
+#'
+#' Plots dates and the likelihoods that these dates are the DDI_1 for a patient.
+#'
+#' @param lrs An interpretated result set in long format.
+#' @param vlines Vertical lines indicating the test dates as produced by make_vlines_dat.
+#' @export
+
+patient_plot_compact <- function(lrs, vlines){
+  lrs$assay <- sapply(strsplit(lrs$test, '_'), function(x){x[1]})
+  lrs$result <- sapply(strsplit(lrs$test, '_'), function(x){x[3]})
+  lrs$result[is.na(lrs$result)] <- '*'
+  x <- ggplot(lrs, aes(x = date, y = prob, col = result, group = facet_lab)) + 
+    facet_grid(rows = vars(assay)) + 
+    geom_line() +
+    theme(legend.position = 'none') +
+    labs(y = 'Probability of observed result given initial\ninfection on day indicated by x-axis',
+         x = 'Date of intial infection') +
+    geom_vline(data = vlines, aes(xintercept = visit_date), col = 'black') +
+    scale_x_date(date_breaks = "months", date_labels = "%b-%y")
 }
 
 #' Plots and annotates a patients timelines
