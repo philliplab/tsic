@@ -18,7 +18,7 @@ make_vlines_dat <- function(in_dat){
   vlines$facet_lab <- paste(vlines$assay, '\n', gsub('-', '', vlines$visit_date), '\n', vlines$result, sep = '')
   vlines$visit_date <- as_date(vlines$visit_date)
 
-  lb_med_ub <- estimate_lb_med_ub(in_dat)
+  lb_med_ub <- round_date(estimate_lb_med_ub(in_dat), unit = 'day')
   if (!is.null(lb_med_ub)){
     vlines <- rbind(vlines, 
       data.frame(assay = "Aggregate",

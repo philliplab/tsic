@@ -37,12 +37,30 @@ get_assay_dynamics <- function(assay){
   } else if (assay %in% c('rnapcr')){
     return(list(fun = get('linear_assay_dynamics'),
                 params = list(diagnostic_delay = 4.85)))
-  } else if (assay %in% c('geenius')){
+  } else if (assay %in% c('geenius', 'BioRad Geenius Fully Reactive')){
     return(list(fun = get('linear_assay_dynamics'),
-                params = list(diagnostic_delay = 28.79)))
+                params = list(diagnostic_delay = 28.8)))
   } else if (assay %in% c('totalnucleicacid')){
     return(list(fun = get('linear_assay_dynamics'),
-                params = list(diagnostic_delay = 4)))
+                params = list(diagnostic_delay = 8)))
+  } else if (assay %in% c('Roche Taqman v2.0')){
+    return(list(fun = get('linear_assay_dynamics'),
+                params = list(diagnostic_delay = 4.2)))
+  } else if (assay %in% c('BioRad Geenius Indeterminate')){
+    return(list(fun = get('linear_assay_dynamics'),
+                params = list(diagnostic_delay = 24.8)))
+  } else if (assay %in% c('Abbott Real Time HIV01 v1.0 m2000sp/m2000rt')){
+    return(list(fun = get('linear_assay_dynamics'),
+                params = list(diagnostic_delay = 5.8)))
+  } else if (assay %in% c('BioRad GS HIV Combo Ag/Ab EIA')){
+    return(list(fun = get('linear_assay_dynamics'),
+                params = list(diagnostic_delay = 10.1)))
+  } else if (assay %in% c('BioRad GS HIV-1 Western blot Indeterminate')){
+    return(list(fun = get('linear_assay_dynamics'),
+                params = list(diagnostic_delay = 14.8)))
+  } else if (assay %in% c('BioRad GS HIV-1 Western blot Fully Reactive')){
+    return(list(fun = get('linear_assay_dynamics'),
+                params = list(diagnostic_delay = 29.6)))
   } else {
     stop(paste(assay, ' is not available'))
   }
