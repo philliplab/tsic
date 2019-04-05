@@ -31,34 +31,34 @@ linear_assay_dynamics <- function(x, diagnostic_delay, spread = 1.5){
 #' @export
 
 get_assay_dynamics <- function(assay){
-  if (assay %in% c('Abbott Architect HIV Ag/Ab Combo', 'elisa')){
+  if (tolower(assay) %in% tolower(c('Abbott Architect HIV Ag/Ab Combo', 'elisa'))){
     return(list(fun = get('linear_assay_dynamics'),
                 params = list(diagnostic_delay = 10.8)))
-  } else if (assay %in% c('rnapcr')){
+  } else if (tolower(assay) %in% tolower(c('rnapcr'))){
     return(list(fun = get('linear_assay_dynamics'),
                 params = list(diagnostic_delay = 4.85)))
-  } else if (assay %in% c('geenius', 'BioRad Geenius Fully Reactive')){
+  } else if (tolower(assay) %in% tolower(c('geenius', 'BioRad Geenius Fully Reactive'))){
     return(list(fun = get('linear_assay_dynamics'),
                 params = list(diagnostic_delay = 28.8)))
-  } else if (assay %in% c('totalnucleicacid')){
+  } else if (tolower(assay) %in% tolower(c('totalnucleicacid'))){
     return(list(fun = get('linear_assay_dynamics'),
                 params = list(diagnostic_delay = 8)))
-  } else if (assay %in% c('Roche Taqman v2.0')){
+  } else if (tolower(assay) %in% tolower(c('Roche Taqman v2.0'))){
     return(list(fun = get('linear_assay_dynamics'),
                 params = list(diagnostic_delay = 4.2)))
-  } else if (assay %in% c('BioRad Geenius Indeterminate')){
+  } else if (tolower(assay) %in% tolower(c('BioRad Geenius Indeterminate'))){
     return(list(fun = get('linear_assay_dynamics'),
                 params = list(diagnostic_delay = 24.8)))
-  } else if (assay %in% c('Abbott Real Time HIV01 v1.0 m2000sp/m2000rt')){
+  } else if (tolower(assay) %in% tolower(c('Abbott Real Time HIV01 v1.0 m2000sp/m2000rt'))){
     return(list(fun = get('linear_assay_dynamics'),
                 params = list(diagnostic_delay = 5.8)))
-  } else if (assay %in% c('BioRad GS HIV Combo Ag/Ab EIA')){
+  } else if (tolower(assay) %in% tolower(c('BioRad GS HIV Combo Ag/Ab EIA'))){
     return(list(fun = get('linear_assay_dynamics'),
                 params = list(diagnostic_delay = 10.1)))
-  } else if (assay %in% c('BioRad GS HIV-1 Western blot Indeterminate')){
+  } else if (tolower(assay) %in% tolower(c('BioRad GS HIV-1 Western blot Indeterminate'))){
     return(list(fun = get('linear_assay_dynamics'),
                 params = list(diagnostic_delay = 14.8)))
-  } else if (assay %in% c('BioRad GS HIV-1 Western blot Fully Reactive')){
+  } else if (tolower(assay) %in% tolower(c('BioRad GS HIV-1 Western blot Fully Reactive'))){
     return(list(fun = get('linear_assay_dynamics'),
                 params = list(diagnostic_delay = 29.6)))
   } else {
