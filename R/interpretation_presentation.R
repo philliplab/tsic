@@ -39,6 +39,12 @@ make_vlines_dat <- function(in_dat){
 #' @export
 
 patient_plot <- function(lrs, vlines){
+  lrs$facet_lab <- factor(lrs$facet_lab, 
+         levels = c('Aggregate', setdiff(sort(unique(lrs$facet_lab)), 'Aggregate')),
+         ordered = TRUE)
+  vlines$facet_lab <- factor(vlines$facet_lab, 
+         levels = c('Aggregate', setdiff(sort(unique(lrs$facet_lab)), 'Aggregate')),
+         ordered = TRUE)
   x <- ggplot(lrs, aes(x = date, y = prob, col = facet_lab)) + 
     facet_grid(rows = vars(facet_lab)) + 
     geom_line() +

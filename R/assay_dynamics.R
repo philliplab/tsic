@@ -1,6 +1,6 @@
-#' Assay dynamics (assuming linear behaviour)
+#' Linear Assay Dynamics
 #'
-#' Returns the probability of testing positive x days after DDI_1
+#' Returns the probability of testing positive x days after XXX
 #'
 #' A very simple scheme is used to compute these probabilities. Each assay is characterized by a diagnostic delay after which time 50% of patients will test positive. The assay also has a spread parameter. This parameter controls the window during which this probability is not 0 or 1. The default is 1.5 meaning that the period of time during which the assay result is not perfect is 50% longer than the diagnostic delay.
 #'
@@ -21,6 +21,24 @@ linear_assay_dynamics <- function(x, diagnostic_delay, spread = 1.5){
   if (y < 0) {y <- 0}
   if (y > 1) {y <- 1}
   return(y)
+}
+
+#' Step Assay Dynamics
+#'
+#' Returns the probability of testing positive x days after XXX
+#'
+#' The simplest scheme is used to compute these probabilities. Each assay is characterized by a diagnostic delay after which time all of the results will be positive. Before this time, all results will be negative.
+#'
+#' @param x The time since XXX
+#' @param diagnostic_delay The number of days since XXX after which time all the results will be positive.
+#' @export
+
+step_assay_dynamics <- function(x, diagnostic_delay){
+  if (x > diagnostic_delay){
+    return (1)
+  } else {
+    return (0)
+  }
 }
 
 #' Get dynamics functions for an assay
@@ -60,6 +78,45 @@ get_assay_dynamics <- function(assay){
                 params = list(diagnostic_delay = 14.8)))
   } else if (tolower(assay) %in% tolower(c('BioRad GS HIV-1 Western blot Fully Reactive'))){
     return(list(fun = get('linear_assay_dynamics'),
+                params = list(diagnostic_delay = 29.6)))
+  } else if (tolower(assay) %in% tolower(c('GS HIV-1/HIV-2 PLUS O EIA'))){
+    return(list(fun = get('linear_assay_dynamics'),
+                params = list(diagnostic_delay = 18.1)))
+  } else {
+    stop(paste(assay, ' is not available'))
+  }
+}
+
+get_step_assay_dynamics <- function(assay){
+  if (tolower(assay) %in% tolower(c('Abbott Architect HIV Ag/Ab Combo', 'elisa'))){
+    return(list(fun = get('step_assay_dynamics'),
+                params = list(diagnostic_delay = 10.8)))
+  } else if (tolower(assay) %in% tolower(c('rnapcr'))){
+    return(list(fun = get('step_assay_dynamics'),
+                params = list(diagnostic_delay = 4.85)))
+  } else if (tolower(assay) %in% tolower(c('geenius', 'BioRad Geenius Fully Reactive'))){
+    return(list(fun = get('step_assay_dynamics'),
+                params = list(diagnostic_delay = 28.8)))
+  } else if (tolower(assay) %in% tolower(c('totalnucleicacid'))){
+    return(list(fun = get('step_assay_dynamics'),
+                params = list(diagnostic_delay = 8)))
+  } else if (tolower(assay) %in% tolower(c('Roche Taqman v2.0'))){
+    return(list(fun = get('step_assay_dynamics'),
+                params = list(diagnostic_delay = 4.2)))
+  } else if (tolower(assay) %in% tolower(c('BioRad Geenius Indeterminate'))){
+    return(list(fun = get('step_assay_dynamics'),
+                params = list(diagnostic_delay = 24.8)))
+  } else if (tolower(assay) %in% tolower(c('Abbott Real Time HIV01 v1.0 m2000sp/m2000rt'))){
+    return(list(fun = get('step_assay_dynamics'),
+                params = list(diagnostic_delay = 5.8)))
+  } else if (tolower(assay) %in% tolower(c('BioRad GS HIV Combo Ag/Ab EIA'))){
+    return(list(fun = get('step_assay_dynamics'),
+                params = list(diagnostic_delay = 10.1)))
+  } else if (tolower(assay) %in% tolower(c('BioRad GS HIV-1 Western blot Indeterminate'))){
+    return(list(fun = get('step_assay_dynamics'),
+                params = list(diagnostic_delay = 14.8)))
+  } else if (tolower(assay) %in% tolower(c('BioRad GS HIV-1 Western blot Fully Reactive'))){
+    return(list(fun = get('step_assay_dynamics'),
                 params = list(diagnostic_delay = 29.6)))
   } else {
     stop(paste(assay, ' is not available'))
