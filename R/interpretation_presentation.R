@@ -45,7 +45,7 @@ patient_plot <- function(lrs, vlines){
   vlines$facet_lab <- factor(vlines$facet_lab, 
          levels = c('Aggregate', setdiff(sort(unique(lrs$facet_lab)), 'Aggregate')),
          ordered = TRUE)
-  x <- ggplot(lrs, aes(x = date, y = prob, col = facet_lab)) + 
+  x <- ggplot2::ggplot(lrs, aes(x = date, y = prob, col = facet_lab)) + 
     facet_grid(rows = vars(facet_lab)) + 
     geom_line() +
     theme(legend.position = 'none') +
