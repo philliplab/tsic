@@ -1,6 +1,6 @@
 context("test-linear_assay_dynamics")
 
-test_that("Test that basics work: diagnostic delay = 20, spread = 0.1", {
+test_that("Test that the spread parameter works: diagnostic delay = 20, spread = 0.1", {
   x5 <- linear_assay_dynamics(5, 20, 0.1)
   expect_equal(x5, 0)
   x50 <- linear_assay_dynamics(50, 20, 0.1)

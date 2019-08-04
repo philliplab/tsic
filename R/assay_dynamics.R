@@ -7,9 +7,10 @@
 #' @param x The time since DDI_1
 #' @param diagnostic_delay The number of days since DDI_1 after which time 50% of patients will test positive.
 #' @param spread The multiplier applied to the diagnostic_delay to obtain the length of window centered at diagnostic_delay days after DDI_1 during some patients will have different results.
+#' @param abs_spread The width of the range over which the probabilities are both not zero and not one. This range will be centered around the diagnostic_delay. Setting this will cause the function to ignore whatever was specified for spread. Defaults to NULL.
 #' @export
 
-linear_assay_dynamics <- function(x, diagnostic_delay, spread = 1.5){
+linear_assay_dynamics <- function(x, diagnostic_delay, spread = 1.5, abs_spread = NULL){
   # first model:
   # probability of positive test diagnostic_delay days after ddi1 = 0.5
   # probability of positive test (1-spread/2)*diagnostic_delay days after ddi1 = 0.
@@ -17,9 +18,15 @@ linear_assay_dynamics <- function(x, diagnostic_delay, spread = 1.5){
   #  if prob > 1, then return 1
   #  if prob < 0, then return 0
 
-  y <- x/(spread*diagnostic_delay) + (0.5-(1/spread))
-  if (y < 0) {y <- 0}
-  if (y > 1) {y <- 1}
+  if (is.null(abs_spread)){ # using spread parameter
+    y <- x/(spread*diagnostic_delay) + (0.5-(1/spread))
+    if (y < 0) {y <- 0}
+    if (y > 1) {y <- 1}
+  } else { # using abs_spread parameter and ignoring spread parameter.
+    y <- x/abs_spread + 0.5 - diagnostic_delay/abs_spread
+    if (y < 0) {y <- 0}
+    if (y > 1) {y <- 1}
+  }
   return(y)
 }
 
