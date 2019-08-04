@@ -18,3 +18,7 @@ test_that("Test that the spread parameter works: diagnostic delay = 20, spread =
   x <- linear_assay_dynamics(20.5, 20, 0.1)
   expect_equal(x, 0.75)
 })
+
+test_that("TODO Test that the abs_spread parameter works: diagnostic delay = TODO, spread = TODO", {
+  expect_equal(0, 1)
+})
