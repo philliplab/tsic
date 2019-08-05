@@ -48,6 +48,27 @@ step_assay_dynamics <- function(x, diagnostic_delay){
   }
 }
 
+#' Weibull3 Assay Dynamics
+#'
+#' Returns the probability of testing positive x days after XXX
+#'
+#' Assumes that the probability of testing positive as a function of time given that the person is infected has the form of a Weibull distribution.
+#'
+#' @param x The time since XXX
+#' @param location The location parameter.
+#' @param scale The scale parameter.
+#' @param shape The shape parameter.
+#' @export
+
+weib3_assay_dynamics <- function(x, location, scale, shape){
+#    return (sum((y-(1 - exp(-((x - location)/scale)^shape)))^2))^(1/2)
+  if (x <= 0){
+    return(0)
+  } else {
+    return(1-exp(-((x - location)/scale)^shape))
+  }
+}
+
 #' Get dynamics functions for an assay
 #'
 #' Constructs the assay dynamics list with suitable parameter set given the name of an assay
