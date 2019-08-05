@@ -64,8 +64,27 @@ get_assay_dynamics <- function(assay){
     form = 'step',
     source = 'delaney_2017',
     fun = 'step_assay_dynamics',
-    params = 17.9
+    params = list(diagnostic_delay = 17.9)
   )
+  all_assays[[tolower('architect_linear_abs_spread_delaney')]] <- list(
+    class = 'Ag/Ab',
+    full_assayname = 'Abbott Architect HIV Ag/Ab Combo',
+    short_assayname = 'Architect',
+    form = 'linear_abs_spread',
+    source = 'delaney_2017',
+    fun = 'linear_assay_dynamics',
+    params = list(diagnostic_delay = 17.9, abs_spread = 2*9.5)
+  )
+  if (assay == 'all'){
+    return(all_assays)
+  }
+  if (assay %in% names(all_assays)){
+    return(all_assays[[assay]])
+  } else {
+    print('Valid Assay Names:')
+    print(names(all_assays))
+    stop('Requested Assay Do Not Exists')
+  }
 }
 
 # old assay dynamics - version 1
