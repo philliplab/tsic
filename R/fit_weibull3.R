@@ -19,6 +19,12 @@ fit_weibull3 <- function(x, y){
     y = c(0.25,  0.5, 0.75, 0.99)
     # $par
     # [1]  7.209124  1.724618 13.185190
+
+    # Geenius Fully Reactive
+    x = c(28.2, 32.9, 38.6, 57.7)
+    y = c(0.25,  0.5, 0.75, 0.99)
+    #$par
+    #[1] 21.151093  1.733457 14.483445
   }
   mse <- function(params){
     location = params[1]

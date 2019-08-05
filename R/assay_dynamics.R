@@ -77,7 +77,10 @@ weib3_assay_dynamics <- function(x, location, scale, shape){
 #' @export
 
 get_assay_dynamics <- function(assay){
+  # Build library of assay parameters
   all_assays <- list()
+
+  # ARCHITECT
   all_assays[[tolower('architect_step_delaney')]] <- list(
     class = 'Ag/Ab',
     full_assayname = 'Abbott Architect HIV Ag/Ab Combo',
@@ -96,6 +99,75 @@ get_assay_dynamics <- function(assay){
     fun = 'linear_assay_dynamics',
     params = list(diagnostic_delay = 17.9, abs_spread = 2*9.5)
   )
+  all_assays[[tolower('architect_weib3_delaney')]] <- list(
+    class = 'Ag/Ab',
+    full_assayname = 'Abbott Architect HIV Ag/Ab Combo',
+    short_assayname = 'Architect',
+    form = 'weib3',
+    source = 'delaney_2017',
+    fun = 'weib3_assay_dynamics',
+    params = list(location = 7.209, shape = 1.725, scale = 13.185)
+  )
+
+  # APTIMA
+  all_assays[[tolower('aptima_step_delaney')]] <- list(
+    class = 'RNA',
+    full_assayname = 'Aptima HIV-1 RNA Qualitative Assay',
+    short_assayname = 'Aptima RNA',
+    form = 'step',
+    source = 'delaney_2017',
+    fun = 'step_assay_dynamics',
+    params = list(diagnostic_delay = 11.679)
+  )
+  all_assays[[tolower('aptima_linear_abs_spread_delaney')]] <- list(
+    class = 'RNA',
+    full_assayname = 'Aptima HIV-1 RNA Qualitative Assay',
+    short_assayname = 'Aptima RNA',
+    form = 'linear_abs_spread',
+    source = 'delaney_2017',
+    fun = 'linear_assay_dynamics',
+    params = list(diagnostic_delay = 11.679, abs_spread = 2*7.875)
+  )
+  all_assays[[tolower('aptima_weib3_delaney')]] <- list(
+    class = 'RNA',
+    full_assayname = 'Aptima HIV-1 RNA Qualitative Assay',
+    short_assayname = 'Aptima RNA',
+    form = 'weib3',
+    source = 'delaney_2017',
+    fun = 'weib3_assay_dynamics',
+    params = list(location = 4.8, shape = 1.35, scale = 9)
+  )
+
+  # Geenius Fully Reactive
+  all_assays[[tolower('geenius_fr_step_delaney')]] <- list(
+    class = 'IgG_Supp',
+    full_assayname = 'BioRad Geenius Fully Reactive',
+    short_assayname = 'Geenius_FR',
+    form = 'step',
+    source = 'delaney_2017',
+    fun = 'step_assay_dynamics',
+    params = list(diagnostic_delay = 32.9)
+  )
+  all_assays[[tolower('geenius_fr_linear_abs_spread_delaney')]] <- list(
+    class = 'IgG_Supp',
+    full_assayname = 'BioRad Geenius Fully Reactive',
+    short_assayname = 'Geenius_FR',
+    form = 'linear_abs_spread',
+    source = 'delaney_2017',
+    fun = 'linear_assay_dynamics',
+    params = list(diagnostic_delay = 32.9, abs_spread = 2*10.4)
+  )
+  all_assays[[tolower('geenius_fr_weib3_delaney')]] <- list(
+    class = 'IgG_Supp',
+    full_assayname = 'BioRad Geenius Fully Reactive',
+    short_assayname = 'Geenius_FR',
+    form = 'weib3',
+    source = 'delaney_2017',
+    fun = 'weib3_assay_dynamics',
+    params = list(location = 21.151, shape = 1.733, scale = 14.483)
+  )
+
+  # lookup
   if (assay == 'all'){
     return(all_assays)
   }
