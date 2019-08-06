@@ -80,6 +80,26 @@ get_assay_dynamics <- function(assay){
   # Build library of assay parameters
   all_assays <- list()
 
+  # BASICs for UNIT TESTING
+  all_assays[[tolower('step_unit_testing')]] <- list(
+    class = 'unit testing',
+    full_assayname = 'Unit Testing',
+    short_assayname = 'Unit_Testing',
+    form = 'step',
+    source = 'made-up',
+    fun = 'step_assay_dynamics',
+    params = list(diagnostic_delay = 10)
+  )
+  all_assays[[tolower('linear_unit_testing')]] <- list(
+    class = 'unit testing',
+    full_assayname = 'Unit Testing',
+    short_assayname = 'Unit_Testing',
+    form = 'linear_abs_spread',
+    source = 'made-up',
+    fun = 'linear_assay_dynamics',
+    params = list(diagnostic_delay = 10, abs_spread = 4)
+  )
+
   # ARCHITECT
   all_assays[[tolower('architect_step_delaney')]] <- list(
     class = 'Ag/Ab',
