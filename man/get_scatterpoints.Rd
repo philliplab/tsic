@@ -4,16 +4,23 @@
 \alias{get_scatterpoints}
 \title{Evaluates a function over a range}
 \usage{
-get_scatterpoints(fun, seedpoints)
+get_scatterpoints(fun, seedpoints, max_delta = 0.02, min_length = 0.01,
+  n_new_segments = 20, verbose = FALSE)
 }
 \arguments{
 \item{fun}{The function to evaluate.}
 
 \item{seedpoints}{The points at which the function should be evaluated initially. It is very important to provide the function with a sensible set of seedpoints. Due to the design of the tsic package, such a set of points should always be available.}
+
+\item{max_delta}{The largest increase in y that is tolerated in a single interval. Default = 0.02. Warning, setting this small relative to your y range can lead to extreme performance requirements.}
+
+\item{min_length}{The minimum interval length that will still be divided into smaller segments. If the length of an interval is below this number, then it will not be divided into shorter segments no matter how much y changes in it. Warning, depending on how wiggly your function is, setting this number small relative to y can cause extreme performance requirements.}
+
+\item{n_new_segments}{Into how many segments should each segment that contains too much y movement be divided? You probably want to set this high due to R's terrible recursion performance.}
 }
 \description{
 Given a function and either the endpoints of a range of a number of seedpoints, evaluate the function at points in the range so that the change in y does not exceed a certain threshold between any two points, subject to the constraint that no interval between to x points go below some interval.
 }
 \details{
-Note that
+Note that for performance reasons, you want to set up your seed points so that this function will not go through many rounds of recursion.
 }

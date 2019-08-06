@@ -26,19 +26,72 @@ construct_assay_result_interpreter <- function(assay_dynamics, result){
 #'
 #' Given a function and either the endpoints of a range of a number of seedpoints, evaluate the function at points in the range so that the change in y does not exceed a certain threshold between any two points, subject to the constraint that no interval between to x points go below some interval.
 #'
-#' Note that 
+#' Note that for performance reasons, you want to set up your seed points so that this function will not go through many rounds of recursion.
 #'
 #' @param fun The function to evaluate.
 #' @param seedpoints The points at which the function should be evaluated initially. It is very important to provide the function with a sensible set of seedpoints. Due to the design of the tsic package, such a set of points should always be available.
+#' @param max_delta The largest increase in y that is tolerated in a single interval. Default = 0.02. Warning, setting this small relative to your y range can lead to extreme performance requirements.
+#' @param min_length The minimum interval length that will still be divided into smaller segments. If the length of an interval is below this number, then it will not be divided into shorter segments no matter how much y changes in it. Warning, depending on how wiggly your function is, setting this number small relative to y can cause extreme performance requirements.
+#' @param n_new_segments Into how many segments should each segment that contains too much y movement be divided? You probably want to set this high due to R's terrible recursion performance.
 #' @export
 
-get_scatterpoints <- function(fun, seedpoints){
+get_scatterpoints <- function(fun, seedpoints, max_delta = 0.02, min_length = 0.01, n_new_segments = 20, verbose = FALSE){
+  stopifnot(length(seedpoints)>=2)
   x <- seedpoints
   y <- rep(-1, length(x))
   for (i in 1:length(x)){
     y[i] <- fun(x[i])
   }
-  return(list(x = x, y = y))
+  if (verbose){
+    print('x, y')
+    print(x)
+    print(y)
+  }
+
+  delta <- abs(y[1:(length(y)-1)] - y[2:length(y)])
+  int_lengths <- abs(x[1:(length(x)-1)] - x[2:length(x)])
+  too_steep <- (delta > max_delta) & (int_lengths > min_length)
+
+  if (verbose){
+    print('delta and int_lengths and too_steep')
+    print(delta)
+    print(int_lengths)
+    print(too_steep)
+  }
+
+  if (any(too_steep)){
+    new_x <- NULL
+    new_y <- NULL
+    which_too_steep <- which(too_steep)
+    prev_indx <- 0
+    for (indx in which_too_steep){
+      new_x <- c(new_x, x[(prev_indx+1):(indx-1)])
+      new_y <- c(new_y, y[(prev_indx+1):(indx-1)])
+      results <- get_scatterpoints(fun = fun, 
+                                   seedpoints = seq(from = x[indx], to = x[indx+1], length.out = n_new_segments), 
+                                   max_delta = max_delta, 
+                                   min_length = min_length, 
+                                   n_new_segments = n_new_segments)
+      new_x <- c(new_x, results$x)
+      new_y <- c(new_y, results$y)
+      prev_indx <- indx
+    }
+    last_few <- min(which(x > max(new_x)))
+    if (verbose){
+      print('which(x > max(new_x)) and last_few and length(x)')
+      print(which(x > max(new_x)))
+      print(last_few)
+      print(length(x))
+    }
+    if (last_few < Inf){
+      new_x <- c(new_x, x[last_few:length(x)])
+      new_y <- c(new_y, y[last_few:length(y)])
+    }
+  } else {
+    new_x <- x
+    new_y <- y
+  }
+  return(list(x = new_x, y = new_y))
 }
 
 #' Probabilities of certain test results
