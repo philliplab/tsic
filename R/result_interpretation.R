@@ -1,3 +1,28 @@
+#' Construct an assay result interpretation function
+#'
+#' Given the dynamics of an assay and a result, produce a function that when evaluated for a given number of days between the exposure event and the day the sample was drawn will produce the probability of observing the given result. This function will only take x as input, which is the number of days, and will already have the particulars of the result and assay loaded into it.
+#'
+#' @param assay_dynamics A list providing the assay_dynamics, (TODO: elaborate)
+#' @param result The result of the test. Either '+' or '-'.
+#' @export
+
+construct_assay_result_interpreter <- function(assay_dynamics, result){
+  evaluate_dynamics <- function(x){
+    assay_dynamics$params$x <- x
+    return(do.call(assay_dynamics$fun, assay_dynamics$params))
+  }
+  if (result == '+'){
+    result_interpreter <- function(x){ return(evaluate_dynamics(x)) }
+  } else if (result == "-"){
+    result_interpreter <- function(x){ return(1 - evaluate_dynamics(x)) }
+  } else {
+    stop('result must be "+" or "-"')
+  }
+
+  return(result_interpreter)
+}
+
+
 #' Probabilities of certain test results
 #'
 #' Turns assay dynamics into the probability of observing a specified test result a given number of days since XXX
