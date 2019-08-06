@@ -53,3 +53,11 @@ test_that("mucking about in the outer scope does not mess with the closure", {
   expect_equal(foo(20), 0)
   expect_equal(foo(2), 1)
 })
+
+test_that("get_scatterpoints work in normal circumstances", {
+  x <- 0:10/1000
+  fun <- function(x){return(x)}
+  scatterpoints <- get_scatterpoints(fun = fun, seedpoints = x)
+  expect_true(all(scatterpoints$x == x))
+  expect_true(all(scatterpoints$y == x))
+})

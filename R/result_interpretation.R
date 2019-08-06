@@ -22,6 +22,24 @@ construct_assay_result_interpreter <- function(assay_dynamics, result){
   return(result_interpreter)
 }
 
+#' Evaluates a function over a range
+#'
+#' Given a function and either the endpoints of a range of a number of seedpoints, evaluate the function at points in the range so that the change in y does not exceed a certain threshold between any two points, subject to the constraint that no interval between to x points go below some interval.
+#'
+#' Note that 
+#'
+#' @param fun The function to evaluate.
+#' @param seedpoints The points at which the function should be evaluated initially. It is very important to provide the function with a sensible set of seedpoints. Due to the design of the tsic package, such a set of points should always be available.
+#' @export
+
+get_scatterpoints <- function(fun, seedpoints){
+  x <- seedpoints
+  y <- rep(-1, length(x))
+  for (i in 1:length(x)){
+    y[i] <- fun(x[i])
+  }
+  return(list(x = x, y = y))
+}
 
 #' Probabilities of certain test results
 #'
