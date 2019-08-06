@@ -11,8 +11,8 @@ prob_test_result_given_days_to_visit(assay_dynamics, result, days_to_visit)
 
 \item{result}{'+' or '-' indicating the test result.}
 
-\item{days_to_visit}{The number of days between DDI_1 and the test result.}
+\item{days_to_visit}{The number of days between XXX and the test result.}
 }
 \description{
-Turns assay dynamics into the probability of observing a specified test result a given number of days since DDI_1
+Turns assay dynamics into the probability of observing a specified test result a given number of days since XXX
 }

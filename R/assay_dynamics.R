@@ -97,7 +97,7 @@ get_assay_dynamics <- function(assay){
     form = 'linear_abs_spread',
     source = 'made-up',
     fun = 'linear_assay_dynamics',
-    params = list(diagnostic_delay = 10, abs_spread = 4)
+    params = list(diagnostic_delay = 10, abs_spread = 10)
   )
 
   # ARCHITECT

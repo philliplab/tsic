@@ -1,60 +1,10 @@
-# TODO: delete this
-if (FALSE){
-  # debugging / dev scribbles
-  library(tsic)
-  assay_dynamics <- list(fun = linear_assay_dynamics,
-                         params = list(diagnostic_delay = 10))
-  days_since_ddi_1 <- 9
-  days_since_ddi_1 <- 10
-  days_since_ddi_1 <- 3
-  result <- '+'
-  result <- '-'
-
-  range_start <- '2017-02-01'
-  range_end <- '2017-10-31'
-  visit_date <- '2017-04-01'
-  min_prob <- 0
-  max_prob <- 1
-
-  assay <- 'Abbott Architect HIV Ag/Ab Combo'
-
-  result_set <- structure(list(ptid = c(102967486L, 102967486L, 102967486L, 102967486L,
-    102967486L, 102967486L, 102967486L, 102967486L, 102967486L, 102967486L,
-    102967486L, 102967486L, 102967486L, 102967486L), visit_date = c("2017-05-02",
-    "2017-05-02", "2017-05-30", "2017-05-30", "2017-06-30", "2017-06-30",
-    "2017-06-30", "2017-07-11", "2017-07-11", "2017-07-11", "2017-07-28",
-    "2017-08-10", "2017-08-27", "2017-09-24"), assay = c("elisa",
-    "rnapcr", "elisa", "rnapcr", "elisa", "geenius", "rnapcr", "elisa",
-    "geenius", "rnapcr", "rnapcr", "rnapcr", "rnapcr", "rnapcr"),
-        o_result = c(2L, 2L, 2L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L,
-        1L, 1L, 1L), result = c("-", "-", "-", "+", "+", "+", "+",
-        "+", "+", "+", "+", "+", "+", "+")), row.names = c(NA, 14L
-    ), class = "data.frame")
-
-
-  file_name <- '/fridge/data/AMP/mock_amp_infection_timing_db/mock_list27Aug2018.csv'
-  dat <- parse_data_first_mock(file_name)
-  trim_dat <- remove_non_informative_results(dat)
-
-  interesting_pats <- c(102967486, 164801194, 138619851, 152897561, 272947687, 270376325, 851444678, 898704272, 926943329)
-  c_ptid <- interesting_pats[3]
-
-  # 4 is fail
-  # 6 is supreme weirdo
-
-  c_dat <- subset(dat, ptid == c_ptid)
-  c_interp <- interpret_result_set(c_dat)
-  l_interp <- convert_interpretation_to_long(c_interp)
-  wrapped_patient_plot(l_interp)
-}
-
 #' Probabilities of certain test results
 #'
-#' Turns assay dynamics into the probability of observing a specified test result a given number of days since DDI_1
+#' Turns assay dynamics into the probability of observing a specified test result a given number of days since XXX
 #'
 #' @param assay_dynamics A list providing the assay_dynamics, (TODO: elaborate)
 #' @param result '+' or '-' indicating the test result.
-#' @param days_to_visit The number of days between DDI_1 and the test result.
+#' @param days_to_visit The number of days between XXX and the test result.
 #' @export
 
 prob_test_result_given_days_to_visit <- function(assay_dynamics, result, days_to_visit){
@@ -145,49 +95,3 @@ interpret_result_set <- function(result_set, range_start = NULL, range_end = NUL
   return(dat)
 }
 
-#remove_non_informative_results <- function(in_dat){ #{{{
-## for each patient, for each test
-## remove all entries where:
-## the result is negative and the next result is also negative
-## the result is positive and the previous result is also positive
-#  trimmed_dat <- in_dat[0,]
-#  c_ptid <- unique(in_dat$ptid)[5]
-#  for (c_ptid in unique(in_dat$ptid)){
-#    c_dat_pt <- subset(in_dat, ptid == c_ptid)
-#    c_assay <- 'rnapcr'
-#    c_assay <- unique(c_dat_pt$assay)[1]
-#    for (c_assay in unique(c_dat_pt$assay)){
-#      c_dat_as <- subset(c_dat_pt, assay == c_assay)
-#      if (nrow(c_dat_as) == 1){
-#        trimmed_dat <- rbind(trimmed_dat, c_dat_as)
-#      } else {
-#        c_dat_as <- c_dat_as[order(c_dat_as$visit_date),]
-#        if (length(unique(c_dat_as$result)) == 1){
-#          if (unique(c_dat_as$result) == '-'){
-#            # If only negative results present, only the last one is informative
-#            trimmed_dat <- rbind(trimmed_dat,
-#                                 c_dat_as[c_dat_as$visit_dat == max(c_dat_as$visit_dat),])
-#          } else {
-#            # If only positive results present, only the first one is informative
-#            trimmed_dat <- rbind(trimmed_dat,
-#                                 c_dat_as[c_dat_as$visit_dat == min(c_dat_as$visit_dat),])
-#          }
-#        } else {
-#          for (indx in 1:(nrow(c_dat_as)-1)){
-#            if (c_dat_as$result[indx] == '-' & c_dat_as$result[indx+1] != '-'){
-#              # a negative test immediately followed by another negative test is not informative
-#              trimmed_dat <- rbind(trimmed_dat, c_dat_as[indx,])
-#            }
-#          }
-#          for (indx in nrow(c_dat_as):2){
-#            if (c_dat_as$result[indx] == '+' & c_dat_as$result[indx-1] != '+'){
-#              # a positive test immediately preceeded by another positive test is not informative
-#              trimmed_dat <- rbind(trimmed_dat, c_dat_as[indx,])
-#            }
-#          }
-#        }
-#      }
-#    }
-#  }
-#  return(trimmed_dat)
-#} #}}}
