@@ -65,15 +65,21 @@ get_scatterpoints <- function(fun, seedpoints, max_delta = 0.02, min_length = 0.
     which_too_steep <- which(too_steep)
     prev_indx <- 0
     for (indx in which_too_steep){
-      new_x <- c(new_x, x[(prev_indx+1):(indx-1)])
-      new_y <- c(new_y, y[(prev_indx+1):(indx-1)])
+      if (verbose){
+        print('prev_indx, indx')
+        print(prev_indx)
+        print(indx)
+      }
+      new_x <- c(new_x, x[(prev_indx+1):(indx)])
+      new_y <- c(new_y, y[(prev_indx+1):(indx)])
       results <- get_scatterpoints(fun = fun, 
                                    seedpoints = seq(from = x[indx], to = x[indx+1], length.out = n_new_segments), 
                                    max_delta = max_delta, 
                                    min_length = min_length, 
-                                   n_new_segments = n_new_segments)
-      new_x <- c(new_x, results$x)
-      new_y <- c(new_y, results$y)
+                                   n_new_segments = n_new_segments,
+                                   verbose = verbose)
+      new_x <- c(new_x, results$x[2:(length(results$x)-1)])
+      new_y <- c(new_y, results$y[2:(length(results$y)-1)])
       prev_indx <- indx
     }
     last_few <- min(which(x > max(new_x)))

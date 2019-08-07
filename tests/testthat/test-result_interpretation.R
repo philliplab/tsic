@@ -63,11 +63,16 @@ test_that("get_scatterpoints work in normal circumstances", {
 })
 
 test_that("get_scatterpoints adds in enough intervals for a sloped line", {
-#  devtools::load_all()
-  x <- 0:10/40
+  if (FALSE) {
+    devtools::load_all()
+  }
+  x <- 0:1/40
   fun <- function(x){return(x)}
-  scatterpoints <- get_scatterpoints(fun = fun, seedpoints = x, verbose = TRUE)
-#  expect_true(all(scatterpoints$x == x))
-#  expect_true(all(scatterpoints$y == x))
+  scatterpoints <- get_scatterpoints(fun = fun, seedpoints = x, 
+                                     max_delta = 0.02, min_length = 0.01,
+                                     n_new_segments = 20, verbose = FALSE)
+  expect_true(all(sort(names(scatterpoints)) == c('x', 'y')))
   expect_equal(length(scatterpoints$x), length(unique(scatterpoints$x)))
+  expect_equal(length(scatterpoints$x), length(scatterpoints$y))
+  expect_equal(length(scatterpoints$x), 20)
 })
