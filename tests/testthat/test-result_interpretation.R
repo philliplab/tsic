@@ -62,17 +62,70 @@ test_that("get_scatterpoints work in normal circumstances", {
   expect_true(all(scatterpoints$y == x))
 })
 
-test_that("get_scatterpoints adds in enough intervals for a sloped line", {
-  if (FALSE) {
-    devtools::load_all()
-  }
+test_that("get_scatterpoints adds in enough intervals for a sloped line between two points", {
   x <- 0:1/40
   fun <- function(x){return(x)}
   scatterpoints <- get_scatterpoints(fun = fun, seedpoints = x, 
                                      max_delta = 0.02, min_length = 0.01,
                                      n_new_segments = 20, verbose = FALSE)
+  delta <- abs(scatterpoints$y[1:(length(scatterpoints$y)-1)] - scatterpoints$y[2:length(scatterpoints$y)])
+  int_lengths <- abs(scatterpoints$x[1:(length(scatterpoints$x)-1)] - scatterpoints$x[2:length(scatterpoints$x)])
   expect_true(all(sort(names(scatterpoints)) == c('x', 'y')))
   expect_equal(length(scatterpoints$x), length(unique(scatterpoints$x)))
   expect_equal(length(scatterpoints$x), length(scatterpoints$y))
+  expect_true(all(delta < 0.02)) 
+  expect_true(all(int_lengths > 0.01/20)) 
   expect_equal(length(scatterpoints$x), 20)
 })
+
+test_that("get_scatterpoints adds in enough intervals for a sloped line between many points", {
+  x <- 0:10/40
+  fun <- function(x){return(x)}
+  scatterpoints <- get_scatterpoints(fun = fun, seedpoints = x, 
+                                     max_delta = 0.02, min_length = 0.01,
+                                     n_new_segments = 20, verbose = FALSE)
+  delta <- abs(scatterpoints$y[1:(length(scatterpoints$y)-1)] - scatterpoints$y[2:length(scatterpoints$y)])
+  int_lengths <- abs(scatterpoints$x[1:(length(scatterpoints$x)-1)] - scatterpoints$x[2:length(scatterpoints$x)])
+  expect_true(all(sort(names(scatterpoints)) == c('x', 'y')))
+  expect_equal(length(scatterpoints$x), length(unique(scatterpoints$x)))
+  expect_equal(length(scatterpoints$x), length(scatterpoints$y))
+  expect_true(all(delta < 0.02)) 
+  expect_true(all(int_lengths > 0.01/20)) 
+  expect_equal(length(scatterpoints$x), 191)
+})
+
+test_that("min_length prevents get_scatterpoints from adding in too many points", {
+  x <- 0:1/40
+  fun <- function(x){return(x)}
+  scatterpoints <- get_scatterpoints(fun = fun, seedpoints = x, 
+                                     max_delta = 0.0001, min_length = 0.01,
+                                     n_new_segments = 20, verbose = FALSE)
+  delta <- abs(scatterpoints$y[1:(length(scatterpoints$y)-1)] - scatterpoints$y[2:length(scatterpoints$y)])
+  int_lengths <- abs(scatterpoints$x[1:(length(scatterpoints$x)-1)] - scatterpoints$x[2:length(scatterpoints$x)])
+  expect_true(all(sort(names(scatterpoints)) == c('x', 'y')))
+  expect_equal(length(scatterpoints$x), length(unique(scatterpoints$x)))
+  expect_equal(length(scatterpoints$x), length(scatterpoints$y))
+  expect_true(all(delta < 0.0001)) 
+  expect_true(all(int_lengths > 0.01/20)) 
+  expect_equal(length(scatterpoints$x), 20)
+})
+
+test_that("get_scatterpoints can recurse more than once", {
+  x <- 0:1/40
+  fun <- function(x){return(x)}
+  scatterpoints <- get_scatterpoints(fun = fun, seedpoints = x, 
+                                     max_delta = 0.0001, min_length = 0.001,
+                                     n_new_segments = 20, verbose = FALSE)
+  delta <- abs(scatterpoints$y[1:(length(scatterpoints$y)-1)] - scatterpoints$y[2:length(scatterpoints$y)])
+  int_lengths <- abs(scatterpoints$x[1:(length(scatterpoints$x)-1)] - scatterpoints$x[2:length(scatterpoints$x)])
+  expect_true(all(sort(names(scatterpoints)) == c('x', 'y')))
+  expect_equal(length(scatterpoints$x), length(unique(scatterpoints$x)))
+  expect_equal(length(scatterpoints$x), length(scatterpoints$y))
+  expect_true(all(delta < 0.0001)) 
+  expect_true(all(int_lengths > 0.001/20)) 
+  expect_equal(length(scatterpoints$x), 362)
+})
+
+
+
+
