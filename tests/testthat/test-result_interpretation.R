@@ -126,6 +126,34 @@ test_that("get_scatterpoints can recurse more than once", {
   expect_equal(length(scatterpoints$x), 362)
 })
 
+test_that("get_scatterpoints zoom in on the step", {
+  assay_dynamics <- get_assay_dynamics(assay = 'step_unit_testing')
+  result <- '+'
+  foo <- construct_assay_result_interpreter(assay_dynamics = assay_dynamics,
+                                            result = result)
+  x <- 1:20
+  scatterpoints <- get_scatterpoints(fun = foo, seedpoints = x, 
+                                     max_delta = 0.01, min_length = 0.01,
+                                     n_new_segments = 20, verbose = FALSE)
+
+  expect_equal(sum(scatterpoints$x <= 9), length(1:9))
+  expect_equal(sum(scatterpoints$x >= 11), length(11:20))
+  expect_true(sum(scatterpoints$x>=9 & scatterpoints$x <= 11) > 19)
+  
+  assay_dynamics <- get_assay_dynamics(assay = 'step_unit_testing')
+  result <- '+'
+  foo <- construct_assay_result_interpreter(assay_dynamics = assay_dynamics,
+                                            result = result)
+  x <- 1:20
+  scatterpoints <- get_scatterpoints(fun = foo, seedpoints = x, 
+                                     max_delta = 0.01, min_length = 0.01,
+                                     n_new_segments = 20, verbose = FALSE)
+
+  expect_equal(sum(scatterpoints$x <= 9), length(1:9))
+  expect_equal(sum(scatterpoints$x >= 11), length(11:20))
+  expect_true(sum(scatterpoints$x>=9 & scatterpoints$x <= 11) > 19)
+})
+
 
 
 
