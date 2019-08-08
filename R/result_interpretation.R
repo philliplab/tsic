@@ -100,6 +100,41 @@ get_scatterpoints <- function(fun, seedpoints, max_delta = 0.02, min_length = 0.
   return(list(x = new_x, y = new_y))
 }
 
+#' Reduce the number of scatter points
+#'
+#' Given a set of scatterpoints, remove those points that does not lead to an improvement in the accuracy of a plot. For now this is just if you take three points, and all their y values are identical, then remove the middle point. Identical is tested by ensuring that the absolute difference is below a tolerance parameter called min_delta.
+#'
+#' TODO: If three points lie on the same line, then the middle point adds no information. Expand this function to test this instead of just checking that the y values are the same. How will this affect the aggregated function? First implement that before considering making this improvement.
+#'
+#' @param min_delta The smallest increase in y that is required before it is flagged as a real change that is worth keeping.
+#' @param max_length The max length that an interval between two points on the x-axis will be allowed to grow to. If an interval is longer than this, then no other intervals will be to appended to it anymore.
+#' @export
+
+reduce_x_points <- function(x, y, min_delta = 0.0001, max_length = 14){
+  stopifnot(length(x) == length(y))
+  indx <- 1
+  new_x <- rep(NA_real_, length(x))
+  new_y <- rep(NA_real_, length(y))
+  new_indx <- 2
+  new_x[1] <- x[1]
+  new_y[1] <- y[1]
+  while (indx <= length(x)-2){
+    if ((abs(y[indx] - y[indx+1]) < min_delta) & (abs(y[indx] - y[indx+2]) < min_delta) & (abs(y[indx+1] - y[indx+2]) < min_delta)){
+      indx <- indx + 1
+    } else {
+      new_x[new_indx] <- x[indx]
+      new_y[new_indx] <- y[indx]
+      new_indx <- new_indx + 1
+    }
+    indx <- indx + 1
+  }
+  new_x[new_indx] <- x[length(x)]
+  new_y[new_indx] <- y[length(y)]
+  new_x <- new_x[1:new_indx]
+  new_y <- new_y[1:new_indx]
+  return(list(x = new_x, y = new_y))
+}
+
 #' Probabilities of certain test results
 #'
 #' Turns assay dynamics into the probability of observing a specified test result a given number of days since XXX
