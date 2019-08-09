@@ -124,16 +124,12 @@ reduce_x_points <- function(x, y, min_delta = 0.0001, max_length = 14){
     if ((abs(y[indx] - y[indx+1]) < min_delta) & (abs(y[indx] - y[indx+2]) < min_delta) & (abs(y[indx+1] - y[indx+2]) < min_delta)){
       indx <- indx + 1
     } else {
-      new_x[new_indx] <- x[indx]
-      new_y[new_indx] <- y[indx]
-      new_indx <- new_indx + 1
+      new_x[new_indx:(new_indx+2)] <- x[indx:(indx+2)]
+      new_y[new_indx:(new_indx+2)] <- y[indx:(indx+2)]
+      new_indx <- new_indx + 3
+      indx <- indx + 2
     }
     indx <- indx + 1
-  }
-  if ((abs(y[length(y)-1] - y[length(y)]) > min_delta)){
-    new_x[new_indx] <- x[length(x)-1]
-    new_y[new_indx] <- y[length(y)-1]
-    new_indx <- new_indx + 1
   }
   new_x[new_indx] <- x[length(x)]
   new_y[new_indx] <- y[length(y)]

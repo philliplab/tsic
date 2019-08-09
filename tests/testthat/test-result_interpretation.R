@@ -170,11 +170,29 @@ test_that('reduce_x_points works in a trivial case', {
 })
 
 test_that('reduce_x_points handles changes in the y values correctly', {
+  x <- 1:10
+  y <- c(rep(0, 8), 1, 0)
+  min_delta <- 0.0001
+  result <- reduce_x_points(x = x, y = y, min_delta = min_delta)
+
+  x_matches <- match(result$x, x)
+  expect_true(all(result$y == y[x_matches]))
+
+  interpolated <- approx(x = result$x, y = result$y, xout = x)
+  expect_true(all(abs(interpolated$y - y) < min_delta))
+})
+
+test_that('reduce_x_points handles a step function correctly', {
   if (FALSE){
     devtools::load_all()
   }
-  x <- 1:10
-  y <- c(rep(0, 8), 1, 0)
+  assay_dynamics <- get_assay_dynamics(assay = 'step_unit_testing')
+  result <- '+'
+  foo <- construct_assay_result_interpreter(assay_dynamics = assay_dynamics,
+                                            result = result)
+  x <- 1:20
+  y <- NULL
+  for (i in x){y <- c(y, foo(i))}
   min_delta <- 0.0001
   result <- reduce_x_points(x = x, y = y, min_delta = min_delta)
 
