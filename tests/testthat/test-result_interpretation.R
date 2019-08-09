@@ -105,7 +105,6 @@ test_that("min_length prevents get_scatterpoints from adding in too many points"
   expect_true(all(sort(names(scatterpoints)) == c('x', 'y')))
   expect_equal(length(scatterpoints$x), length(unique(scatterpoints$x)))
   expect_equal(length(scatterpoints$x), length(scatterpoints$y))
-  expect_true(all(delta < 0.0001)) 
   expect_true(all(int_lengths > 0.01/20)) 
   expect_equal(length(scatterpoints$x), 20)
 })
