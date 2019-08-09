@@ -157,12 +157,16 @@ test_that("get_scatterpoints zoom in on the step", {
 test_that('reduce_x_points works in a trivial case', {
   x <- 1:10
   y <- rep(0, 10)
-  result <- reduce_x_points(x = x, y = y)
+  min_delta <- 0.0001
+  result <- reduce_x_points(x = x, y = y, min_delta = min_delta)
   expect_equal(result$x, c(1, 10))
   expect_equal(result$y, c(0, 0))
 
   x_matches <- match(result$x, x)
   expect_true(all(result$y == y[x_matches]))
+
+  interpolated <- approx(x = result$x, y = result$y, xout = x)
+  expect_true(all(abs(interpolated$y - y) < min_delta))
 })
 
 test_that('reduce_x_points handles changes in the y values correctly', {
@@ -171,11 +175,14 @@ test_that('reduce_x_points handles changes in the y values correctly', {
   }
   x <- 1:10
   y <- c(rep(0, 8), 1, 0)
-  result <- reduce_x_points(x = x, y = y)
+  min_delta <- 0.0001
+  result <- reduce_x_points(x = x, y = y, min_delta = min_delta)
 
   x_matches <- match(result$x, x)
   expect_true(all(result$y == y[x_matches]))
 
+  interpolated <- approx(x = result$x, y = result$y, xout = x)
+  expect_true(all(abs(interpolated$y - y) < min_delta))
 })
 
 
