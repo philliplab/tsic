@@ -62,7 +62,7 @@ step_assay_dynamics <- function(x, diagnostic_delay){
 
 weib3_assay_dynamics <- function(x, location, scale, shape){
 #    return (sum((y-(1 - exp(-((x - location)/scale)^shape)))^2))^(1/2)
-  if (x <= 0){
+  if (x <= location){
     return(0)
   } else {
     return(1-exp(-((x - location)/scale)^shape))
@@ -98,6 +98,15 @@ get_assay_dynamics <- function(assay){
     source = 'made-up',
     fun = 'linear_assay_dynamics',
     params = list(diagnostic_delay = 10, abs_spread = 10)
+  )
+  all_assays[[tolower('weib3_unit_testing')]] <- list(
+    class = 'unit testing',
+    full_assayname = 'Unit Testing',
+    short_assayname = 'Unit_Testing',
+    form = 'weib3',
+    source = 'aptima_in_delaney_2017',
+    fun = 'weib3_assay_dynamics',
+    params = list(location = 4.8, shape = 1.35, scale = 9)
   )
 
   # ARCHITECT

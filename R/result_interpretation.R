@@ -131,8 +131,12 @@ reduce_x_points <- function(x, y, min_delta = 0.0001, max_length = 14){
     }
     indx <- indx + 1
   }
-  new_x[new_indx] <- x[length(x)]
-  new_y[new_indx] <- y[length(y)]
+  if (new_x[new_indx-1] != x[length(x)]){
+    new_x[new_indx] <- x[length(x)]
+    new_y[new_indx] <- y[length(y)]
+  } else {
+    new_indx <- new_indx-1
+  }
   new_x <- new_x[1:new_indx]
   new_y <- new_y[1:new_indx]
   return(list(x = new_x, y = new_y))
