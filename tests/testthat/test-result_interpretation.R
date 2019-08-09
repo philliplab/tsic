@@ -154,13 +154,28 @@ test_that("get_scatterpoints zoom in on the step", {
   expect_true(sum(scatterpoints$x>=9 & scatterpoints$x <= 11) > 19)
 })
 
-test_that('reduce_x_points works', {
+test_that('reduce_x_points works in a trivial case', {
   x <- 1:10
   y <- rep(0, 10)
   result <- reduce_x_points(x = x, y = y)
   expect_equal(result$x, c(1, 10))
   expect_equal(result$y, c(0, 0))
+
+  x_matches <- match(result$x, x)
+  expect_true(all(result$y == y[x_matches]))
 })
 
+test_that('reduce_x_points handles changes in the y values correctly', {
+  if (FALSE){
+    devtools::load_all()
+  }
+  x <- 1:10
+  y <- c(rep(0, 8), 1, 0)
+  result <- reduce_x_points(x = x, y = y)
+
+  x_matches <- match(result$x, x)
+  expect_true(all(result$y == y[x_matches]))
+
+})
 
 

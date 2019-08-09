@@ -106,6 +106,8 @@ get_scatterpoints <- function(fun, seedpoints, max_delta = 0.02, min_length = 0.
 #'
 #' TODO: If three points lie on the same line, then the middle point adds no information. Expand this function to test this instead of just checking that the y values are the same. How will this affect the aggregated function? First implement that before considering making this improvement.
 #'
+#' NOTE: This algorithm can be further improved. If any of three points do not share the same y value, all three points will be kept. Usually, only two needs to be kept. This will result in a minor improvement that is not worth the effort at present.
+#'
 #' @param min_delta The smallest increase in y that is required before it is flagged as a real change that is worth keeping.
 #' @param max_length The max length that an interval between two points on the x-axis will be allowed to grow to. If an interval is longer than this, then no other intervals will be to appended to it anymore.
 #' @export
@@ -127,6 +129,11 @@ reduce_x_points <- function(x, y, min_delta = 0.0001, max_length = 14){
       new_indx <- new_indx + 1
     }
     indx <- indx + 1
+  }
+  if ((abs(y[length(y)-1] - y[length(y)]) > min_delta)){
+    new_x[new_indx] <- x[length(x)-1]
+    new_y[new_indx] <- y[length(y)-1]
+    new_indx <- new_indx + 1
   }
   new_x[new_indx] <- x[length(x)]
   new_y[new_indx] <- y[length(y)]
