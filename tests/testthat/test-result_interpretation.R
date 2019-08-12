@@ -7,16 +7,20 @@ test_that("assay_result_interpreter gets build correctly", {
                                             result = result,
                                             sample_date = '2018-06-01')
   expect_type(foo, 'closure')
+  expect_equal(foo('2010-05-01'), 1)
   expect_equal(foo('2018-05-01'), 1)
   expect_equal(foo('2018-05-30'), 0)
+  expect_equal(foo('2018-06-30'), 0)
   
   result <- '-'
   foo <- construct_assay_result_interpreter(assay_dynamics = assay_dynamics,
                                             result = result,
                                             sample_date = '2018-06-01')
   expect_type(foo, 'closure')
+  expect_equal(foo('2010-05-01'), 0)
   expect_equal(foo('2018-05-01'), 0)
   expect_equal(foo('2018-05-30'), 1)
+  expect_equal(foo('2018-06-30'), 1)
 })
 
 #
