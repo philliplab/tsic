@@ -175,52 +175,55 @@ test_that("get_scatterpoints zoom in on the step", {
                     scatterpoints$x <= day_after) > 19 )
 })
 
-#test_that('reduce_x_points works in a trivial case', {
-#  x <- 1:10
-#  y <- rep(0, 10)
-#  min_delta <- 0.0001
-#  result <- reduce_x_points(x = x, y = y, min_delta = min_delta)
-#  expect_equal(result$x, c(1, 10))
-#  expect_equal(result$y, c(0, 0))
-#
-#  x_matches <- match(result$x, x)
-#  expect_true(all(result$y == y[x_matches]))
-#
-#  interpolated <- approx(x = result$x, y = result$y, xout = x)
-#  expect_true(all(abs(interpolated$y - y) < min_delta))
-#})
-#
-#test_that('reduce_x_points handles changes in the y values correctly', {
-#  x <- 1:10
-#  y <- c(rep(0, 8), 1, 0)
-#  min_delta <- 0.0001
-#  result <- reduce_x_points(x = x, y = y, min_delta = min_delta)
-#
-#  x_matches <- match(result$x, x)
-#  expect_true(all(result$y == y[x_matches]))
-#
-#  interpolated <- approx(x = result$x, y = result$y, xout = x)
-#  expect_true(all(abs(interpolated$y - y) < min_delta))
-#})
-#
-#test_that('reduce_x_points handles a step function correctly', {
-#  assay_dynamics <- get_assay_dynamics(assay = 'step_unit_testing')
-#  result <- '+'
-#  foo <- construct_assay_result_interpreter(assay_dynamics = assay_dynamics,
-#                                            result = result)
-#  x <- 1:20
-#  y <- NULL
-#  for (i in x){y <- c(y, foo(i))}
-#  min_delta <- 0.0001
-#  result <- reduce_x_points(x = x, y = y, min_delta = min_delta)
-#
-#  x_matches <- match(result$x, x)
-#  expect_true(all(result$y == y[x_matches]))
-#
-#  interpolated <- approx(x = result$x, y = result$y, xout = x)
-#  expect_true(all(abs(interpolated$y - y) < min_delta))
-#})
-#
+test_that('reduce_x_points works in a trivial case', {
+  x <- 1:10
+  y <- rep(0, 10)
+  min_delta <- 0.0001
+  result <- reduce_x_points(x = x, y = y, min_delta = min_delta)
+  expect_equal(result$x, c(1, 10))
+  expect_equal(result$y, c(0, 0))
+
+  x_matches <- match(result$x, x)
+  expect_true(all(result$y == y[x_matches]))
+
+  interpolated <- approx(x = result$x, y = result$y, xout = x)
+  expect_true(all(abs(interpolated$y - y) < min_delta))
+})
+
+test_that('reduce_x_points handles changes in the y values correctly', {
+  x <- 1:10
+  y <- c(rep(0, 8), 1, 0)
+  min_delta <- 0.0001
+  result <- reduce_x_points(x = x, y = y, min_delta = min_delta)
+
+  x_matches <- match(result$x, x)
+  expect_true(all(result$y == y[x_matches]))
+
+  interpolated <- approx(x = result$x, y = result$y, xout = x)
+  expect_true(all(abs(interpolated$y - y) < min_delta))
+})
+
+test_that('reduce_x_points handles a step function correctly', {
+  assay_dynamics <- get_assay_dynamics(assay = 'step_unit_testing')
+  result <- '+'
+  sample_date <- lubridate::ymd('2015-01-01')
+  range_start <- lubridate::ymd('2014-12-01')
+  foo <- construct_assay_result_interpreter(assay_dynamics = assay_dynamics,
+                                            result = result,
+                                            sample_date = sample_date)
+  x <- range_start:sample_date
+  y <- NULL
+  for (i in x){y <- c(y, foo(i))}
+  min_delta <- 0.0001
+  result <- reduce_x_points(x = x, y = y, min_delta = min_delta)
+
+  x_matches <- match(result$x, x)
+  expect_true(all(result$y == y[x_matches]))
+
+  interpolated <- approx(x = result$x, y = result$y, xout = x)
+  expect_true(all(abs(interpolated$y - y) < min_delta))
+})
+
 #test_that('INTEGRATION: get_scatterpoints and reduce_x_points on Linear', {
 #  assay_dynamics <- get_assay_dynamics(assay = 'linear_unit_testing')
 #  result <- '+'
