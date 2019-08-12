@@ -4,13 +4,15 @@
 \alias{construct_assay_result_interpreter}
 \title{Construct an assay result interpretation function}
 \usage{
-construct_assay_result_interpreter(assay_dynamics, result)
+construct_assay_result_interpreter(assay_dynamics, result, sample_date)
 }
 \arguments{
 \item{assay_dynamics}{A list providing the assay_dynamics, (TODO: elaborate)}
 
 \item{result}{The result of the test. Either '+' or '-'.}
+
+\item{sample_date}{The date on which the sample was drawn.}
 }
 \description{
-Given the dynamics of an assay and a result, produce a function that when evaluated for a given number of days between the exposure event and the day the sample was drawn will produce the probability of observing the given result. This function will only take x as input, which is the number of days, and will already have the particulars of the result and assay loaded into it.
+Given the dynamics of an assay and a result, produce a function that when evaluated for a potential exposure date will produce the probability of observing the given result at the relevant sample date. This function will only take x as input, which is the potential exposure date, and will already have the particulars of the result and assay loaded into it.
 }
