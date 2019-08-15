@@ -249,6 +249,9 @@ test_that('INTEGRATION: get_scatterpoints and reduce_x_points on Linear', {
 })
 
 test_that('INTEGRATION: get_scatterpoints and reduce_x_points on Weib3', {
+  if (FALSE){
+    devtools::load_all()
+  }
   assay_dynamics <- get_assay_dynamics(assay = 'weib3_unit_testing')
   result <- '+'
   sample_date <- lubridate::ymd('2015-01-01')
