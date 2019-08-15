@@ -281,25 +281,33 @@ test_that('INTEGRATION: get_scatterpoints and reduce_x_points on Weib3', {
   expect_true(all(abs(interpolated$y - scatterpoints$y) < max_delta))
 })
 
-#test_that('PERFORMANCE: get_scatterpoints and reduce_x_points on Weib3 large interval', {
-#  assay_dynamics <- get_assay_dynamics(assay = 'weib3_unit_testing')
-#  result <- '+'
-#  foo <- construct_assay_result_interpreter(assay_dynamics = assay_dynamics,
-#                                            result = result)
-#  x <- -100:500
-#  scatterpoints <- get_scatterpoints(fun = foo, seedpoints = x, 
-#                                     max_delta = 0.01, min_length = 0.01,
-#                                     n_new_segments = 20, verbose = FALSE)
-#
-#  min_delta <- 0.001
-#  result <- reduce_x_points(x = scatterpoints$x, y = scatterpoints$y, min_delta = min_delta)
-#
-#  x_matches <- match(result$x, scatterpoints$x)
-#  expect_true(all(result$y == scatterpoints$y[x_matches]))
-#
-#  interpolated <- approx(x = result$x, y = result$y, xout = scatterpoints$x)
-#  expect_true(all(abs(interpolated$y - scatterpoints$y) < min_delta))
-#})
-#
-#
-#
+test_that('PERFORMANCE: get_scatterpoints and reduce_x_points on Weib3 large interval', {
+  assay_dynamics <- get_assay_dynamics(assay = 'weib3_unit_testing')
+  result <- '+'
+  sample_date <- lubridate::ymd('2015-01-01')
+  range_start <- lubridate::ymd('2014-03-11')
+  range_end <- lubridate::ymd('2016-02-01')
+  foo <- construct_assay_result_interpreter(assay_dynamics = assay_dynamics,
+                                            result = result,
+                                            sample_date = sample_date)
+  x <- range_start:range_end
+  scatterpoints <- get_scatterpoints(fun = foo, seedpoints = x, 
+                                     max_delta = 0.01, min_length = 0.01,
+                                     n_new_segments = 20, verbose = FALSE)
+
+  min_delta <- 0.0001
+  max_length <- 14
+  result <- reduce_x_points(x = scatterpoints$x, y = scatterpoints$y, min_delta = min_delta, max_length = max_length)
+  int_lengths <- abs(result$x[1:(length(result$x)-1)] - result$x[2:(length(result$x))])
+  expect_equal(sum(result$x <= range_start), 1)
+  expect_equal(sum(result$x >= range_end), 1)
+  expect_false(any(int_lengths > max_length))
+
+  x_matches <- match(result$x, scatterpoints$x)
+  expect_true(all(result$y == scatterpoints$y[x_matches]))
+
+  interpolated <- approx(x = result$x, y = result$y, xout = scatterpoints$x)
+  expect_true(all(abs(interpolated$y - scatterpoints$y) < min_delta))
+})
+
+
