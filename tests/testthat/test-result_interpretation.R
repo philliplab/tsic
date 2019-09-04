@@ -62,6 +62,29 @@ test_that("mucking about in the outer scope does not mess with the closure", {
   expect_equal(foo('2018-05-30'), 1)
 })
 
+test_that("aggregate_interpreter gets build correctly", {
+            if (FALSE) {
+              devtools::load_all()
+            }
+  diagnostic_history <- data.frame(
+    sample_date = c('2016-03-01', '2016-09-01'),
+    test = c('step_unit_testing', 'step_unit_testing'),
+    result = c('-', '+'),
+    stringsAsFactors = FALSE
+  )
+  foo <- construct_aggregate_interpreter(diagnostic_history)
+  expect_type(foo, 'closure')
+  expect_equal(foo('2010-05-01'), 0)
+  expect_equal(foo('2018-05-01'), 0)
+  expect_equal(foo('2016-05-29'), 1)
+  expect_equal(foo('2017-03-11'), 1)
+  # This breaks. Not sure why. I think the next step is to package more accessible data into the assay_result_interpreter closure and then to check if that is what I expect it to be. Perhaps constructing multiple closures as is happening in construct_aggregate_interpreter is causing issues. Might be worth doing a little write-up of what is happening here.
+})
+
+
+
+
+
 test_that("get_scatterpoints work in normal circumstances", {
   x <- 0:10/1000
   fun <- function(x){return(x)}

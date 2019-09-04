@@ -152,25 +152,27 @@ reduce_x_points <- function(x, y, min_delta = 0.0001, max_length = 14){
 #'
 #' Construct a closure that gives the likelihood of a diagnostic history (or a subset of a diagnostic history) if the infection event was on the date supplied.
 #'
-#' @param diagnostic_history A data.frame with columns date, test, and result that contains a diagnostic history (or a subset thereof) for a single person.
+#' @param diagnostic_history A data.frame with columns sample_date, test, and result that contains a diagnostic history (or a subset thereof) for a single person.
 #' @export
 
 construct_aggregate_interpreter <- function(diagnostic_history){
   stopifnot(class(diagnostic_history) == 'data.frame')
-  stopifnot(all(names(diagnostic_history) == c('date', 'test', 'result')))
+  stopifnot(all(names(diagnostic_history) == c('sample_date', 'test', 'result')))
   stopifnot(nrow(diagnostic_history) >= 1)
   assay_interpreters <- list()
   for (i in 1:nrow(diagnostic_history)){
     c_dynamics <- get_assay_dynamics(assay = diagnostic_history$test[i])
     c_interpreter <- construct_assay_result_interpreter(assay_dynamics = c_dynamics, 
                                                         result = diagnostic_history$result[i], 
-                                                        sample_date = diagnostic_history$date[i] )
+                                                        sample_date = diagnostic_history$sample_date[i] )
     assay_interpreters[[i]] <- c_interpreter
   }
+  print(assay_interpreters)
   evaluate_proposed_infection_date <- function(x){
     overall_result <- 1
     for (i in 1:length(assay_interpreters)){
       c_result <- assay_interpreters[[i]](x)
+      print(c('Assay result # ', i, ' at time ', x, ' is equal to ', c_result))
       overall_result <- overall_result * c_result
     }
     return(overall_result)
