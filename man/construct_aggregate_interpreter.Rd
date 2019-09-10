@@ -2,13 +2,13 @@
 % Please edit documentation in R/result_interpretation.R
 \name{construct_aggregate_interpreter}
 \alias{construct_aggregate_interpreter}
-\title{Constructs an interpreter for an entire diagnostic history}
+\title{Constructs an interpreter for a diagnostic history}
 \usage{
-construct_aggregate_interpreter(diagnostic_history)
+construct_aggregate_interpreter(ihist)
 }
 \arguments{
-\item{diagnostic_history}{A data.frame with columns date, test, and result that contains a diagnostic history (or a subset thereof) for a single person.}
+\item{ihist}{A data.frame with columns sample_date, test, and result that contains a diagnostic history (or a subset thereof) for a single person.}
 }
 \description{
-Construct a closure that gives the likelihood of a diagnostic history (or a subset of a diagnostic history) if the infection event was on the date supplied.
+Construct a closure that gives the likelihood of a diagnostic history if the infection event was on the date supplied.
 }

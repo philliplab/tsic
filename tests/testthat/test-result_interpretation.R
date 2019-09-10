@@ -67,6 +67,7 @@ test_that("aggregate_interpreter gets build correctly", {
               devtools::load_all()
             }
   diagnostic_history <- data.frame(
+    ptid = c('p0', 'p0'),
     sample_date = c('2016-03-01', '2016-09-01'),
     test = c('step_unit_testing', 'step_unit_testing'),
     result = c('-', '+'),
@@ -77,13 +78,11 @@ test_that("aggregate_interpreter gets build correctly", {
   expect_equal(foo('2010-05-01'), 0)
   expect_equal(foo('2018-05-01'), 0)
   expect_equal(foo('2016-05-29'), 1)
-  expect_equal(foo('2017-03-11'), 1)
-  # This breaks. Not sure why. I think the next step is to package more accessible data into the assay_result_interpreter closure and then to check if that is what I expect it to be. Perhaps constructing multiple closures as is happening in construct_aggregate_interpreter is causing issues. Might be worth doing a little write-up of what is happening here.
+  expect_equal(foo('2016-03-11'), 1)
+  expect_equal(foo('2017-03-11'), 0)
+
+#  Somehow this is now working. I think it is a lazy evaluation thing - I now reassign the important variables in the environment and this fixes the issue. Unsure if it is the actual assignment or just the forcing of the thing to be evaluated that does the trick. LEARN MORE.
 })
-
-
-
-
 
 test_that("get_scatterpoints work in normal circumstances", {
   x <- 0:10/1000

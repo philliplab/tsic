@@ -148,31 +148,41 @@ reduce_x_points <- function(x, y, min_delta = 0.0001, max_length = 14){
   return(list(x = new_x, y = new_y))
 }
 
-#' Constructs an interpreter for an entire diagnostic history
+#' Constructs an interpreter for a diagnostic history
 #'
-#' Construct a closure that gives the likelihood of a diagnostic history (or a subset of a diagnostic history) if the infection event was on the date supplied.
+#' Construct a closure that gives the likelihood of a diagnostic history if the infection event was on the date supplied.
 #'
-#' @param diagnostic_history A data.frame with columns sample_date, test, and result that contains a diagnostic history (or a subset thereof) for a single person.
+#' @param ihist A data.frame with columns sample_date, test, and result that contains a diagnostic history (or a subset thereof) for a single person.
 #' @export
 
-construct_aggregate_interpreter <- function(diagnostic_history){
-  stopifnot(class(diagnostic_history) == 'data.frame')
-  stopifnot(all(names(diagnostic_history) == c('sample_date', 'test', 'result')))
-  stopifnot(nrow(diagnostic_history) >= 1)
+construct_aggregate_interpreter <- function(ihist){
+  stopifnot(class(ihist) == 'data.frame')
+  stopifnot(all(names(ihist) == c('ptid', 'sample_date', 'test', 'result')))
+  stopifnot(nrow(ihist) >= 1)
   assay_interpreters <- list()
-  for (i in 1:nrow(diagnostic_history)){
-    c_dynamics <- get_assay_dynamics(assay = diagnostic_history$test[i])
+  for (i in 1:nrow(ihist)){
+    c_dynamics <- get_assay_dynamics(assay = ihist$test[i])
     c_interpreter <- construct_assay_result_interpreter(assay_dynamics = c_dynamics, 
-                                                        result = diagnostic_history$result[i], 
-                                                        sample_date = diagnostic_history$sample_date[i] )
+                                                        result = ihist$result[i], 
+                                                        sample_date = ihist$sample_date[i] )
     assay_interpreters[[i]] <- c_interpreter
+    environment(assay_interpreters[[i]])$result <- ihist$result[i]
+    environment(assay_interpreters[[i]])$assay_dynamics <- c_dynamics
+    environment(assay_interpreters[[i]])$sample_date <- ihist$sample_date[i]
+    #    print(ls(environment(assay_interpreters[[i]])))
   }
-  print(assay_interpreters)
+#  print(assay_interpreters)
+#  for (i in 1:length(assay_interpreters)){
+#    for (c_var in ls(environment(assay_interpreters[[i]]))){
+#      print (c('Assay interpter', i, ' variable ', c_var))
+#      print (get(c_var, envir = environment(assay_interpreters[[i]])))
+#    }
+#  }
   evaluate_proposed_infection_date <- function(x){
     overall_result <- 1
     for (i in 1:length(assay_interpreters)){
       c_result <- assay_interpreters[[i]](x)
-      print(c('Assay result # ', i, ' at time ', x, ' is equal to ', c_result))
+#      print(c('Assay result # ', i, ' at time ', x, ' is equal to ', c_result))
       overall_result <- overall_result * c_result
     }
     return(overall_result)
@@ -180,75 +190,12 @@ construct_aggregate_interpreter <- function(diagnostic_history){
   return(evaluate_proposed_infection_date)
 }
 
-#' Probabilities of certain test results
-#'
-#' Turns assay dynamics into the probability of observing a specified test result a given number of days since XXX
-#'
-#' @param assay_dynamics A list providing the assay_dynamics, (TODO: elaborate)
-#' @param result '+' or '-' indicating the test result.
-#' @param days_to_visit The number of days between XXX and the test result.
-#' @export
-
-prob_test_result_given_days_to_visit <- function(assay_dynamics, result, days_to_visit){
-  assay_dynamics$params$x <- days_to_visit
-  x <- do.call(assay_dynamics$fun, assay_dynamics$params)
-
-  if (result == "+"){
-    return(x)
-  } else if (result == "-"){
-    return(1-x)
-  } else {
-    stop('result must be "+" or "-"')
-  }
+process_all_histories <- function(ahist){
+  all_ptids <- unique(ahist$ptid)
 }
 
-#' Probability of DDI_1 curve implied by test result
-#'
-#' Compute a curve of probabilities of observing a specified test result on a specified date assuming the day of DDI_1. Thus assume individually that each day in a range of dates is the DDI_1 and then compute the probability of observing the specified result.
-#'
-#' @param assay_dynamics A list providing the assay_dynamics, (TODO: elaborate)
-#' @param result '+' or '-' indicating the test result.
-#' @param range_start The date furthest into the past that should be considered as a plausible day for DDI_1.
-#' @param range_end The most recent date that should be considered as a plausible day for DDI_1.
-#' @param visit_date The date of the visit on whose sample the test result was observed
-#' @param min_prob The most 'certain' you are that the given test results excludes dates far from the actual visit. Think of this as a chance that the test may give an incorrect result.
-#' @param max_prob The most 'certain' you are that the given test results excludes dates far from the actual visit. Think of this as a chance that the test may give an incorrect result. TODO: Think more about what this actually means.
-#' @export
 
-interpret_result <- function(assay_dynamics, result, range_start, range_end, visit_date, 
-                             min_prob = 0.00, max_prob = 1.00){
-  days_vec <- NULL
-  prob_vec <- NULL
-  d2v_vec <- NULL
-  for (i in ymd(range_start):ymd(range_end)){
-    time_to_visit = as.duration(ymd(visit_date) - as_date(i))
-    days_to_visit = as.numeric(time_to_visit)/(60*60*24)
-    stopifnot(days_to_visit == floor(days_to_visit))
 
-    days_vec <- c(days_vec, as_date(i))
-    prob_vec <- c(prob_vec, 
-                  prob_test_result_given_days_to_visit(assay_dynamics = assay_dynamics, 
-                                                       result = result, 
-                                                       days_to_visit = days_to_visit)
-                  )
-    d2v_vec <- c(d2v_vec, days_to_visit)
-  }
-  prob_vec[prob_vec < min_prob] <- min_prob
-  prob_vec[prob_vec > max_prob] <- max_prob
-  return(data.frame(days = as_date(days_vec),
-                    prob = prob_vec,
-                    d2v = d2v_vec)
-        )
-}
-
-#' Given a set of results, construct DDI_1 probability curves
-#'
-#' Calls interpret_result on a set of test results and aggregate the results into a data.frame
-#'
-#' @param result_set A data.frame of all the test results and dates for a patient
-#' @param range_start The date furthest into the past that should be considered as a plausible day for DDI_1. Can be NULL, then defaults to 2 months before the earliest result.
-#' @param range_end The most recent date that should be considered as a plausible day for DDI_1. Can be NULL, then defaults to 1 week after the most recent result.
-#' @export
 
 interpret_result_set <- function(result_set, range_start = NULL, range_end = NULL){
   if (is.null(range_start)){
@@ -276,4 +223,79 @@ interpret_result_set <- function(result_set, range_start = NULL, range_end = NUL
   }
   return(dat)
 }
+
+
+#################### OBSOLETE
+
+##' Probabilities of certain test results
+##'
+##' Turns assay dynamics into the probability of observing a specified test result a given number of days since XXX
+##'
+##' @param assay_dynamics A list providing the assay_dynamics, (TODO: elaborate)
+##' @param result '+' or '-' indicating the test result.
+##' @param days_to_visit The number of days between XXX and the test result.
+##' @export
+#
+#prob_test_result_given_days_to_visit <- function(assay_dynamics, result, days_to_visit){
+#  assay_dynamics$params$x <- days_to_visit
+#  x <- do.call(assay_dynamics$fun, assay_dynamics$params)
+#
+#  if (result == "+"){
+#    return(x)
+#  } else if (result == "-"){
+#    return(1-x)
+#  } else {
+#    stop('result must be "+" or "-"')
+#  }
+#}
+#
+##' Probability of DDI_1 curve implied by test result
+##'
+##' Compute a curve of probabilities of observing a specified test result on a specified date assuming the day of DDI_1. Thus assume individually that each day in a range of dates is the DDI_1 and then compute the probability of observing the specified result.
+##'
+##' @param assay_dynamics A list providing the assay_dynamics, (TODO: elaborate)
+##' @param result '+' or '-' indicating the test result.
+##' @param range_start The date furthest into the past that should be considered as a plausible day for DDI_1.
+##' @param range_end The most recent date that should be considered as a plausible day for DDI_1.
+##' @param visit_date The date of the visit on whose sample the test result was observed
+##' @param min_prob The most 'certain' you are that the given test results excludes dates far from the actual visit. Think of this as a chance that the test may give an incorrect result.
+##' @param max_prob The most 'certain' you are that the given test results excludes dates far from the actual visit. Think of this as a chance that the test may give an incorrect result. TODO: Think more about what this actually means.
+##' @export
+#
+#interpret_result <- function(assay_dynamics, result, range_start, range_end, visit_date, 
+#                             min_prob = 0.00, max_prob = 1.00){
+#  days_vec <- NULL
+#  prob_vec <- NULL
+#  d2v_vec <- NULL
+#  for (i in ymd(range_start):ymd(range_end)){
+#    time_to_visit = as.duration(ymd(visit_date) - as_date(i))
+#    days_to_visit = as.numeric(time_to_visit)/(60*60*24)
+#    stopifnot(days_to_visit == floor(days_to_visit))
+#
+#    days_vec <- c(days_vec, as_date(i))
+#    prob_vec <- c(prob_vec, 
+#                  prob_test_result_given_days_to_visit(assay_dynamics = assay_dynamics, 
+#                                                       result = result, 
+#                                                       days_to_visit = days_to_visit)
+#                  )
+#    d2v_vec <- c(d2v_vec, days_to_visit)
+#  }
+#  prob_vec[prob_vec < min_prob] <- min_prob
+#  prob_vec[prob_vec > max_prob] <- max_prob
+#  return(data.frame(days = as_date(days_vec),
+#                    prob = prob_vec,
+#                    d2v = d2v_vec)
+#        )
+#}
+#
+##' Given a set of results, construct DDI_1 probability curves
+##'
+##' Calls interpret_result on a set of test results and aggregate the results into a data.frame
+##'
+##' @param result_set A data.frame of all the test results and dates for a patient
+##' @param range_start The date furthest into the past that should be considered as a plausible day for DDI_1. Can be NULL, then defaults to 2 months before the earliest result.
+##' @param range_end The most recent date that should be considered as a plausible day for DDI_1. Can be NULL, then defaults to 1 week after the most recent result.
+##' @export
+
+
 
