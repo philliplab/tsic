@@ -62,7 +62,7 @@ test_that("mucking about in the outer scope does not mess with the closure", {
   expect_equal(foo('2018-05-30'), 1)
 })
 
-test_that("aggregate_interpreter gets build correctly", {
+test_that("aggregate_interpreter gets build correctly in a basic case", {
             if (FALSE) {
               devtools::load_all()
             }
@@ -82,6 +82,22 @@ test_that("aggregate_interpreter gets build correctly", {
   expect_equal(foo('2017-03-11'), 0)
 
 #  Somehow this is now working. I think it is a lazy evaluation thing - I now reassign the important variables in the environment and this fixes the issue. Unsure if it is the actual assignment or just the forcing of the thing to be evaluated that does the trick. LEARN MORE.
+
+  # Find the jumps and make sure that there are no values that are not zero or one
+  expect_equal(foo('2016-02-19'), 0)
+  expect_equal(foo('2016-02-20'), 1)
+  expect_equal(foo(as.numeric(as.Date('2016-02-19')+0.5)), 0)
+  expect_equal(foo(as.numeric(as.Date('2016-02-19')+0.9)), 0)
+  expect_equal(foo(as.numeric(as.Date('2016-02-19')+0.99)), 0)
+  expect_equal(foo(as.numeric(as.Date('2016-02-19')+0.999)), 0)
+  expect_equal(foo(as.numeric(as.Date('2016-02-19')+0.9999)), 0)
+  expect_equal(foo(as.numeric(as.Date('2016-02-19')+0.99999)), 0)
+  expect_equal(foo(as.numeric(as.Date('2016-02-19')+0.999999)), 0)
+  expect_equal(foo(as.numeric(as.Date('2016-02-19')+0.9999999)), 0)
+  expect_equal(foo(as.numeric(as.Date('2016-02-19')+0.99999999)), 0)
+
+  expect_equal(foo(as.numeric(as.Date('2016-02-20')+0.1)), 1)
+  expect_equal(foo(as.numeric(as.Date('2016-02-20')+0.000001)), 1)
 })
 
 test_that("get_scatterpoints work in normal circumstances", {
