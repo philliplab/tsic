@@ -262,6 +262,35 @@ test_that('reduce_x_points handles a step function correctly', {
   expect_true(all(abs(interpolated$y - y) < min_delta))
 })
 
+test_that('interpret_ihist works', {
+  if (FALSE) {
+    devtools::load_all()
+  }
+  ihist <- data.frame(
+    ptid = c('p0', 'p0'),
+    sample_date = c('2016-03-01', '2016-09-01'),
+    test = c('step_unit_testing', 'step_unit_testing'),
+    result = c('-', '+'),
+    stringsAsFactors = FALSE
+  )
+
+  iihist <- interpret_ihist(ihist = ihist,
+                            range_start = as.Date('2016-01-01'),
+                            range_end = as.Date('2016-11-30'))
+
+  expect_true('data.frame' %in% class(iihist))
+  expect_equal(sort(names(iihist)),
+               sort(c("ptid", "sample_date", "test_details", "prob_val")))
+
+  for (c_assay_name in unique(iihist$test_details)){
+    c_dat <- subset(iihist, test_details == c_assay_name)
+    expect_equal(length(c_dat$sample_date),
+                 length(unique(c_dat$sample_date)))
+  }
+
+#interpret_ihist <- function(ihist, range_start, range_end, verbose = FALSE){
+})
+
 test_that('INTEGRATION: get_scatterpoints and reduce_x_points on Linear', {
   assay_dynamics <- get_assay_dynamics(assay = 'linear_unit_testing')
   result <- '+'

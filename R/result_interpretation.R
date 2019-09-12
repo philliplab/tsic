@@ -190,38 +190,95 @@ construct_aggregate_interpreter <- function(ihist){
   return(evaluate_proposed_infection_date)
 }
 
-process_all_histories <- function(ahist){
-  all_ptids <- unique(ahist$ptid)
-}
+#' Interprets an ihist into daily likelihoods
+#'
+#' Given a range of interest and an individual's diagnostic history, compute the likelihood that each day in the range was the day of infection. This produces the output in long format.
+#'
+#' @param ihist The diagnostic history for an individual.
+#' @param range_start The earliest day of interest.
+#' @param range_end The latest day of interest.
+#' @param verbose Should verbose output be printed during the computation?
+#' @example
+#' ihist <- data.frame(
+#'   ptid = c('p0', 'p0'),
+#'   sample_date = c('2016-03-01', '2016-09-01'),
+#'   test = c('step_unit_testing', 'step_unit_testing'),
+#'   result = c('-', '+'),
+#'   stringsAsFactors = FALSE
+#' )
+#' range_start <- as.Date('2016-01-01')
+#' range_end <- as.Date('2016-12-01')
+#' interpret_ihist(ihist = ihist, range_start = range_start, range_end = range_end, verbose = TRUE)
+#' @export
 
+interpret_ihist <- function(ihist, range_start, range_end, verbose = FALSE){
+  stopifnot(class(range_start) == 'Date')
+  stopifnot(class(range_end) == 'Date')
+  stopifnot(length(unique(ihist$ptid)) == 1)
 
-
-
-interpret_result_set <- function(result_set, range_start = NULL, range_end = NULL){
-  if (is.null(range_start)){
-    range_start <- min(ymd(result_set$visit_date)) %m-% months(2)
+  # Debugging stuff
+  if (FALSE){
+    ihist <- data.frame(
+      ptid = c('p0', 'p0'),
+      sample_date = c('2016-03-01', '2016-09-01'),
+      test = c('step_unit_testing', 'step_unit_testing'),
+      result = c('-', '+'),
+      stringsAsFactors = FALSE
+    )
+    range_start <- as.Date('2016-01-01')
+    range_end <- as.Date('2016-12-01')
+    verbose <- FALSE
+    i <- 1
   }
-  if (is.null(range_end)){
-    range_end <- max(ymd(result_set$visit_date)) %m+% weeks(1)
-  }
 
-  dat <- data.frame(date = as_date(ymd(range_start):ymd(range_end)))
-  for (r_indx in 1:nrow(result_set)){
-    c_result <- result_set[r_indx,]
-    assay_dynamics <- get_assay_dynamics(assay = c_result$assay)
-    i_result <- interpret_result(assay_dynamics = assay_dynamics,
-                                 result = c_result$result,
-                                 range_start = range_start,
-                                 range_end = range_end,
-                                 visit_date = c_result$visit_date)
-    p_result <- i_result[,c('days', 'prob')]
-    tmpx <- paste(c_result$assay, '_', 
-                  gsub("-", "", c_result$visit_date), 
-                  '_', c_result$result, sep = '')
-    names(p_result) <- c( 'date', tmpx )
-    dat <- merge(dat, p_result)
+
+  all_xy_points <- data.frame(ptid = character(0),
+                              sample_date = numeric(0),
+                              test_details = character(0),
+                              prob_val = numeric(0),
+                              stringsAsFactors = TRUE)
+
+  for (i in 1:nrow(ihist)){
+    if (verbose){
+      cat(paste0(ihist[i, 'test'], '_', ihist[i, 'sample_date'], '_', ihist[i, 'result'], ': Setting up'))
+    }
+    assay_dynamics <- get_assay_dynamics(ihist[i, 'test'])
+    assay_interpreter <-
+      construct_assay_result_interpreter(assay_dynamics = assay_dynamics,
+                                         result = ihist[i, 'result'],
+                                         sample_date = ihist[i, 'sample_date'])
+
+    if (verbose){ cat(paste0('. Getting')) }
+    c_xy_points <- get_scatterpoints(fun = assay_interpreter,
+                                          seedpoints = range_start:range_end)
+    if (verbose){ cat(paste0('. Reducing')) }
+    c_xy_points <- reduce_x_points(x = c_xy_points[['x']],
+                                        y = c_xy_points[['y']])
+    if (verbose){ cat(paste0('. Binding')) }
+    all_xy_points <- rbind(
+      all_xy_points,
+      data.frame(ptid = ihist[i, 'ptid'],
+                 sample_date = c_xy_points[['x']],
+                 test_details = paste0(ihist[i, 'test'], '_', ihist[i, 'sample_date'], '_', ihist[i, 'result']),
+                 prob_val = c_xy_points[['y']],
+                 stringsAsFactors = FALSE),
+      stringsAsFactors = FALSE)
+    if (verbose){cat('.\n')}
   }
-  return(dat)
+#construct_aggregate_interpreter <- function(ihist){
+  aggregate_interpreter <- construct_aggregate_interpreter(ihist)
+  aggregate_seedpoints <- sort(unique(all_xy_points[['sample_date']]))
+  c_xy_points <- get_scatterpoints(fun = aggregate_interpreter,
+                                   seedpoints = aggregate_seedpoints)
+  all_xy_points <- rbind(
+    all_xy_points,
+    data.frame(ptid = ihist[1, 'ptid'],
+               sample_date = c_xy_points[['x']],
+               test_details = paste0('Aggregate'),
+               prob_val = c_xy_points[['y']],
+               stringsAsFactors = FALSE),
+    stringsAsFactors = FALSE)
+  return(all_xy_points)
 }
 
 
@@ -296,6 +353,33 @@ interpret_result_set <- function(result_set, range_start = NULL, range_end = NUL
 ##' @param range_start The date furthest into the past that should be considered as a plausible day for DDI_1. Can be NULL, then defaults to 2 months before the earliest result.
 ##' @param range_end The most recent date that should be considered as a plausible day for DDI_1. Can be NULL, then defaults to 1 week after the most recent result.
 ##' @export
-
-
-
+#
+#
+#
+#interpret_result_set <- function(result_set, range_start = NULL, range_end = NULL){
+#  if (is.null(range_start)){
+#    range_start <- min(ymd(result_set$visit_date)) %m-% months(2)
+#  }
+#  if (is.null(range_end)){
+#    range_end <- max(ymd(result_set$visit_date)) %m+% weeks(1)
+#  }
+#
+#  dat <- data.frame(date = as_date(ymd(range_start):ymd(range_end)))
+#  for (r_indx in 1:nrow(result_set)){
+#    c_result <- result_set[r_indx,]
+#    assay_dynamics <- get_assay_dynamics(assay = c_result$assay)
+#    i_result <- interpret_result(assay_dynamics = assay_dynamics,
+#                                 result = c_result$result,
+#                                 range_start = range_start,
+#                                 range_end = range_end,
+#                                 visit_date = c_result$visit_date)
+#    p_result <- i_result[,c('days', 'prob')]
+#    tmpx <- paste(c_result$assay, '_', 
+#                  gsub("-", "", c_result$visit_date), 
+#                  '_', c_result$result, sep = '')
+#    names(p_result) <- c( 'date', tmpx )
+#    dat <- merge(dat, p_result)
+#  }
+#  return(dat)
+#}
+#
