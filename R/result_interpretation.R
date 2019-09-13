@@ -259,7 +259,7 @@ interpret_ihist <- function(ihist, range_start, range_end, verbose = FALSE){
       all_xy_points,
       data.frame(ptid = ihist[i, 'ptid'],
                  sample_date = c_xy_points[['x']],
-                 test_details = paste0(ihist[i, 'test'], '_', ihist[i, 'sample_date'], '_', ihist[i, 'result']),
+                 test_details = paste0(ihist[i, 'test'], '\n', ihist[i, 'sample_date'], '\n', ihist[i, 'result']),
                  prob_val = c_xy_points[['y']],
                  stringsAsFactors = FALSE),
       stringsAsFactors = FALSE)
