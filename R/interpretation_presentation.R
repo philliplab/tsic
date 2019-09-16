@@ -1,8 +1,10 @@
 
 
-plot_iihist <- function(iihist, lb_med_ub = NULL, produce_plot = TRUE){
+plot_iihist <- function(iihist, lb_med_ub = NULL, produce_plot = TRUE, save_plot = FALSE){
   # debugging stuff
   if (FALSE) {
+    devtools::load_all()
+    #1
     ihist <- data.frame(
       ptid = c('p0', 'p0'),
       sample_date = c('2016-03-01', '2016-09-01'),
@@ -13,6 +15,14 @@ plot_iihist <- function(iihist, lb_med_ub = NULL, produce_plot = TRUE){
     iihist <- interpret_ihist(ihist = ihist,
                               range_start = as.Date('2016-01-01'),
                               range_end = as.Date('2016-11-30'))
+
+    # 2
+    ihist <- read.csv('/fridge/data/tsic/test_data.csv', stringsAsFactors = FALSE)
+    iihist <- interpret_ihist(ihist = ihist,
+                              range_start = as.Date('2017-01-01'),
+                              range_end = as.Date('2017-11-30'),
+                              verbose = TRUE)
+
   }
   stopifnot('Aggregate' %in% iihist$test_details)
 
@@ -31,12 +41,12 @@ plot_iihist <- function(iihist, lb_med_ub = NULL, produce_plot = TRUE){
   #x_tick_labels <- strftime(as.Date(round(x_breaks, 0), origin = '1970-01-01'), format = "%b-%y")
 
   x <- 
-  ggplot2::ggplot(iihist, aes(x = sample_date, y = prob_val, col = result)) +
-    geom_line() +
-    facet_grid(test_details ~ .) +
-    theme(legend.position = 'none') +
-    labs(y = 'Probability of observed result given initial\ninfection on day indicated by x-axis') +
-    scale_x_continuous('Date of intial infection', breaks = x_breaks, labels = x_tick_labels)
+  ggplot2::ggplot(iihist, ggplot2::aes(x = sample_date, y = prob_val, col = result)) +
+    ggplot2::geom_line() +
+    ggplot2::facet_grid(test_details ~ .) +
+    ggplot2::theme(legend.position = 'none') +
+    ggplot2::labs(y = 'Probability of observed result given initial\ninfection on day indicated by x-axis') +
+    ggplot2::scale_x_continuous('Date of intial infection', breaks = x_breaks, labels = x_tick_labels)
   if (produce_plot) {print(x)}
   return(x)
 }
