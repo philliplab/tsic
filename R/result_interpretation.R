@@ -266,10 +266,18 @@ interpret_ihist <- function(ihist, range_start, range_end, verbose = FALSE){
     if (verbose){cat('.\n')}
   }
 #construct_aggregate_interpreter <- function(ihist){
+  if (verbose){
+    cat(paste0('Aggregate (Slow step)', ': Setting up'))
+  }
   aggregate_interpreter <- construct_aggregate_interpreter(ihist)
   aggregate_seedpoints <- sort(unique(all_xy_points[['sample_date']]))
+  if (verbose){ cat(paste0('. Getting')) }
   c_xy_points <- get_scatterpoints(fun = aggregate_interpreter,
                                    seedpoints = aggregate_seedpoints)
+  if (verbose){ cat(paste0('. Reducing')) }
+  c_xy_points <- reduce_x_points(x = c_xy_points[['x']],
+                                      y = c_xy_points[['y']])
+  if (verbose){ cat(paste0('. Binding')) }
   all_xy_points <- rbind(
     all_xy_points,
     data.frame(ptid = ihist[1, 'ptid'],
@@ -278,6 +286,8 @@ interpret_ihist <- function(ihist, range_start, range_end, verbose = FALSE){
                prob_val = c_xy_points[['y']],
                stringsAsFactors = FALSE),
     stringsAsFactors = FALSE)
+  if (verbose){cat('.\n')}
+
   return(all_xy_points)
 }
 
