@@ -1,26 +1,30 @@
 context("test-result_interpretation")
 
+if (FALSE) {
+  devtools::load_all()
+}
+
 test_that("assay_result_interpreter gets build correctly", {
   assay_dynamics <- get_assay_dynamics(assay = 'step_unit_testing')
   result <- '+'
   foo <- construct_assay_result_interpreter(assay_dynamics = assay_dynamics,
                                             result = result,
-                                            sample_date = '2018-06-01')
+                                            sample_date = as.numeric(as.Date('2018-06-01')))
   expect_type(foo, 'closure')
-  expect_equal(foo('2010-05-01'), 1)
-  expect_equal(foo('2018-05-01'), 1)
-  expect_equal(foo('2018-05-30'), 0)
-  expect_equal(foo('2018-06-30'), 0)
+  expect_equal(foo(as.numeric(as.Date('2010-05-01'))), 1)
+  expect_equal(foo(as.numeric(as.Date('2018-05-01'))), 1)
+  expect_equal(foo(as.numeric(as.Date('2018-05-30'))), 0)
+  expect_equal(foo(as.numeric(as.Date('2018-06-30'))), 0)
   
   result <- '-'
   foo <- construct_assay_result_interpreter(assay_dynamics = assay_dynamics,
                                             result = result,
-                                            sample_date = '2018-06-01')
+                                            sample_date = as.numeric(as.Date('2018-06-01')))
   expect_type(foo, 'closure')
-  expect_equal(foo('2010-05-01'), 0)
-  expect_equal(foo('2018-05-01'), 0)
-  expect_equal(foo('2018-05-30'), 1)
-  expect_equal(foo('2018-06-30'), 1)
+  expect_equal(foo(as.numeric(as.Date('2010-05-01'))), 0)
+  expect_equal(foo(as.numeric(as.Date('2018-05-01'))), 0)
+  expect_equal(foo(as.numeric(as.Date('2018-05-30'))), 1)
+  expect_equal(foo(as.numeric(as.Date('2018-06-30'))), 1)
 })
 
 
@@ -30,36 +34,36 @@ test_that("mucking about in the outer scope does not mess with the closure", {
   result <- '+'
   foo <- construct_assay_result_interpreter(assay_dynamics = assay_dynamics,
                                             result = result,
-                                            sample_date = '2018-06-01')
+                                            sample_date = as.numeric(as.Date('2018-06-01')))
   expect_type(foo, 'closure')
-  expect_equal(foo('2018-05-01'), 1)
-  expect_equal(foo('2018-05-30'), 0)
+  expect_equal(foo(as.numeric(as.Date('2018-05-01'))), 1)
+  expect_equal(foo(as.numeric(as.Date('2018-05-30'))), 0)
   
   assay_dynamics$parameters$diagnostic_delay <- 100
-  expect_equal(foo('2018-05-01'), 1)
+  expect_equal(foo(as.numeric(as.Date('2018-05-01'))), 1)
   assay_dynamics$parameters$diagnostic_delay <- 1.5
-  expect_equal(foo('2018-05-30'), 0)
+  expect_equal(foo(as.numeric(as.Date('2018-05-30'))), 0)
   
   result <- '-'
-  expect_equal(foo('2018-05-01'), 1)
-  expect_equal(foo('2018-05-30'), 0)
+  expect_equal(foo(as.numeric(as.Date('2018-05-01'))), 1)
+  expect_equal(foo(as.numeric(as.Date('2018-05-30'))), 0)
   
   result <- '-'
   foo <- construct_assay_result_interpreter(assay_dynamics = assay_dynamics,
                                             result = result,
-                                            sample_date = '2018-06-01')
+                                            sample_date = as.numeric(as.Date('2018-06-01')))
   expect_type(foo, 'closure')
-  expect_equal(foo('2018-05-01'), 0)
-  expect_equal(foo('2018-05-30'), 1)
+  expect_equal(foo(as.numeric(as.Date('2018-05-01'))), 0)
+  expect_equal(foo(as.numeric(as.Date('2018-05-30'))), 1)
   
   assay_dynamics$parameters$diagnostic_delay <- 100
-  expect_equal(foo('2018-05-01'), 0)
+  expect_equal(foo(as.numeric(as.Date('2018-05-01'))), 0)
   assay_dynamics$parameters$diagnostic_delay <- 1.5
-  expect_equal(foo('2018-05-30'), 1)
+  expect_equal(foo(as.numeric(as.Date('2018-05-30'))), 1)
   
   result <- '+'
-  expect_equal(foo('2018-05-01'), 0)
-  expect_equal(foo('2018-05-30'), 1)
+  expect_equal(foo(as.numeric(as.Date('2018-05-01'))), 0)
+  expect_equal(foo(as.numeric(as.Date('2018-05-30'))), 1)
 })
 
 test_that("aggregate_interpreter gets build correctly in a basic case", {
@@ -68,24 +72,24 @@ test_that("aggregate_interpreter gets build correctly in a basic case", {
             }
   diagnostic_history <- data.frame(
     ptid = c('p0', 'p0'),
-    sample_date = c('2016-03-01', '2016-09-01'),
+    sample_date = c(as.numeric(as.Date('2016-03-01')), as.numeric(as.Date('2016-09-01'))),
     test = c('step_unit_testing', 'step_unit_testing'),
     result = c('-', '+'),
     stringsAsFactors = FALSE
   )
   foo <- construct_aggregate_interpreter(diagnostic_history)
   expect_type(foo, 'closure')
-  expect_equal(foo('2010-05-01'), 0)
-  expect_equal(foo('2018-05-01'), 0)
-  expect_equal(foo('2016-05-29'), 1)
-  expect_equal(foo('2016-03-11'), 1)
-  expect_equal(foo('2017-03-11'), 0)
+  expect_equal(foo(as.numeric(as.Date('2010-05-01'))), 0)
+  expect_equal(foo(as.numeric(as.Date('2018-05-01'))), 0)
+  expect_equal(foo(as.numeric(as.Date('2016-05-29'))), 1)
+  expect_equal(foo(as.numeric(as.Date('2016-03-11'))), 1)
+  expect_equal(foo(as.numeric(as.Date('2017-03-11'))), 0)
 
 #  Somehow this is now working. I think it is a lazy evaluation thing - I now reassign the important variables in the environment and this fixes the issue. Unsure if it is the actual assignment or just the forcing of the thing to be evaluated that does the trick. LEARN MORE.
 
   # Find the jumps and make sure that there are no values that are not zero or one
-  expect_equal(foo('2016-02-19'), 0)
-  expect_equal(foo('2016-02-20'), 1)
+  expect_equal(foo(as.numeric(as.Date('2016-02-19'))), 0)
+  expect_equal(foo(as.numeric(as.Date('2016-02-20'))), 1)
   expect_equal(foo(as.numeric(as.Date('2016-02-19')+0.5)), 0)
   expect_equal(foo(as.numeric(as.Date('2016-02-19')+0.9)), 0)
   expect_equal(foo(as.numeric(as.Date('2016-02-19')+0.99)), 0)
@@ -174,8 +178,8 @@ test_that("get_scatterpoints can recurse more than once", {
 test_that("get_scatterpoints zoom in on the step", {
   assay_dynamics <- get_assay_dynamics(assay = 'step_unit_testing')
   result <- '+'
-  sample_date <- lubridate::ymd('2015-01-01')
-  range_start <- lubridate::ymd('2014-12-01')
+  sample_date <- as.numeric(as.Date('2015-01-01'))
+  range_start <- as.numeric(as.Date('2014-12-01'))
   foo <- construct_assay_result_interpreter(assay_dynamics = assay_dynamics,
                                             result = result,
                                             sample_date = sample_date)
@@ -184,9 +188,9 @@ test_that("get_scatterpoints zoom in on the step", {
                                      max_delta = 0.01, min_length = 0.01,
                                      n_new_segments = 20, verbose = FALSE)
 
-  date_less_diagnostic_delay <- sample_date - lubridate::days(assay_dynamics$params$diagnostic_delay)
-  day_before <- (date_less_diagnostic_delay-lubridate::days(1))
-  day_after <- (date_less_diagnostic_delay+lubridate::days(1))
+  date_less_diagnostic_delay <- sample_date - assay_dynamics$params$diagnostic_delay
+  day_before <- date_less_diagnostic_delay - 1
+  day_after <- date_less_diagnostic_delay + 1
 
   expect_equal( sum(scatterpoints$x <= day_before), 
                 length(range_start:day_before) )
@@ -244,8 +248,8 @@ test_that('reduce_x_points handles changes in the y values correctly', {
 test_that('reduce_x_points handles a step function correctly', {
   assay_dynamics <- get_assay_dynamics(assay = 'step_unit_testing')
   result <- '+'
-  sample_date <- lubridate::ymd('2015-01-01')
-  range_start <- lubridate::ymd('2014-12-01')
+  sample_date <- as.numeric(as.Date('2015-01-01'))
+  range_start <- as.numeric(as.Date('2014-12-01'))
   foo <- construct_assay_result_interpreter(assay_dynamics = assay_dynamics,
                                             result = result,
                                             sample_date = sample_date)
@@ -268,15 +272,15 @@ test_that('interpret_ihist works', {
   }
   ihist <- data.frame(
     ptid = c('p0', 'p0'),
-    sample_date = c('2016-03-01', '2016-09-01'),
+    sample_date = c(as.numeric(as.Date('2016-03-01')), as.numeric(as.Date('2016-09-01'))),
     test = c('step_unit_testing', 'step_unit_testing'),
     result = c('-', '+'),
     stringsAsFactors = FALSE
   )
 
   iihist <- interpret_ihist(ihist = ihist,
-                            range_start = as.Date('2016-01-01'),
-                            range_end = as.Date('2016-11-30'))
+                            range_start = as.numeric(as.Date('2016-01-01')),
+                            range_end = as.numeric(as.Date('2016-11-30')))
 
   expect_true('data.frame' %in% class(iihist))
   expect_equal(sort(names(iihist)),
@@ -294,8 +298,8 @@ test_that('interpret_ihist works', {
 test_that('INTEGRATION: get_scatterpoints and reduce_x_points on Linear', {
   assay_dynamics <- get_assay_dynamics(assay = 'linear_unit_testing')
   result <- '+'
-  sample_date <- lubridate::ymd('2015-01-01')
-  range_start <- lubridate::ymd('2014-12-01')
+  sample_date <- as.numeric(as.Date('2015-01-01'))
+  range_start <- as.numeric(as.Date('2014-12-01'))
   foo <- construct_assay_result_interpreter(assay_dynamics = assay_dynamics,
                                             result = result,
                                             sample_date = sample_date)
@@ -321,9 +325,9 @@ test_that('INTEGRATION: get_scatterpoints and reduce_x_points on Weib3', {
   }
   assay_dynamics <- get_assay_dynamics(assay = 'weib3_unit_testing')
   result <- '+'
-  sample_date <- lubridate::ymd('2015-01-01')
-  range_start <- lubridate::ymd('2014-11-01')
-  range_end <- lubridate::ymd('2015-02-01')
+  sample_date <- as.numeric(as.Date('2015-01-01'))
+  range_start <- as.numeric(as.Date('2014-11-01'))
+  range_end <- as.numeric(as.Date('2015-02-01'))
   foo <- construct_assay_result_interpreter(assay_dynamics = assay_dynamics,
                                             result = result,
                                             sample_date = sample_date)
@@ -351,9 +355,9 @@ test_that('INTEGRATION: get_scatterpoints and reduce_x_points on Weib3', {
 test_that('PERFORMANCE: get_scatterpoints and reduce_x_points on Weib3 large interval', {
   assay_dynamics <- get_assay_dynamics(assay = 'weib3_unit_testing')
   result <- '+'
-  sample_date <- lubridate::ymd('2015-01-01')
-  range_start <- lubridate::ymd('2014-03-11')
-  range_end <- lubridate::ymd('2016-02-01')
+  sample_date <- as.numeric(as.Date('2015-01-01'))
+  range_start <- as.numeric(as.Date('2014-03-11'))
+  range_end <- as.numeric(as.Date('2016-02-01'))
   foo <- construct_assay_result_interpreter(assay_dynamics = assay_dynamics,
                                             result = result,
                                             sample_date = sample_date)

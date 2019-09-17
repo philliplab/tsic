@@ -1,17 +1,18 @@
 #' Construct an assay result interpretation function
 #'
-#' Given the dynamics of an assay and a result, produce a function that when evaluated for a potential exposure date will produce the probability of observing the given result at the relevant sample date. This function will only take x as input, which is the potential exposure date, and will already have the particulars of the result and assay loaded into it.
+#' Given the dynamics of an assay and a result with a date (in days since 1970-01-01), produce a function that when evaluated for a potential exposure date (in days since 1970-01-01) will produce the probability of observing the given result at the relevant sample date. This function will only take x as input, which is the potential exposure date (in days since 1970-01-01), and will already have the particulars of the result and assay loaded into it.
 #'
 #' @param assay_dynamics A list providing the assay_dynamics, (TODO: elaborate)
 #' @param result The result of the test. Either '+' or '-'.
-#' @param sample_date The date on which the sample was drawn.
+#' @param sample_date The date (in days since 1970-01-01) on which the sample was drawn.
 #' @export
 
 construct_assay_result_interpreter <- function(assay_dynamics, result, sample_date){
   evaluate_dynamics <- function(x){
-    tmp_x <- lubridate::as.duration(lubridate::ymd(sample_date) - lubridate::as_date(x))
-    tmp_x <- as.numeric(tmp_x)/(60*60*24)
-    assay_dynamics$params$x <- tmp_x
+#    tmp_x <- lubridate::as.duration(lubridate::ymd(sample_date) - lubridate::as_date(x))
+#    tmp_x <- as.numeric(tmp_x)/(60*60*24)
+#    assay_dynamics$params$x <- tmp_x
+    assay_dynamics$params$x <- sample_date - x
     return(do.call(assay_dynamics$fun, assay_dynamics$params))
   }
   if (result == '+'){
@@ -212,8 +213,8 @@ construct_aggregate_interpreter <- function(ihist){
 #' @export
 
 interpret_ihist <- function(ihist, range_start, range_end, verbose = FALSE){
-  stopifnot(class(range_start) == 'Date')
-  stopifnot(class(range_end) == 'Date')
+  stopifnot(class(range_start) == 'numeric')
+  stopifnot(class(range_end) == 'numeric')
   stopifnot(length(unique(ihist$ptid)) == 1)
 
   # Debugging stuff

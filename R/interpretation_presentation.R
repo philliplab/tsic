@@ -4,6 +4,7 @@ plot_iihist <- function(iihist, lb_med_ub = NULL, produce_plot = TRUE, save_plot
   # debugging stuff
   if (FALSE) {
     devtools::load_all()
+    library(profvis)
     #1
     ihist <- data.frame(
       ptid = c('p0', 'p0'),
@@ -18,11 +19,13 @@ plot_iihist <- function(iihist, lb_med_ub = NULL, produce_plot = TRUE, save_plot
 
     # 2
     ihist <- read.csv('/fridge/data/tsic/test_data.csv', stringsAsFactors = FALSE)
+    ihist <- subset(ihist, ptid == 'p01')
+    profvis({
     iihist <- interpret_ihist(ihist = ihist,
                               range_start = as.Date('2017-01-01'),
                               range_end = as.Date('2017-11-30'),
                               verbose = TRUE)
-
+    })
   }
   stopifnot('Aggregate' %in% iihist$test_details)
 
