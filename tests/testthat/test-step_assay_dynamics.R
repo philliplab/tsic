@@ -15,3 +15,14 @@ test_that("Test that the diagnostic_delany works: diagnostic delay = 20", {
   x20.001 <- step_assay_dynamics(20.001, 20)
   expect_equal(x20.001, 1)
 })
+
+test_that('step assay dynamics function is vectorized', {
+  x_vec <- step_assay_dynamics(1:10, 50)
+  expect_equal(unique(x_vec), 0)
+
+  x_vec <- step_assay_dynamics(10:20, 5)
+  expect_equal(unique(x_vec), 1)
+
+  x_vec <- step_assay_dynamics(c(1:10, 21:30), 15)
+  expect_equal(x_vec, c(rep(0, 10), rep(1, 10)))
+})

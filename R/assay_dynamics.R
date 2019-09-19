@@ -43,11 +43,12 @@ linear_assay_dynamics <- function(x, diagnostic_delay, spread = 1.5, abs_spread 
 #' @export
 
 step_assay_dynamics <- function(x, diagnostic_delay){
-  if (x > diagnostic_delay){
-    return (1)
-  } else {
-    return (0)
-  }
+  return(ifelse(x > diagnostic_delay, 1, 0))
+#  if (x > diagnostic_delay){
+#    return (1)
+#  } else {
+#    return (0)
+#  }
 }
 
 #' Weibull3 Assay Dynamics
