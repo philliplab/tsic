@@ -11,21 +11,10 @@
 #' @export
 
 linear_assay_dynamics <- function(x, diagnostic_delay, spread = 1.5, abs_spread = NULL){
-  # first model:
-  # probability of positive test diagnostic_delay days after ddi1 = 0.5
-  # probability of positive test (1-spread/2)*diagnostic_delay days after ddi1 = 0.
-  # A straight line through these points gives the probabilities:
-  #  if prob > 1, then return 1
-  #  if prob < 0, then return 0
-
   if (is.null(abs_spread)){ # using spread parameter
     y <- x/(spread*diagnostic_delay) + (0.5-(1/spread))
-#    if (y < 0) {y <- 0}
-#    if (y > 1) {y <- 1}
   } else { # using abs_spread parameter and ignoring spread parameter.
     y <- x/abs_spread + 0.5 - diagnostic_delay/abs_spread
-#    if (y < 0) {y <- 0}
-#    if (y > 1) {y <- 1}
   }
   y <- ifelse(y < 0, 0, y)
   y <- ifelse(y > 1, 1, y)
@@ -44,11 +33,6 @@ linear_assay_dynamics <- function(x, diagnostic_delay, spread = 1.5, abs_spread 
 
 step_assay_dynamics <- function(x, diagnostic_delay){
   return(ifelse(x > diagnostic_delay, 1, 0))
-#  if (x > diagnostic_delay){
-#    return (1)
-#  } else {
-#    return (0)
-#  }
 }
 
 #' Weibull3 Assay Dynamics
@@ -64,12 +48,13 @@ step_assay_dynamics <- function(x, diagnostic_delay){
 #' @export
 
 weib3_assay_dynamics <- function(x, location, scale, shape){
+  return(ifelse(x <= location, 0, 1-exp(-((x - location)/scale)^shape)))
 #    return (sum((y-(1 - exp(-((x - location)/scale)^shape)))^2))^(1/2)
-  if (x <= location){
-    return(0)
-  } else {
-    return(1-exp(-((x - location)/scale)^shape))
-  }
+#  if (x <= location){
+#    return(0)
+#  } else {
+#    return(1-exp(-((x - location)/scale)^shape))
+#  }
 }
 
 #' Get dynamics functions for an assay
