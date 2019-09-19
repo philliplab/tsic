@@ -37,3 +37,15 @@ test_that("Test that the abs_spread parameter works: diagnostic delay = 10, abs_
   x11.25 <- linear_assay_dynamics(11.25, 10, abs_spread = 5)
   expect_equal(x11.25, 0.75)
 })
+
+test_that("the linear assay dynamics function is vectorized", {
+  x_vec <- linear_assay_dynamics(c(0, 1, 2, 3, 4, 5), 10, abs_spread = 5)
+  expect_equal(unique(x_vec), 0)
+  
+  x_vec <- linear_assay_dynamics(c(20, 21, 22, 23, 24, 25), 10, abs_spread = 5)
+  expect_equal(unique(x_vec), 1)
+
+  x_vec <- linear_assay_dynamics(c(0, 1, 2, 3, 4, 5, 20, 21, 22, 23, 24, 25), 10, abs_spread = 5)
+  expect_equal(x_vec, c(rep(0, 6), rep(1, 6)))
+})
+

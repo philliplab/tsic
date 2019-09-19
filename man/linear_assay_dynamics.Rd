@@ -8,11 +8,11 @@ linear_assay_dynamics(x, diagnostic_delay, spread = 1.5,
   abs_spread = NULL)
 }
 \arguments{
-\item{x}{The time since DDI_1}
+\item{x}{The time since XXX}
 
-\item{diagnostic_delay}{The number of days since DDI_1 after which time 50% of patients will test positive.}
+\item{diagnostic_delay}{The number of days since XXX after which time 50% of patients will test positive.}
 
-\item{spread}{The multiplier applied to the diagnostic_delay to obtain the length of window centered at diagnostic_delay days after DDI_1 during some patients will have different results.}
+\item{spread}{The multiplier applied to the diagnostic_delay to obtain the length of window centered at diagnostic_delay days after XXX during some patients will have different results.}
 
 \item{abs_spread}{The width of the range over which the probabilities are both not zero and not one. This range will be centered around the diagnostic_delay. Setting this will cause the function to ignore whatever was specified for spread. Defaults to NULL.}
 }

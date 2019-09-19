@@ -188,6 +188,12 @@ test_that("get_scatterpoints zoom in on the step", {
                                      max_delta = 0.01, min_length = 0.01,
                                      n_new_segments = 20, verbose = FALSE)
 
+  if (FALSE){
+    plot(scatterpoints$y ~ scatterpoints$x)
+    scatterpoints <- reduce_x_points(x = scatterpoints$x, y = scatterpoints$y)
+    plot(scatterpoints$y ~ scatterpoints$x)
+  }
+
   date_less_diagnostic_delay <- sample_date - assay_dynamics$params$diagnostic_delay
   day_before <- date_less_diagnostic_delay - 1
   day_after <- date_less_diagnostic_delay + 1

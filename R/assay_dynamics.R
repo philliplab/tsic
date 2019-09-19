@@ -20,13 +20,15 @@ linear_assay_dynamics <- function(x, diagnostic_delay, spread = 1.5, abs_spread 
 
   if (is.null(abs_spread)){ # using spread parameter
     y <- x/(spread*diagnostic_delay) + (0.5-(1/spread))
-    if (y < 0) {y <- 0}
-    if (y > 1) {y <- 1}
+#    if (y < 0) {y <- 0}
+#    if (y > 1) {y <- 1}
   } else { # using abs_spread parameter and ignoring spread parameter.
     y <- x/abs_spread + 0.5 - diagnostic_delay/abs_spread
-    if (y < 0) {y <- 0}
-    if (y > 1) {y <- 1}
+#    if (y < 0) {y <- 0}
+#    if (y > 1) {y <- 1}
   }
+  y <- ifelse(y < 0, 0, y)
+  y <- ifelse(y > 1, 1, y)
   return(y)
 }
 
