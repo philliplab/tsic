@@ -4,9 +4,9 @@
 #'
 #' A very simple scheme is used to compute these probabilities. Each assay is characterized by a diagnostic delay after which time 50% of patients will test positive. The assay also has a spread parameter. This parameter controls the window during which this probability is not 0 or 1. The default is 1.5 meaning that the period of time during which the assay result is not perfect is 50% longer than the diagnostic delay.
 #'
-#' @param x The time since DDI_1
-#' @param diagnostic_delay The number of days since DDI_1 after which time 50% of patients will test positive.
-#' @param spread The multiplier applied to the diagnostic_delay to obtain the length of window centered at diagnostic_delay days after DDI_1 during some patients will have different results.
+#' @param x The time since XXX
+#' @param diagnostic_delay The number of days since XXX after which time 50% of patients will test positive.
+#' @param spread The multiplier applied to the diagnostic_delay to obtain the length of window centered at diagnostic_delay days after XXX during some patients will have different results.
 #' @param abs_spread The width of the range over which the probabilities are both not zero and not one. This range will be centered around the diagnostic_delay. Setting this will cause the function to ignore whatever was specified for spread. Defaults to NULL.
 #' @export
 

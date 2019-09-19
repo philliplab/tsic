@@ -3,27 +3,29 @@
 plot_iihist <- function(iihist, lb_med_ub = NULL, produce_plot = TRUE, save_plot = FALSE){
   # debugging stuff
   if (FALSE) {
+    produce_plot <- TRUE
     devtools::load_all()
     library(profvis)
     #1
     ihist <- data.frame(
       ptid = c('p0', 'p0'),
-      sample_date = c('2016-03-01', '2016-09-01'),
+      sample_date = c(as.numeric(as.Date('2016-03-01')), as.numeric(as.Date('2016-09-01'))),
       test = c('step_unit_testing', 'step_unit_testing'),
       result = c('-', '+'),
       stringsAsFactors = FALSE
     )
     iihist <- interpret_ihist(ihist = ihist,
-                              range_start = as.Date('2016-01-01'),
-                              range_end = as.Date('2016-11-30'))
+                              range_start = as.numeric(as.Date('2016-01-01')),
+                              range_end = as.numeric(as.Date('2016-11-30')))
 
     # 2
     ihist <- read.csv('/fridge/data/tsic/test_data.csv', stringsAsFactors = FALSE)
+    ihist$sample_date <- as.numeric(as.Date(ihist$sample_date))
     ihist <- subset(ihist, ptid == 'p01')
     profvis({
     iihist <- interpret_ihist(ihist = ihist,
-                              range_start = as.Date('2017-01-01'),
-                              range_end = as.Date('2017-11-30'),
+                              range_start = as.numeric(as.Date('2017-01-01')),
+                              range_end = as.numeric(as.Date('2017-11-30')),
                               verbose = TRUE)
     })
   }

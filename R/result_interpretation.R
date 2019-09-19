@@ -221,13 +221,13 @@ interpret_ihist <- function(ihist, range_start, range_end, verbose = FALSE){
   if (FALSE){
     ihist <- data.frame(
       ptid = c('p0', 'p0'),
-      sample_date = c('2016-03-01', '2016-09-01'),
+      sample_date = c(as.numeric(as.Date('2016-03-01')), as.numeric(as.Date('2016-09-01'))),
       test = c('step_unit_testing', 'step_unit_testing'),
       result = c('-', '+'),
       stringsAsFactors = FALSE
     )
-    range_start <- as.Date('2016-01-01')
-    range_end <- as.Date('2016-12-01')
+    range_start <- as.numeric(as.Date('2016-01-01'))
+    range_end <- as.numeric(as.Date('2016-12-01'))
     verbose <- FALSE
     i <- 1
   }
