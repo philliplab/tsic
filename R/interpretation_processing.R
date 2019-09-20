@@ -1,31 +1,76 @@
-estimate_lb_med_ub <- function(aggregate_interpreter, range_start, range_end){
+estimate_lb_med_ub <- function(fun, range_start, range_end){
   if (FALSE){
-    aggregate_interpreter <- function(x){
-      print(x)
-      if (x < 0 | x > 10) {
-        return (0)
-      } else {
-        return (x)
-      }
+    fun <- function(x){
+      return(ifelse(x < 0 | x > 10, 0, x))
     }
     range_start <- -5
     range_end <- 15
-    x <- 3
+    x <- 4
   }
 
-  integrated_agg <- function(x){
-    print(range_start)
-    print(min(x, range_end))
-    integrate(f = aggregate_interpreter, 
-              lower = range_start, 
-              upper = min(x, range_end))
+  total_aoc <- pracma::integral(fun = fun,
+                                xmin = range_start,
+                                xmax = range_end,
+                                no_intervals = 1000)
+
+  integrated_fun <- function(x){
+    pracma::integral(fun = function(x){fun(x)/total_aoc},
+                     xmin = range_start, 
+                     xmax = min(x, range_end),
+                     no_intervals = 1000)
   }
-  for (i in -4:14){
-    print (i)
-    print(integrated_agg(i))
-  }
+
+  lb <- optimize(f = function(x){(integrated_fun(x) - 0.025)^2},
+           interval = c(range_start, range_end))
+
+  ub <- optimize(f = function(x){(integrated_fun(x) - 0.975)^2},
+           interval = c(lb$minimum, range_end))
+
+  med <- optimize(f = function(x){(integrated_fun(x) - 0.5)^2},
+           interval = c(lb$minimum, ub$minimum))
+
+  return(list(lb = lb$minimum,
+              med = med$minimum,
+              ub = ub$minimum))
+
 }
 
+check_lb_med_ub <- function(lb, med, ub, fun, range_start, range_end){
+  if (FALSE){
+
+    lb  = qbeta(0.025, 2, 5)
+    med = qbeta(0.5,   2, 5)
+    ub  = qbeta(0.975, 2, 5)
+    fun = function(x){dbeta(x, 2, 5)}
+    range_start = 0
+    range_end = 1
+
+
+
+    lb <- lb$minimum
+    med <- med$minimum
+    ub <- ub$minimum
+  }
+  total_aoc <- pracma::integral(f = fun,
+                         xmin = range_start,
+                         xmax = range_end,
+                         no_intervals = 1000)
+  area_left_of_lb <- pracma::integral(f = function(x){fun(x)/total_aoc},
+                               xmin = range_start,
+                               xmax = lb,
+                               no_intervals = 1000)
+  area_left_of_med <- pracma::integral(f = function(x){fun(x)/total_aoc},
+                               xmin = range_start,
+                               xmax = med,
+                               no_intervals = 1000)
+  area_left_of_ub <- pracma::integral(f = function(x){fun(x)/total_aoc},
+                               xmin = range_start,
+                               xmax = ub,
+                               no_intervals = 1000)
+  return(list(area_left_of_lb = area_left_of_lb,
+              area_left_of_med = area_left_of_med,
+              area_left_of_ub = area_left_of_ub))
+}
 
 ## obsolete
 #
