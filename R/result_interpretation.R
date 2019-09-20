@@ -149,6 +149,40 @@ reduce_x_points <- function(x, y, min_delta = 0.0001, max_length = 14){
   return(list(x = new_x, y = new_y))
 }
 
+#' Trims range on which to evaluate a function
+#'
+#' Because the duration of the trial is long and often the region in which the infection could plausibly have happened is small, the integratoin functions often produces zero. Since we know that any aggregate function that produces a probable infection interval shorted than 1 day is problematic, we can devise an easy scheme to remove large chunks from the range where the interpreter function is zero.
+#'
+#' Simply walk from the start to end in one day increments, if the likelihood is still zero, adjust the range_start to the current day. Likewise from range_end.
+#'
+#' @param fun The function that will dictate which portions of the range will get trimmed.
+#' @param range_start The lower bound of the initial range.
+#' @param range_end The upper bound of the initial range.
+#' @export
+
+trim_range <- function(fun, range_start, range_end){
+  new_range_start <- range_start
+  new_range_end <- range_end
+  for (i in range_start:range_end){
+    if (fun(i) == 0){
+      new_range_start <- i
+    } else {
+      break
+    }
+  }
+  if (new_range_start < range_end){
+    for (i in range_end:new_range_start){
+      if (fun(i) == 0){
+        new_range_end <- i
+      } else {
+        break
+      }
+    }
+  }
+  return(list(range_start = new_range_start,
+              range_end = new_range_end))
+}
+
 #' Constructs an interpreter for a diagnostic history
 #'
 #' Construct a closure that gives the likelihood of a diagnostic history if the infection event was on the date supplied.

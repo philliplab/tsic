@@ -301,6 +301,19 @@ test_that('interpret_ihist works', {
 #interpret_ihist <- function(ihist, range_start, range_end, verbose = FALSE){
 })
 
+test_that('trim_range works', {
+  if (FALSE){
+    devtools::load_all()
+  }
+  fun <- function(x){ifelse(x<400, 0, ifelse(x>450, 0, 1))}
+  res <- trim_range(fun = fun, range_start = 0, range_end = 2000)
+  expect_lte(res$range_start, 400)
+  expect_gte(res$range_start, 400-10)
+  
+  expect_gte(res$range_end, 450)
+  expect_lte(res$range_end, 450+10)
+})
+
 test_that('INTEGRATION: get_scatterpoints and reduce_x_points on Linear', {
   assay_dynamics <- get_assay_dynamics(assay = 'linear_unit_testing')
   result <- '+'
