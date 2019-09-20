@@ -6,6 +6,11 @@ estimate_lb_med_ub <- function(fun, range_start, range_end){
     range_start <- -5
     range_end <- 15
     x <- 4
+
+
+    fun <- dnorm
+    range_start <- -39
+    range_end <- 39
   }
 
   total_aoc <- pracma::integral(fun = fun,
@@ -20,14 +25,44 @@ estimate_lb_med_ub <- function(fun, range_start, range_end){
                      no_intervals = 1000)
   }
 
-  lb <- optimize(f = function(x){(integrated_fun(x) - 0.025)^2},
-           interval = c(range_start, range_end))
+  # such a horrible hack to make this work for the normal distribution
+  precuts <- seq(from = range_start, to = range_end, length.out = 20)
+  start_from_here <- precuts[1]
+  for (i in 1:length(precuts)){
+    area_to_left <- integrated_fun(precuts[i])
+    if (area_to_left < 0.02){
+      start_from_here <- precuts[i]
+    }
+    if (area_to_left > 0.025){
+      pre_attempt_1_lb <- optimize(f = function(x){abs(integrated_fun(x) - 0.025)},
+                                   interval = c(start_from_here, precuts[i]),
+                                   tol = 2.220446e-16)
+      if (i < length(precuts)){
+        pre_attempt_2_lb <- optimize(f = function(x){abs(integrated_fun(x) - 0.025)},
+                                     interval = c(start_from_here, precuts[i+1]),
+                                     tol = 2.220446e-16)
+        if (pre_attempt_2_lb$objective < pre_attempt_1_lb$objective){
+          pre_attempt_1_lb <- pre_attempt_2_lb
+        }
+      }
+      break
+    }
+  }
 
-  ub <- optimize(f = function(x){(integrated_fun(x) - 0.975)^2},
-           interval = c(lb$minimum, range_end))
+  lb <- optimize(f = function(x){abs(integrated_fun(x) - 0.025)},
+           interval = c(range_start, range_end),
+           tol = 2.220446e-16)
+  if (pre_attempt_1_lb$objective < lb$objective){
+    lb <- pre_attempt_1_lb
+  }
 
-  med <- optimize(f = function(x){(integrated_fun(x) - 0.5)^2},
-           interval = c(lb$minimum, ub$minimum))
+  ub <- optimize(f = function(x){abs(integrated_fun(x) - 0.975)},
+           interval = c(lb$minimum, range_end),
+           tol = 2.220446e-16)
+
+  med <- optimize(f = function(x){abs(integrated_fun(x) - 0.5)},
+           interval = c(lb$minimum, ub$minimum),
+           tol = 2.220446e-16)
 
   return(list(lb = lb$minimum,
               med = med$minimum,
