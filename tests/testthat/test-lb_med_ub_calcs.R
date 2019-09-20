@@ -59,8 +59,6 @@ test_that('estimate_lb_med_ub works', {
   expect_lte((res$lb  + 1.95996 )^2, 0.0001)
   expect_lte((res$med - 0  )^2, 0.0001)
   expect_lte((res$ub  - 1.95996)^2, 0.0001)
-
-
 })
 
 

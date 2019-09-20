@@ -26,43 +26,75 @@ estimate_lb_med_ub <- function(fun, range_start, range_end){
   }
 
   # such a horrible hack to make this work for the normal distribution
-  precuts <- seq(from = range_start, to = range_end, length.out = 20)
+  n_precuts <- 20
+  precuts <- seq(from = range_start, to = range_end, length.out = n_precuts)
+  lb_start <- precuts[1]
+  med_start <- precuts[1]
+  ub_start <- precuts[1]
+
+  lb_end <- precuts[n_precuts]
+  med_end <- precuts[n_precuts]
+  ub_end <- precuts[n_precuts]
+
   start_from_here <- precuts[1]
-  for (i in 1:length(precuts)){
+  for (i in 1:n_precuts){
     area_to_left <- integrated_fun(precuts[i])
     if (area_to_left < 0.02){
-      start_from_here <- precuts[i]
+      lb_start <- precuts[i]
     }
-    if (area_to_left > 0.025){
-      pre_attempt_1_lb <- optimize(f = function(x){abs(integrated_fun(x) - 0.025)},
-                                   interval = c(start_from_here, precuts[i]),
-                                   tol = 2.220446e-16)
-      if (i < length(precuts)){
-        pre_attempt_2_lb <- optimize(f = function(x){abs(integrated_fun(x) - 0.025)},
-                                     interval = c(start_from_here, precuts[i+1]),
-                                     tol = 2.220446e-16)
-        if (pre_attempt_2_lb$objective < pre_attempt_1_lb$objective){
-          pre_attempt_1_lb <- pre_attempt_2_lb
-        }
-      }
-      break
+    if (area_to_left < 0.49){
+      med_start <- precuts[i]
+    }
+    if (area_to_left < 0.097){
+      ub_start <- precuts[i]
+    }
+    
+    if (area_to_left > 0.03){
+      lb_end <- precuts[i]
+    }
+    if (area_to_left > 0.51){
+      med_end <- precuts[i]
+    }
+    if (area_to_left > 0.098){
+      ub_end <- precuts[i]
     }
   }
 
-  lb <- optimize(f = function(x){abs(integrated_fun(x) - 0.025)},
+  lb1 <- optimize(f = function(x){abs(integrated_fun(x) - 0.025)},
            interval = c(range_start, range_end),
            tol = 2.220446e-16)
-  if (pre_attempt_1_lb$objective < lb$objective){
-    lb <- pre_attempt_1_lb
+  lb2 <- optimize(f = function(x){abs(integrated_fun(x) - 0.025)},
+           interval = c(lb_start, lb_end),
+           tol = 2.220446e-16)
+  if (lb1$objective < lb2$objective){
+    lb <- lb1
+  } else {
+    lb <- lb2
   }
 
-  ub <- optimize(f = function(x){abs(integrated_fun(x) - 0.975)},
-           interval = c(lb$minimum, range_end),
+  ub1 <- optimize(f = function(x){abs(integrated_fun(x) - 0.975)},
+           interval = c(range_start, range_end),
            tol = 2.220446e-16)
+  ub2 <- optimize(f = function(x){abs(integrated_fun(x) - 0.975)},
+           interval = c(ub_start, ub_end),
+           tol = 2.220446e-16)
+  if (ub1$objective < ub2$objective){
+    ub <- ub1
+  } else {
+    ub <- ub2
+  }
 
-  med <- optimize(f = function(x){abs(integrated_fun(x) - 0.5)},
-           interval = c(lb$minimum, ub$minimum),
+  med1 <- optimize(f = function(x){abs(integrated_fun(x) - 0.5)},
+           interval = c(range_start, range_end),
            tol = 2.220446e-16)
+  med2 <- optimize(f = function(x){abs(integrated_fun(x) - 0.5)},
+           interval = c(med_start, med_end),
+           tol = 2.220446e-16)
+  if (med1$objective < med2$objective){
+    med <- med1
+  } else {
+    med <- med2
+  }
 
   return(list(lb = lb$minimum,
               med = med$minimum,
