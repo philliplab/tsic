@@ -37,3 +37,20 @@ test_that('check_lb_med_ub works using a trivial distribution', {
   expect_lte( (res$area_left_of_med - 0.5)^2 , 0.00001)
   expect_lte( (res$area_left_of_ub - 0.975)^2, 0.00001)
 })
+
+#estimate_lb_med_ub <- function(fun, range_start, range_end){
+test_that('estimate_lb_med_ub works', {
+  if (FALSE){
+  devtools::load_all()
+  }
+  res <- estimate_lb_med_ub(fun = function(x){ifelse(x<0, 0, ifelse(x>100, 0, 1/100))},
+                            range_start = -1000,
+                            range_end = 1000)
+  expect_lte((res$lb  - 2.5 )^2, 0.0001)
+  expect_lte((res$med - 50  )^2, 0.0001)
+  expect_lte((res$ub  - 97.5)^2, 0.0001)
+})
+
+
+
+
