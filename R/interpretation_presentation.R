@@ -22,14 +22,26 @@ plot_iihist <- function(iihist, lb_med_ub = NULL, produce_plot = TRUE, save_plot
     ihist <- read.csv('/fridge/data/tsic/test_data.csv', stringsAsFactors = FALSE)
     ihist$sample_date <- as.numeric(as.Date(ihist$sample_date))
     ihist <- subset(ihist, ptid == 'p01')
-    profvis({
+#    profvis({
     iihist <- interpret_ihist(ihist = ihist,
                               range_start = as.numeric(as.Date('2017-01-01')),
                               range_end = as.numeric(as.Date('2017-11-30')),
                               verbose = TRUE)
-    })
+#    })
+    agg_interpreter <- construct_aggregate_interpreter(ihist)
+    range_start <- min(ihist$sample_date)
+    range_end <- max(ihist$sample_date)
+    range_to_int <- trim_range(fun = agg_interpreter, range_start = range_start, range_end = range_end)
+    lb_med_ub <- estimate_lb_med_ub(fun = agg_interpreter,                            
+                                    range_start = range_to_int$range_start,
+                                    range_end = range_to_int$range_end,
+                                    verbose = TRUE)
   }
   stopifnot('Aggregate' %in% iihist$test_details)
+
+  if (!is.null(lb_med_ub)){
+    vlines_dat <- data.frame(ptid = unique(iihits$ptid))
+  }
 
   iihist$result <- gsub('(.*)(.)$', '\\2', iihist$test_details)
   iihist$test_details <- 
@@ -44,6 +56,16 @@ plot_iihist <- function(iihist, lb_med_ub = NULL, produce_plot = TRUE, save_plot
 
   x_tick_labels <- as.character(as.Date(round(x_breaks, 0), origin = '1970-01-01'))
   #x_tick_labels <- strftime(as.Date(round(x_breaks, 0), origin = '1970-01-01'), format = "%b-%y")
+  
+  if (!is.null(lb_med_ub)){
+    vlines_dat <- data.frame(ptid = unique(iihist$ptid),
+                             sample_date = c(lb_med_ub$lb, lb_med_ub$med, lb_med_ub$ub),
+                             test_details = 'Aggregate',
+                             prob_val = NA,
+                             result = c('lb', 'med', 'ub'),
+                             stringsAsFactors = FALSE)
+  }
+
 
   x <- 
   ggplot2::ggplot(iihist, ggplot2::aes(x = sample_date, y = prob_val, col = result)) +
@@ -51,7 +73,8 @@ plot_iihist <- function(iihist, lb_med_ub = NULL, produce_plot = TRUE, save_plot
     ggplot2::facet_grid(test_details ~ .) +
     ggplot2::theme(legend.position = 'none') +
     ggplot2::labs(y = 'Probability of observed result given initial\ninfection on day indicated by x-axis') +
-    ggplot2::scale_x_continuous('Date of intial infection', breaks = x_breaks, labels = x_tick_labels)
+    ggplot2::scale_x_continuous('Date of intial infection', breaks = x_breaks, labels = x_tick_labels) +
+    ggplot2::geom_vline(data = vlines_dat, ggplot2::aes(xintercept = sample_date), col = 'black')
   if (produce_plot) {print(x)}
   return(x)
 }

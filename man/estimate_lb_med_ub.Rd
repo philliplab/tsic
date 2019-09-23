@@ -4,7 +4,7 @@
 \alias{estimate_lb_med_ub}
 \title{Estimates the 2.5, 50 and 97.5 percentiles}
 \usage{
-estimate_lb_med_ub(fun, range_start, range_end)
+estimate_lb_med_ub(fun, range_start, range_end, verbose = FALSE)
 }
 \arguments{
 \item{fun}{The function whose percentiles are required}
