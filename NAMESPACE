@@ -2,6 +2,7 @@
 
 export(construct_aggregate_interpreter)
 export(construct_assay_result_interpreter)
+export(estimate_lb_med_ub)
 export(fit_weibull3)
 export(get_assay_dynamics)
 export(get_scatterpoints)

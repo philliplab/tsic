@@ -1,4 +1,86 @@
+#' Estimates the 2.5, 50 and 97.5 percentiles
+#'
+#' Various hacks required to work around the inadequacy of R's numerical analysis tools.
+#'
+#' @param fun The function whose percentiles are required
+#' @param range_start Start of interval containing the percentiles
+#' @param range_end End of interval containing the percentiles
+#' @export
+
 estimate_lb_med_ub <- function(fun, range_start, range_end){
+  if (FALSE){
+    range_start <- -100
+    range_end <- 100
+    fun <- dexp
+    fun <- dnorm
+
+    tiles <- c(0.025, 0.5, 0.975)
+    qnorm(tiles)
+    qexp(tiles)
+
+  }
+  ranges <- trim_range(fun, range_start, range_end, tol = 0.1^50)
+  range_start <- ranges$range_start
+  range_end <- ranges$range_end
+  xy_points <- get_scatterpoints(fun, range_start:range_end, max_delta = 0.001, min_length = 0.001)
+  xy_points <- reduce_x_points(xy_points$x, xy_points$y)
+
+  range_start <- min(xy_points$x)
+  range_end <- max(xy_points$x)
+  total_aoc <- pracma::integral(fun = fun,
+                                xmin = range_start,
+                                xmax = range_end,
+                                no_intervals = 1000)
+
+  integrated_fun <- function(x){
+    pracma::integral(fun = function(x){fun(x)/total_aoc},
+                     xmin = range_start, 
+                     xmax = min(x, range_end),
+                     no_intervals = 1000)
+  }
+
+  midpoint_heights <- (xy_points$y[1:(length(xy_points$y)-1)] + xy_points$y[2:(length(xy_points$y))]) / 2
+  int_lengths <- xy_points$x[2:(length(xy_points$x))] - xy_points$x[1:(length(xy_points$x)-1)]
+  riemans <- midpoint_heights * int_lengths
+  midpoints <- (xy_points$x[2:(length(xy_points$x))] + xy_points$x[1:(length(xy_points$x)-1)]) / 2
+  probs <- cumsum(riemans)
+  probs <- probs / max(probs)
+  x <- midpoints
+#  plot(probs ~ x)
+
+  find_perc <- function(value, width_toggle){
+#  value <- 0.025
+#  width_toggle <- 0.01
+    start_indx <- max(which(probs < value - width_toggle))
+    end_indx <- min(which(probs > value + width_toggle))
+
+    tight_range_start <- x[start_indx]
+    tight_range_end <- x[end_indx]
+
+    c_perc_w <- optimize(f = function(x){abs(integrated_fun(x) - value)},
+                         interval = c(range_start, range_end),
+                         tol = 2.220446e-16)
+    c_perc_t <- optimize(f = function(x){abs(integrated_fun(x) - value)},
+                         interval = c(tight_range_start, tight_range_end),
+                         tol = 2.220446e-16)
+    if (c_perc_w$objective < c_perc_t$objective){
+      c_perc <- c_perc_w
+    } else {
+      c_perc <- c_perc_t
+    }
+    return(c_perc)
+  }
+
+  lb  <- find_perc(value = 0.025, width_toggle = 0.01)
+  med <- find_perc(value = 0.500, width_toggle = 0.01)
+  ub  <- find_perc(value = 0.975, width_toggle = 0.01)
+
+  return(list(lb = lb$minimum,
+              med = med$minimum,
+              ub = ub$minimum))
+}
+
+estimate_lb_med_ub_failed <- function(fun, range_start, range_end){
   if (FALSE){
     fun <- function(x){
       return(ifelse(x < 0 | x > 10, 0, x))
@@ -11,6 +93,12 @@ estimate_lb_med_ub <- function(fun, range_start, range_end){
     fun <- dnorm
     range_start <- -39
     range_end <- 39
+  
+    fun <- dexp
+    range_start <- -10000
+    range_end <- 10000
+    range_start <- -1
+    range_end <- 746
   }
 
   total_aoc <- pracma::integral(fun = fun,
@@ -49,13 +137,13 @@ estimate_lb_med_ub <- function(fun, range_start, range_end){
       ub_start <- precuts[i]
     }
     
-    if (area_to_left > 0.03){
+    if (area_to_left > 0.03 & lb_end == precuts[n_precuts]){
       lb_end <- precuts[i]
     }
-    if (area_to_left > 0.51){
+    if (area_to_left > 0.51 & med_end == precuts[n_precuts]){
       med_end <- precuts[i]
     }
-    if (area_to_left > 0.098){
+    if (area_to_left > 0.098 & ub_end == precuts[n_precuts]){
       ub_end <- precuts[i]
     }
   }

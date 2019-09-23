@@ -56,9 +56,17 @@ test_that('estimate_lb_med_ub works', {
   res <- estimate_lb_med_ub(fun = dnorm,
                             range_start = range_to_int$range_start,
                             range_end = range_to_int$range_end)
-  expect_lte((res$lb  + 1.95996 )^2, 0.0001)
-  expect_lte((res$med - 0  )^2, 0.0001)
-  expect_lte((res$ub  - 1.95996)^2, 0.0001)
+  expect_lte((res$lb  - qnorm(0.025))^2, 0.0001)
+  expect_lte((res$med - qnorm(0.5)  )^2, 0.0001)
+  expect_lte((res$ub  - qnorm(0.975))^2, 0.0001)
+
+  range_to_int <- trim_range(fun = dexp, range_start = -10000, range_end = 10000)
+  res <- estimate_lb_med_ub(fun = dexp,
+                            range_start = range_to_int$range_start,
+                            range_end = range_to_int$range_end)
+  expect_lte((res$lb  - qexp(0.025))^2, 0.0001)
+  expect_lte((res$med - qexp(0.5)  )^2, 0.0001)
+  expect_lte((res$ub  - qexp(0.975))^2, 0.0001)
 })
 
 

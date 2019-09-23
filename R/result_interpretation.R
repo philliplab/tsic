@@ -158,13 +158,14 @@ reduce_x_points <- function(x, y, min_delta = 0.0001, max_length = 14){
 #' @param fun The function that will dictate which portions of the range will get trimmed.
 #' @param range_start The lower bound of the initial range.
 #' @param range_end The upper bound of the initial range.
+#' @param tol How close to zero before we consider it equal to zero? Default = 0.
 #' @export
 
-trim_range <- function(fun, range_start, range_end){
+trim_range <- function(fun, range_start, range_end, tol = 0){
   new_range_start <- range_start
   new_range_end <- range_end
   for (i in range_start:range_end){
-    if (fun(i) == 0){
+    if (fun(i) <= tol){
       new_range_start <- i
     } else {
       break
@@ -172,7 +173,7 @@ trim_range <- function(fun, range_start, range_end){
   }
   if (new_range_start < range_end){
     for (i in range_end:new_range_start){
-      if (fun(i) == 0){
+      if (fun(i) <= tol){
         new_range_end <- i
       } else {
         break
