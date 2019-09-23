@@ -39,7 +39,7 @@ test_that('check_lb_med_ub works using a trivial distribution', {
 })
 
 #estimate_lb_med_ub <- function(fun, range_start, range_end){
-test_that('estimate_lb_med_ub works', {
+test_that('estimate_lb_med_ub works on basic functions', {
   if (FALSE){
   devtools::load_all()
   }
@@ -67,6 +67,38 @@ test_that('estimate_lb_med_ub works', {
   expect_lte((res$lb  - qexp(0.025))^2, 0.0001)
   expect_lte((res$med - qexp(0.5)  )^2, 0.0001)
   expect_lte((res$ub  - qexp(0.975))^2, 0.0001)
+})
+
+test_that('estimate_lb_med_ub works with diagnostic histories', {
+  ihists <- read.csv('/fridge/data/tsic/test_data.csv', stringsAsFactors = F)
+  ihist <- subset(ihists, ptid == 'p01')
+  dput(ihist)
+  # weibull dynamics aptima + architect
+  ihist <- structure(list(ptid = c("p01", "p01", "p01", "p01", "p01", "p01",
+"p01", "p01", "p01", "p01", "p01", "p01"), sample_date = c("2017-02-01",
+"2017-03-01", "2017-04-01", "2017-05-01", "2017-06-01", "2017-07-01",
+"2017-08-01", "2017-08-01", "2017-09-01", "2017-09-01", "2017-10-01",
+"2017-10-01"), test = c("aptima_weib3_delaney", "aptima_weib3_delaney",
+"aptima_weib3_delaney", "aptima_weib3_delaney", "aptima_weib3_delaney",
+"aptima_weib3_delaney", "aptima_weib3_delaney", "architect_weib3_delaney",
+"aptima_weib3_delaney", "architect_weib3_delaney", "aptima_weib3_delaney",
+"architect_weib3_delaney"), result = c("-", "-", "-", "-", "-",
+"-", "+", "+", "+", "+", "+", "+")), row.names = c(NA, 12L), class = "data.frame")
+  ihist$sample_date <- as.numeric(as.Date(ihist$sample_date))
+  
+  agg_interpreter <- construct_aggregate_interpreter(ihist)
+  range_start <- min(ihist$sample_date)
+  range_end <- max(ihist$sample_date)
+
+  range_to_int <- trim_range(fun = agg_interpreter, range_start = range_start, range_end = range_end)
+  res <- estimate_lb_med_ub(fun = agg_interpreter,
+                            range_start = range_to_int$range_start,
+                            range_end = range_to_int$range_end,
+                            verbose = FALSE)
+  expect_lte(res$lb, res$med)
+  expect_lte(res$med, res$ub)
+  expect_lte(min(ihist$sample_date) - 90, res$lb)
+  expect_gte(max(ihist$sample_date) + 90, res$ub)
 })
 
 

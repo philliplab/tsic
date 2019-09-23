@@ -7,7 +7,7 @@
 #' @param range_end End of interval containing the percentiles
 #' @export
 
-estimate_lb_med_ub <- function(fun, range_start, range_end){
+estimate_lb_med_ub <- function(fun, range_start, range_end, verbose = FALSE){
   if (FALSE){
     range_start <- -100
     range_end <- 100
@@ -19,12 +19,16 @@ estimate_lb_med_ub <- function(fun, range_start, range_end){
     qexp(tiles)
 
   }
+  if (verbose){cat('trim range\n')}
   ranges <- trim_range(fun, range_start, range_end, tol = 0.1^50)
   range_start <- ranges$range_start
   range_end <- ranges$range_end
+  if (verbose){cat('get_scatter\n')}
   xy_points <- get_scatterpoints(fun, range_start:range_end, max_delta = 0.001, min_length = 0.001)
+  if (verbose){cat('reduce_x\n')}
   xy_points <- reduce_x_points(xy_points$x, xy_points$y)
 
+  if (verbose){cat('pracma::integral\n')}
   range_start <- min(xy_points$x)
   range_end <- max(xy_points$x)
   total_aoc <- pracma::integral(fun = fun,
@@ -36,12 +40,17 @@ estimate_lb_med_ub <- function(fun, range_start, range_end){
     pracma::integral(fun = function(x){fun(x)/total_aoc},
                      xmin = range_start, 
                      xmax = min(x, range_end),
-                     no_intervals = 1000)
+                     no_intervals = 100)
   }
 
+  if (verbose){cat('manual rieman integral\n')}
   midpoint_heights <- (xy_points$y[1:(length(xy_points$y)-1)] + xy_points$y[2:(length(xy_points$y))]) / 2
   int_lengths <- xy_points$x[2:(length(xy_points$x))] - xy_points$x[1:(length(xy_points$x)-1)]
   riemans <- midpoint_heights * int_lengths
+  rieman_total_aoc <- sum(riemans)
+  stopifnot(total_aoc / rieman_total_aoc > 0.995)
+  stopifnot(total_aoc / rieman_total_aoc < 1.005)
+  stopifnot(abs(total_aoc - rieman_total_aoc) < 0.005)
   midpoints <- (xy_points$x[2:(length(xy_points$x))] + xy_points$x[1:(length(xy_points$x)-1)]) / 2
   probs <- cumsum(riemans)
   probs <- probs / max(probs)
@@ -71,8 +80,11 @@ estimate_lb_med_ub <- function(fun, range_start, range_end){
     return(c_perc)
   }
 
+  if (verbose){cat('solving for lb\n')}
   lb  <- find_perc(value = 0.025, width_toggle = 0.01)
+  if (verbose){cat('solving for med\n')}
   med <- find_perc(value = 0.500, width_toggle = 0.01)
+  if (verbose){cat('solving for ub\n')}
   ub  <- find_perc(value = 0.975, width_toggle = 0.01)
 
   return(list(lb = lb$minimum,
