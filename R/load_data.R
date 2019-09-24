@@ -31,3 +31,57 @@ parse_data_first_mock <- function(file_name){
   names(ldat)[names(ldat) == 'p_result'] <- 'result'
   return(ldat)
 }
+
+#' Loads dataset used for DSMB Nov 2019
+#'
+#' @param file_name Full path to the csv file
+#' @export
+
+load_dsmb_nov_2019_data <- function(file_name){
+  if (FALSE){
+    file_name <- '/fridge/data/AMP/DSMB_timing_nov_2019/AMP_diagnostic_testing_history_DSMB_2019_Nov.csv'
+  }
+  dat <- read.csv(file_name, stringsAsFactors = FALSE)
+  names(dat) <- c('ptid', 'sample_date', 'test', 'result')
+  dat$ptid <- paste('p_', dat$ptid, sep = '')
+  dat$sample_date <- as.numeric(as.Date(dat$sample_date))
+  stopifnot(all(sort(unique(dat$result)) == c("Negative", "Positive")))
+  dat$result <- ifelse(dat$result == 'Negative', '-', '+')
+
+  valid_tests <- c(
+    "Abbott ARCHITECT HIV Ag/Ab Combo", "Abbott Real Time HIV01 v1.0 m2000sp/m2000rt",
+    "BioRad Geenius Fully Reactive", "BioRad Geenius Indeterminate",
+    "BioRad GS HIV Combo Ag/Ab EIA", "Roche Taqman v2.0"
+  )
+  input_rows <- nrow(dat)
+  dat <- subset(dat, test %in% valid_tests)
+  valid_test_rows <- nrow(dat)
+
+  test_mapping <- matrix(
+c(
+"Abbott ARCHITECT HIV Ag/Ab Combo", 'architect_weib3_delaney',
+"Abbott Real Time HIV01 v1.0 m2000sp/m2000rt", 'abbott_real_time_weib3_delaney_and_manufacturer',
+"BioRad Geenius Fully Reactive", 'geenius_fr_weib3_delaney',
+"BioRad Geenius Indeterminate", 'geenius_indet_weib3_delaney',
+"BioRad GS HIV Combo Ag/Ab EIA", 'gs_combo_weib3_delaney',
+"Roche Taqman v2.0", 'taqman_weib3_delaney_and_manufacturer'),
+    ncol = 2,
+    byrow = TRUE)
+  test_mapping <- data.frame(
+    AMP_name = test_mapping[,1],
+    tsic_name = test_mapping[,2],
+    stringsAsFactors = FALSE)
+
+  dat <- merge(dat, test_mapping,
+    by.x = 'test', by.y = 'AMP_name')
+  test_mapped_rows <- nrow(dat)
+  stopifnot(test_mapped_rows == valid_test_rows)
+
+  dat <- dat[,c('ptid', 'sample_date', 'tsic_name', 'result')]
+  names(dat) <- c('ptid', 'sample_date', 'test', 'result')
+  return(dat)
+}
+
+
+
+
