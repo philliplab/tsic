@@ -1,6 +1,11 @@
+#' Plots an individual history
+#'
+#' Will produce the interpretation itself.
+#'
+#' @param ihist
+#' @export
 
-
-plot_iihist <- function(iihist, lb_med_ub = NULL, produce_plot = TRUE, save_plot = FALSE){
+plot_iihist <- function(ihist, lb_med_ub, range_start, range_end, produce_plot = TRUE, save_plot = FALSE){
   # debugging stuff
   if (FALSE) {
     produce_plot <- TRUE
@@ -22,6 +27,8 @@ plot_iihist <- function(iihist, lb_med_ub = NULL, produce_plot = TRUE, save_plot
     ihist <- read.csv('/fridge/data/tsic/test_data.csv', stringsAsFactors = FALSE)
     ihist$sample_date <- as.numeric(as.Date(ihist$sample_date))
     ihist <- subset(ihist, ptid == 'p01')
+    range_start <- as.numeric(as.Date('2017-01-01'))
+    range_end <- as.numeric(as.Date('2017-11-30'))
 #    profvis({
     iihist <- interpret_ihist(ihist = ihist,
                               range_start = as.numeric(as.Date('2017-01-01')),
@@ -37,10 +44,14 @@ plot_iihist <- function(iihist, lb_med_ub = NULL, produce_plot = TRUE, save_plot
                                     range_end = range_to_int$range_end,
                                     verbose = TRUE)
   }
+  iihist <- interpret_ihist(ihist = ihist,
+                            range_start = range_start,
+                            range_end = range_end,
+                            verbose = FALSE)
   stopifnot('Aggregate' %in% iihist$test_details)
 
   if (!is.null(lb_med_ub)){
-    vlines_dat <- data.frame(ptid = unique(iihits$ptid))
+    vlines_dat <- data.frame(ptid = unique(iihist$ptid))
   }
 
   iihist$result <- gsub('(.*)(.)$', '\\2', iihist$test_details)
@@ -73,8 +84,10 @@ plot_iihist <- function(iihist, lb_med_ub = NULL, produce_plot = TRUE, save_plot
     ggplot2::facet_grid(test_details ~ .) +
     ggplot2::theme(legend.position = 'none') +
     ggplot2::labs(y = 'Probability of observed result given initial\ninfection on day indicated by x-axis') +
-    ggplot2::scale_x_continuous('Date of intial infection', breaks = x_breaks, labels = x_tick_labels) +
-    ggplot2::geom_vline(data = vlines_dat, ggplot2::aes(xintercept = sample_date), col = 'black')
+    ggplot2::scale_x_continuous('Date of intial infection', breaks = x_breaks, labels = x_tick_labels)
+  if (!is.null(lb_med_ub)){
+    x <- x + ggplot2::geom_vline(data = vlines_dat, ggplot2::aes(xintercept = sample_date), col = 'black')
+  }
   if (produce_plot) {print(x)}
   return(x)
 }

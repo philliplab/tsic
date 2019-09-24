@@ -4,7 +4,8 @@
 \alias{estimate_lb_med_ub}
 \title{Estimates the 2.5, 50 and 97.5 percentiles}
 \usage{
-estimate_lb_med_ub(fun, range_start, range_end, verbose = FALSE)
+estimate_lb_med_ub(fun, range_start, range_end, verbose = FALSE,
+  label = "unlabeled")
 }
 \arguments{
 \item{fun}{The function whose percentiles are required}
@@ -12,6 +13,10 @@ estimate_lb_med_ub(fun, range_start, range_end, verbose = FALSE)
 \item{range_start}{Start of interval containing the percentiles}
 
 \item{range_end}{End of interval containing the percentiles}
+
+\item{verbose}{Should verbose output be printed?}
+
+\item{label}{A label to print out with warnings. ptid is a good candidate}
 }
 \description{
 Various hacks required to work around the inadequacy of R's numerical analysis tools.

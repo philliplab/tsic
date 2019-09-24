@@ -5,9 +5,11 @@
 #' @param fun The function whose percentiles are required
 #' @param range_start Start of interval containing the percentiles
 #' @param range_end End of interval containing the percentiles
+#' @param verbose Should verbose output be printed?
+#' @param label A label to print out with warnings. ptid is a good candidate
 #' @export
 
-estimate_lb_med_ub <- function(fun, range_start, range_end, verbose = FALSE){
+estimate_lb_med_ub <- function(fun, range_start, range_end, verbose = FALSE, label = 'unlabeled'){
   if (FALSE){
     range_start <- -100
     range_end <- 100
@@ -18,6 +20,15 @@ estimate_lb_med_ub <- function(fun, range_start, range_end, verbose = FALSE){
     qnorm(tiles)
     qexp(tiles)
 
+    devtools::load_all('/home/phillipl/projects/tsic/code/tsic')
+    dat <- load_dsmb_nov_2019_data(file_name = '/fridge/data/AMP/DSMB_timing_nov_2019/AMP_diagnostic_testing_history_DSMB_2019_Nov.csv')
+    ihist <- subset(dat, ptid == 'p_703-0203')
+    agg_inter <-  construct_aggregate_interpreter(ihist)
+    fun <- agg_inter
+    range_start <- floor(min(ihist$sample_date) - 60)
+    range_end <- ceiling(max(ihist$sample_date) + 30)
+    verbose <- TRUE
+    label <- unique(ihist$ptid)
   }
   if (verbose){cat('trim range\n')}
   ranges <- trim_range(fun, range_start, range_end, tol = 0.1^50)
@@ -36,6 +47,26 @@ estimate_lb_med_ub <- function(fun, range_start, range_end, verbose = FALSE){
                                 xmax = range_end,
                                 no_intervals = 1000)
 
+  if (verbose){cat('manual rieman integral\n')}
+  midpoint_heights <- (xy_points$y[1:(length(xy_points$y)-1)] + xy_points$y[2:(length(xy_points$y))]) / 2
+  int_lengths <- xy_points$x[2:(length(xy_points$x))] - xy_points$x[1:(length(xy_points$x)-1)]
+  riemans <- midpoint_heights * int_lengths
+  rieman_total_aoc <- sum(riemans)
+
+  if (total_aoc == 0){
+    return('no solution')
+    warning(paste0('PERFORM MANUAL CHECK ON ', label, ': total_aoc == 0 but rieman_aoc != 0'))
+  } else {
+    if (total_aoc / rieman_total_aoc > 0.995 |
+total_aoc / rieman_total_aoc < 1.005 |
+abs(total_aoc - rieman_total_aoc) < 0.005){
+      warning(paste0('discrepancy between riemann and pracma intergals on ', label))
+    }
+    stopifnot(total_aoc / rieman_total_aoc > 0.8)
+    stopifnot(total_aoc / rieman_total_aoc < 1.2)
+    stopifnot(abs(total_aoc - rieman_total_aoc) < 0.02)
+  }
+  
   integrated_fun <- function(x){
     pracma::integral(fun = function(x){fun(x)/total_aoc},
                      xmin = range_start, 
@@ -43,14 +74,6 @@ estimate_lb_med_ub <- function(fun, range_start, range_end, verbose = FALSE){
                      no_intervals = 100)
   }
 
-  if (verbose){cat('manual rieman integral\n')}
-  midpoint_heights <- (xy_points$y[1:(length(xy_points$y)-1)] + xy_points$y[2:(length(xy_points$y))]) / 2
-  int_lengths <- xy_points$x[2:(length(xy_points$x))] - xy_points$x[1:(length(xy_points$x)-1)]
-  riemans <- midpoint_heights * int_lengths
-  rieman_total_aoc <- sum(riemans)
-  stopifnot(total_aoc / rieman_total_aoc > 0.995)
-  stopifnot(total_aoc / rieman_total_aoc < 1.005)
-  stopifnot(abs(total_aoc - rieman_total_aoc) < 0.005)
   midpoints <- (xy_points$x[2:(length(xy_points$x))] + xy_points$x[1:(length(xy_points$x)-1)]) / 2
   probs <- cumsum(riemans)
   probs <- probs / max(probs)

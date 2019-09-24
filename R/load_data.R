@@ -44,7 +44,7 @@ load_dsmb_nov_2019_data <- function(file_name){
   dat <- read.csv(file_name, stringsAsFactors = FALSE)
   names(dat) <- c('ptid', 'sample_date', 'test', 'result')
   dat$ptid <- paste('p_', dat$ptid, sep = '')
-  dat$sample_date <- as.numeric(as.Date(dat$sample_date))
+  dat$sample_date <- as.numeric(as.Date(dat$sample_date)) + 0.5
   stopifnot(all(sort(unique(dat$result)) == c("Negative", "Positive")))
   dat$result <- ifelse(dat$result == 'Negative', '-', '+')
 
