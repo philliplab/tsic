@@ -155,6 +155,28 @@ get_assay_dynamics <- function(assay){
     params = list(location = 4.8, shape = 1.35, scale = 9)
   )
 
+  # Abbott real time
+  all_assays[[tolower('abbott_real_time_weib3_delaney_and_manufacturer')]] <- list(
+    class = 'RNA',
+    full_assayname = 'Abbott Real Time HIV01 v1.0 m2000sp/m2000rt',
+    short_assayname = 'Abbott Real Time',
+    form = 'weib3',
+    source = "manufacturer's details and delaney_2017",
+    fun = 'weib3_assay_dynamics',
+    params = list(location = 5.1252, shape = 1.350, scale = 9.660)
+  )
+
+  # Taqman
+  all_assays[[tolower('taqman_weib3_delaney_and_manufacturer')]] <- list(
+    class = 'RNA',
+    full_assayname = 'Roche Taqman v2.0',
+    short_assayname = 'Taqman',
+    form = 'weib3',
+    source = "manufacturer's details and delaney_2017",
+    fun = 'weib3_assay_dynamics',
+    params = list(location = 4.995, shape = 1.350, scale = 9.365)
+  )
+
   # Geenius Fully Reactive
   all_assays[[tolower('geenius_fr_step_delaney')]] <- list(
     class = 'IgG_Supp',
@@ -183,6 +205,30 @@ get_assay_dynamics <- function(assay){
     fun = 'weib3_assay_dynamics',
     params = list(location = 21.151, shape = 1.733, scale = 14.483)
   )
+
+  # Geenius indeterminate
+  all_assays[[tolower('geenius_indet_weib3_delaney')]] <- list(
+    class = 'IgG_Rapid',
+    full_assayname = 'BioRad Geenius Indeterminate',
+    short_assayname = 'Geenius_Indet',
+    form = 'weib3',
+    source = 'delaney_2017_relationship_to_multispot',
+    fun = 'weib3_assay_dynamics',
+    params = list(location = 16.556, shape = 1.773, scale = 12.9)
+  )
+
+
+  # GS COMBO
+  all_assays[[tolower('gs_combo_weib3_delaney')]] <- list(
+    class = 'Ag/Ab',
+    full_assayname = 'BioRad GS HIV Combo Ag/Ab EIA',
+    short_assayname = 'GS_Combo',
+    form = 'weib3',
+    source = 'delaney_2017',
+    fun = 'weib3_assay_dynamics',
+    params = list(location = 9.9675, shape = 0.7206, scale = 7.6388)
+  )
+
 
   # lookup
   if (assay == 'all'){
