@@ -5,7 +5,7 @@
 \title{Plots an individual history}
 \usage{
 plot_iihist(ihist, lb_med_ub, range_start, range_end,
-  produce_plot = TRUE, save_plot = FALSE)
+  produce_plot = TRUE, save_plot = FALSE, verbose = FALSE)
 }
 \description{
 Will produce the interpretation itself.

@@ -46,7 +46,7 @@ estimate_lb_med_ub <- function(fun, range_start, range_end, verbose = FALSE, lab
                                 xmin = range_start,
                                 xmax = range_end,
                                 no_intervals = 1000)
-  if (total_aoc < 10){warning('AOC low')}
+  if (total_aoc < 2){warning('AOC low')}
 
   if (verbose){cat('manual rieman integral\n')}
   midpoint_heights <- (xy_points$y[1:(length(xy_points$y)-1)] + xy_points$y[2:(length(xy_points$y))]) / 2
@@ -54,20 +54,11 @@ estimate_lb_med_ub <- function(fun, range_start, range_end, verbose = FALSE, lab
   riemans <- midpoint_heights * int_lengths
   rieman_total_aoc <- sum(riemans)
 
-  if (total_aoc == 0){
+  if (total_aoc <= 0.0001){
+    print(total_aoc)
     return('no solution')
-    warning(paste0('PERFORM MANUAL CHECK ON ', label, ': total_aoc == 0 but rieman_aoc != 0'))
-  } else {
-    if (total_aoc / rieman_total_aoc > 0.995 |
-total_aoc / rieman_total_aoc < 1.005 |
-abs(total_aoc - rieman_total_aoc) < 0.005){
-      warning(paste0('discrepancy between riemann and pracma intergals on ', label))
-    }
-    stopifnot(total_aoc / rieman_total_aoc > 0.8)
-    stopifnot(total_aoc / rieman_total_aoc < 1.2)
-    stopifnot(abs(total_aoc - rieman_total_aoc) < 0.02)
-  }
-  
+  }  
+
   integrated_fun <- function(x){
     pracma::integral(fun = function(x){fun(x)/total_aoc},
                      xmin = range_start, 
@@ -114,7 +105,8 @@ abs(total_aoc - rieman_total_aoc) < 0.005){
   return(list(lb = lb$minimum,
               med = med$minimum,
               ub = ub$minimum,
-              aoc = total_aoc))
+              aoc = total_aoc,
+              max_agg = max(xy_points$y)))
 }
 
 estimate_lb_med_ub_failed <- function(fun, range_start, range_end){

@@ -5,7 +5,7 @@
 #' @param ihist
 #' @export
 
-plot_iihist <- function(ihist, lb_med_ub, range_start, range_end, produce_plot = TRUE, save_plot = FALSE){
+plot_iihist <- function(ihist, lb_med_ub, range_start, range_end, produce_plot = TRUE, save_plot = FALSE, verbose = FALSE){
   # debugging stuff
   if (FALSE) {
     produce_plot <- TRUE
@@ -49,6 +49,7 @@ plot_iihist <- function(ihist, lb_med_ub, range_start, range_end, produce_plot =
                             range_end = range_end,
                             verbose = FALSE)
   stopifnot('Aggregate' %in% iihist$test_details)
+  if (verbose){print(str(iihist))}
 
   if (!is.null(lb_med_ub)){
     vlines_dat <- data.frame(ptid = unique(iihist$ptid))
@@ -59,6 +60,7 @@ plot_iihist <- function(ihist, lb_med_ub, range_start, range_end, produce_plot =
     factor(iihist$test_details, 
            levels = c('Aggregate', setdiff(sort(unique(iihist$test_details)), 'Aggregate')),
            ordered = TRUE)
+  if (verbose){print(str(iihist))}
 
   x_breaks <- quantile(seq(from = min(iihist$sample_date), 
                            to = max(iihist$sample_date), 
@@ -75,7 +77,12 @@ plot_iihist <- function(ihist, lb_med_ub, range_start, range_end, produce_plot =
                              prob_val = NA,
                              result = c('lb', 'med', 'ub'),
                              stringsAsFactors = FALSE)
+    vlines_dat$test_details <- 
+      factor(vlines_dat$test_details, 
+             levels = c('Aggregate', setdiff(sort(unique(vlines_dat$test_details)), 'Aggregate')),
+             ordered = TRUE)
   }
+  if (verbose){print(str(iihist))}
 
 
   x <- 

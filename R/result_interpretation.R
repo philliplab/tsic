@@ -249,7 +249,7 @@ remove_strongly_dependent_results <- function(ihist, more_sensitive_test, less_s
     c_date <- unique(ihist$sample_date)[3] ####
     for (c_date in unique(ihist$sample_date)){
       c_tests <- subset(ihist, sample_date == c_date & test %in% c(more_sensitive_test, less_sensitive_test))
-      if (nrow(c_tests) == 0) {next}
+      if (nrow(c_tests) %in% c(0, 1) ) {next}
       stopifnot(nrow(c_tests) == 2)
       if (all(c_tests$result == '-')){
         ihist <- c_tests$sample_date == c_date & test == less_sensitive_test
