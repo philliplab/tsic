@@ -46,6 +46,7 @@ estimate_lb_med_ub <- function(fun, range_start, range_end, verbose = FALSE, lab
                                 xmin = range_start,
                                 xmax = range_end,
                                 no_intervals = 1000)
+  if (total_aoc < 10){warning('AOC low')}
 
   if (verbose){cat('manual rieman integral\n')}
   midpoint_heights <- (xy_points$y[1:(length(xy_points$y)-1)] + xy_points$y[2:(length(xy_points$y))]) / 2
@@ -112,7 +113,8 @@ abs(total_aoc - rieman_total_aoc) < 0.005){
 
   return(list(lb = lb$minimum,
               med = med$minimum,
-              ub = ub$minimum))
+              ub = ub$minimum,
+              aoc = total_aoc))
 }
 
 estimate_lb_med_ub_failed <- function(fun, range_start, range_end){

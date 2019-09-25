@@ -226,6 +226,48 @@ construct_aggregate_interpreter <- function(ihist){
   return(evaluate_proposed_infection_date)
 }
 
+#' Removes strongly dependent results at the same timepoint
+#'
+#' The construction of the aggregate curve assumes that the contributions from the different tests are independent. For some tests, for example fully reactive and indeterminate versions of the same test this assumption is strongly violated. To offset this, remove the least informative version of the in case that they give the same result.
+#'
+#' @param ihist The diagnostic history from which to remove such cases
+#' @param more_sensitive_test The test which detects infection faster. In case both are positive, this one will be removed.
+#' @param less_sensitive_test The test which detects infection slower. In case both are negative, this one will be removed.
+#' @export
+
+remove_strongly_dependent_results <- function(ihist, more_sensitive_test, less_sensitive_test){
+  if (FALSE){
+    devtools::load_all('/home/phillipl/projects/tsic/code/tsic')
+    dat <- load_dsmb_nov_2019_data(file_name = '/fridge/data/AMP/DSMB_timing_nov_2019/AMP_diagnostic_testing_history_DSMB_2019_Nov.csv')
+    ihist <- subset(dat, ptid == 'p_703-0109')
+    less_sensitive_test <- 'geenius_fr_weib3_delaney'
+    more_sensitive_test <- 'geenius_indet_weib3_delaney'
+  }
+  ihist_names <- names(ihist)
+  if (more_sensitive_test %in% ihist$test & less_sensitive_test %in% ihist$test){
+    ihist$remove_flag <- 0
+    c_date <- unique(ihist$sample_date)[3] ####
+    for (c_date in unique(ihist$sample_date)){
+      c_tests <- subset(ihist, sample_date == c_date & test %in% c(more_sensitive_test, less_sensitive_test))
+      if (nrow(c_tests) == 0) {next}
+      stopifnot(nrow(c_tests) == 2)
+      if (all(c_tests$result == '-')){
+        ihist <- c_tests$sample_date == c_date & test == less_sensitive_test
+        stopifnot(sum(indx) == 1)
+        ihist[indx, 'remove_flag'] <- 1
+      } else if (all(c_tests$result == '+')) {
+        indx <- ihist$sample_date == c_date & ihist$test == more_sensitive_test
+        stopifnot(sum(indx) == 1)
+        ihist[indx, 'remove_flag'] <- 1
+      }
+    }
+  } else {
+    return(ihist)
+  }
+  ihist <- subset(ihist, remove_flag == 0)
+  return(ihist[, ihist_names])
+}
+
 #' Interprets an ihist into daily likelihoods
 #'
 #' Given a range of interest and an individual's diagnostic history, compute the likelihood that each day in the range was the day of infection. This produces the output in long format.
