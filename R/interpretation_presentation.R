@@ -5,10 +5,15 @@
 #' @param ihist
 #' @export
 
-plot_iihist <- function(ihist, lb_med_ub, range_start, range_end, produce_plot = TRUE, save_plot = FALSE, verbose = FALSE){
+plot_iihist <- function(ihist, lb_med_ub, range_start, range_end, 
+                        produce_plot = TRUE, save_plot = FALSE, 
+                        verbose = FALSE, plot_aggregate = TRUE){
   # debugging stuff
   if (FALSE) {
     produce_plot <- TRUE
+    plot_aggregate <- FALSE
+    verbose <- TRUE
+    lb_med_ub <- NULL
     devtools::load_all()
     library(profvis)
     #1
@@ -43,7 +48,7 @@ plot_iihist <- function(ihist, lb_med_ub, range_start, range_end, produce_plot =
                                     range_start = range_to_int$range_start,
                                     range_end = range_to_int$range_end,
                                     verbose = TRUE)
-  }
+  } # end of debugging stuff
   iihist <- interpret_ihist(ihist = ihist,
                             range_start = range_start,
                             range_end = range_end,
@@ -51,7 +56,7 @@ plot_iihist <- function(ihist, lb_med_ub, range_start, range_end, produce_plot =
   stopifnot('Aggregate' %in% iihist$test_details)
   if (verbose){print(str(iihist))}
 
-  if (!is.null(lb_med_ub)){
+  if (!is.null(lb_med_ub) & plot_aggregate){
     vlines_dat <- data.frame(ptid = unique(iihist$ptid))
   }
 
@@ -70,7 +75,7 @@ plot_iihist <- function(ihist, lb_med_ub, range_start, range_end, produce_plot =
   x_tick_labels <- as.character(as.Date(round(x_breaks, 0), origin = '1970-01-01'))
   #x_tick_labels <- strftime(as.Date(round(x_breaks, 0), origin = '1970-01-01'), format = "%b-%y")
   
-  if (!is.null(lb_med_ub)){
+  if (!is.null(lb_med_ub) & plot_aggregate){
     vlines_dat <- data.frame(ptid = unique(iihist$ptid),
                              sample_date = c(lb_med_ub$lb, lb_med_ub$med, lb_med_ub$ub),
                              test_details = 'Aggregate',
@@ -84,16 +89,25 @@ plot_iihist <- function(ihist, lb_med_ub, range_start, range_end, produce_plot =
   }
   if (verbose){print(str(iihist))}
 
-
-  x <- 
-  ggplot2::ggplot(iihist, ggplot2::aes(x = sample_date, y = prob_val, col = result)) +
-    ggplot2::geom_line() +
-    ggplot2::facet_grid(test_details ~ .) +
-    ggplot2::theme(legend.position = 'none') +
-    ggplot2::labs(y = 'Probability of observed result given initial\ninfection on day indicated by x-axis') +
-    ggplot2::scale_x_continuous('Date of intial infection', breaks = x_breaks, labels = x_tick_labels)
-  if (!is.null(lb_med_ub)){
-    x <- x + ggplot2::geom_vline(data = vlines_dat, ggplot2::aes(xintercept = sample_date), col = 'black')
+  if (plot_aggregate){
+    x <- 
+    ggplot2::ggplot(iihist, ggplot2::aes(x = sample_date, y = prob_val, col = result)) +
+      ggplot2::geom_line() +
+      ggplot2::facet_grid(test_details ~ .) +
+      ggplot2::theme(legend.position = 'none') +
+      ggplot2::labs(y = 'Probability of observed result given initial\ninfection on day indicated by x-axis') +
+      ggplot2::scale_x_continuous('Date of intial infection', breaks = x_breaks, labels = x_tick_labels)
+    if (!is.null(lb_med_ub)){
+      x <- x + ggplot2::geom_vline(data = vlines_dat, ggplot2::aes(xintercept = sample_date), col = 'black')
+    }
+  } else {
+    x <- 
+    ggplot2::ggplot(subset(iihist, test_details != 'Aggregate'), ggplot2::aes(x = sample_date, y = prob_val, col = result)) +
+      ggplot2::geom_line() +
+      ggplot2::facet_grid(test_details ~ .) +
+      ggplot2::theme(legend.position = 'none') +
+      ggplot2::labs(y = 'Probability of observed result given initial\ninfection on day indicated by x-axis') +
+      ggplot2::scale_x_continuous('Date of intial infection', breaks = x_breaks, labels = x_tick_labels)
   }
   if (produce_plot) {print(x)}
   return(x)

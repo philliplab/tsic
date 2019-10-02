@@ -5,7 +5,8 @@
 \title{Plots an individual history}
 \usage{
 plot_iihist(ihist, lb_med_ub, range_start, range_end,
-  produce_plot = TRUE, save_plot = FALSE, verbose = FALSE)
+  produce_plot = TRUE, save_plot = FALSE, verbose = FALSE,
+  plot_aggregate = TRUE)
 }
 \description{
 Will produce the interpretation itself.

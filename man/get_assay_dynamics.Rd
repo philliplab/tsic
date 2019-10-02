@@ -4,10 +4,10 @@
 \alias{get_assay_dynamics}
 \title{Get dynamics functions for an assay}
 \usage{
-get_assay_dynamics(assay)
+get_assay_dynamics(assay = NULL)
 }
 \arguments{
-\item{assay}{The name of the assay whose dynamics are required.}
+\item{assay}{The name of the assay whose dynamics are required. If NULL (default), list of available assays will be returned.}
 }
 \description{
 Constructs the assay dynamics list with suitable parameter set given the name of an assay
