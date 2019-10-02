@@ -11,10 +11,12 @@ plot_iihist <- function(ihist, lb_med_ub, range_start, range_end,
                         show_test_dates = FALSE){
   # debugging stuff
   if (FALSE) {
-    produce_plot <- TRUE
+    lb_med_ub <- TRUE
+    plot_aggregate <- TRUE
     plot_aggregate <- FALSE
-    verbose <- TRUE
     lb_med_ub <- NULL
+    produce_plot <- TRUE
+    verbose <- TRUE
     show_test_dates <- TRUE
     devtools::load_all()
     library(profvis)
@@ -92,10 +94,12 @@ plot_iihist <- function(ihist, lb_med_ub, range_start, range_end,
   if (verbose){print(str(iihist))}
 
   if (show_test_dates){
+    stopifnot(show_test_dates > 0)
     test_date_arrows <- data.frame(test_details = setdiff(levels(iihist$test_details), 'Aggregate'))
     test_date_arrows$sample_date <- as.numeric(as.Date(gsub('.*\n([0-9]{4}-[0-9]{2}-[0-9]{2})\n.*', '\\1', test_date_arrows$test_details)))
     test_date_arrows$result <- gsub('.*\n[0-9]{4}-[0-9]{2}-[0-9]{2}\n(.*)$', '\\1', test_date_arrows$test_details)
   }
+  cols <- c("+" = rgb(1,0,0), "-" = rgb(0, 176/255, 240/255), "e" = "black")
 
   if (plot_aggregate){
     x <- 
@@ -104,7 +108,8 @@ plot_iihist <- function(ihist, lb_med_ub, range_start, range_end,
       ggplot2::facet_grid(test_details ~ .) +
       ggplot2::theme(legend.position = 'none') +
       ggplot2::labs(y = 'Probability of observed result given initial\ninfection on day indicated by x-axis') +
-      ggplot2::scale_x_continuous('Date of intial infection', breaks = x_breaks, labels = x_tick_labels)
+      ggplot2::scale_x_continuous('Date of intial infection', breaks = x_breaks, labels = x_tick_labels) +
+      ggplot2::scale_colour_manual(values = cols)
     if (!is.null(lb_med_ub)){
       x <- x + ggplot2::geom_vline(data = vlines_dat, ggplot2::aes(xintercept = sample_date), col = 'black')
     }
@@ -115,13 +120,14 @@ plot_iihist <- function(ihist, lb_med_ub, range_start, range_end,
       ggplot2::facet_grid(test_details ~ .) +
       ggplot2::theme(legend.position = 'none') +
       ggplot2::labs(y = 'Probability of observed result given initial\ninfection on day indicated by x-axis') +
-      ggplot2::scale_x_continuous('Date of intial infection', breaks = x_breaks, labels = x_tick_labels)
+      ggplot2::scale_x_continuous('Date of intial infection', breaks = x_breaks, labels = x_tick_labels) +
+      ggplot2::scale_colour_manual(values = cols)
   }
   if (show_test_dates){
     x <- x + ggplot2::geom_segment(data = test_date_arrows, 
                                    ggplot2::aes(x = sample_date, xend = sample_date, y = 0.333, yend = 0),
                                    arrow = ggplot2::arrow(length = ggplot2::unit(0.10, 'npc')),
-                                   size = 1.125)
+                                   size = show_test_dates)
   }
   if (produce_plot) {print(x)}
   return(x)
