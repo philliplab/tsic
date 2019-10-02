@@ -6,7 +6,7 @@
 \usage{
 plot_iihist(ihist, lb_med_ub, range_start, range_end,
   produce_plot = TRUE, save_plot = FALSE, verbose = FALSE,
-  plot_aggregate = TRUE)
+  plot_aggregate = TRUE, show_test_dates = FALSE)
 }
 \description{
 Will produce the interpretation itself.

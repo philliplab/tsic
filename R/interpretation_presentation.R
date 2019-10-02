@@ -7,13 +7,15 @@
 
 plot_iihist <- function(ihist, lb_med_ub, range_start, range_end, 
                         produce_plot = TRUE, save_plot = FALSE, 
-                        verbose = FALSE, plot_aggregate = TRUE){
+                        verbose = FALSE, plot_aggregate = TRUE,
+                        show_test_dates = FALSE){
   # debugging stuff
   if (FALSE) {
     produce_plot <- TRUE
     plot_aggregate <- FALSE
     verbose <- TRUE
     lb_med_ub <- NULL
+    show_test_dates <- TRUE
     devtools::load_all()
     library(profvis)
     #1
@@ -89,6 +91,12 @@ plot_iihist <- function(ihist, lb_med_ub, range_start, range_end,
   }
   if (verbose){print(str(iihist))}
 
+  if (show_test_dates){
+    test_date_arrows <- data.frame(test_details = setdiff(levels(iihist$test_details), 'Aggregate'))
+    test_date_arrows$sample_date <- as.numeric(as.Date(gsub('.*\n([0-9]{4}-[0-9]{2}-[0-9]{2})\n.*', '\\1', test_date_arrows$test_details)))
+    test_date_arrows$result <- gsub('.*\n[0-9]{4}-[0-9]{2}-[0-9]{2}\n(.*)$', '\\1', test_date_arrows$test_details)
+  }
+
   if (plot_aggregate){
     x <- 
     ggplot2::ggplot(iihist, ggplot2::aes(x = sample_date, y = prob_val, col = result)) +
@@ -108,6 +116,12 @@ plot_iihist <- function(ihist, lb_med_ub, range_start, range_end,
       ggplot2::theme(legend.position = 'none') +
       ggplot2::labs(y = 'Probability of observed result given initial\ninfection on day indicated by x-axis') +
       ggplot2::scale_x_continuous('Date of intial infection', breaks = x_breaks, labels = x_tick_labels)
+  }
+  if (show_test_dates){
+    x <- x + ggplot2::geom_segment(data = test_date_arrows, 
+                                   ggplot2::aes(x = sample_date, xend = sample_date, y = 0.333, yend = 0),
+                                   arrow = ggplot2::arrow(length = ggplot2::unit(0.10, 'npc')),
+                                   size = 1.125)
   }
   if (produce_plot) {print(x)}
   return(x)
