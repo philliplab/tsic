@@ -6,6 +6,7 @@
 #' @export
 
 plot_iihist <- function(ihist, lb_med_ub, range_start, range_end, 
+                        x_breaks = NULL,
                         produce_plot = TRUE, save_plot = FALSE, 
                         verbose = FALSE, plot_aggregate = TRUE,
                         show_test_dates = FALSE){
@@ -45,8 +46,8 @@ plot_iihist <- function(ihist, lb_med_ub, range_start, range_end,
                               verbose = TRUE)
 #    })
     agg_interpreter <- construct_aggregate_interpreter(ihist)
-    range_start <- min(ihist$sample_date)
-    range_end <- max(ihist$sample_date)
+    range_start <- min(ihist$sample_date) - 100
+    range_end <- max(ihist$sample_date) + 100
     range_to_int <- trim_range(fun = agg_interpreter, range_start = range_start, range_end = range_end)
     lb_med_ub <- estimate_lb_med_ub(fun = agg_interpreter,                            
                                     range_start = range_to_int$range_start,
@@ -71,10 +72,15 @@ plot_iihist <- function(ihist, lb_med_ub, range_start, range_end,
            ordered = TRUE)
   if (verbose){print(str(iihist))}
 
-  x_breaks <- quantile(seq(from = min(iihist$sample_date), 
-                           to = max(iihist$sample_date), 
-                           length.out = 100), 
-                       c(.1, .3, .5, .7, .9))
+  if (is.null(x_breaks)){
+    x_breaks <- quantile(seq(from = min(iihist$sample_date), 
+                             to = max(iihist$sample_date), 
+                             length.out = 100), 
+                         c(.1, .3, .5, .7, .9))
+  } else {
+    stopifnot(min(x_breaks) >= range_start)
+    stopifnot(max(x_breaks) <= range_end)
+  }
 
   x_tick_labels <- as.character(as.Date(round(x_breaks, 0), origin = '1970-01-01'))
   #x_tick_labels <- strftime(as.Date(round(x_breaks, 0), origin = '1970-01-01'), format = "%b-%y")
