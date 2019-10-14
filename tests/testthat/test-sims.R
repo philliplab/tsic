@@ -64,5 +64,22 @@ test_that('sim_visit_dates is sane', {
   expect_equal(class(visit_dates), 'data.frame')
   expect_equal(names(visit_dates), c('ptid', 'visit_id', 'visit_date'))
   expect_equal(class(visit_dates$visit_date), 'numeric')
-  expect_true(class(visit_dates$visit_id) %in% c('numeric', 'integer'))
+  expect_true( class(visit_dates$visit_id) %in% c('numeric', 'integer'))
+
+  for (c_ptid in sort(unique(durations$ptid))){
+    total_duration <- sum(durations[durations$ptid == c_ptid, -1])
+    c_visit_dates <- subset(visit_dates, ptid == c_ptid)
+    follow_up <- max(c_visit_dates$visit_date) - min(c_visit_dates$visit_date)
+    expect_gte(follow_up, total_duration)
+    expect_equal(c_visit_dates$visit_id, 1:nrow(c_visit_dates))
+    for (i in 1:(nrow(c_visit_dates) - 1)){
+      expect_lte(c_visit_dates$visit_date[i], c_visit_dates$visit_date[i+1])
+    }
+  }
 })
+
+
+
+
+
+
