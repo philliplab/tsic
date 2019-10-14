@@ -39,7 +39,7 @@ sim_durations <- function(n = 30, rates = 'fiebig',
   stopifnot(all(sort(names(rates)) == c('l1', 'l2', 'l3', 'l4', 'l5')))
 
   for (c_stage in sort(names(rates))){
-    durations[, c_stage] <- rexp(n, 1/rates[[c_stage]])
+    durations[, gsub('l', 'f', c_stage)] <- rexp(n, 1/rates[[c_stage]])
   }
   return(durations)
 }
@@ -71,6 +71,10 @@ sim_visit_dates <- function(durations,
     v1_date <- inf_date - (inf_offset + pot_gaps[n_before_infection])
     visit_dates <- v1_date + pot_gaps
     last_transition <- inf_date + sum(durations[durations$ptid == c_ptid, -1])
+
+    transitions_into <- c(0, as.numeric(durations[durations$ptid == c_ptid, -1]))
+    names(transitions_into) <- c('eclipse', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6')
+    
     while (last_transition > max(visit_dates)){
       pot_gaps <- cumsum(gap_distribution(max(n_before_infection + 5, 10)))
       visit_dates <- c(visit_dates, max(visit_dates) + pot_gaps)
@@ -83,6 +87,29 @@ sim_visit_dates <- function(durations,
   return(all_visit_dates)
 }
 
+#' Reads test results from a duration and visit schedule
+#'
+#' @param durations The data.frame of transitions as produced by sim_durations.
+#' @param visit_schedule The data.frame with the date of each visit as produced by sim_visit_dates.
+#' @param tests_and_properties A list with each element corresponding to a test giving the Fiebig stage in which the test first starts returning positive results. Additionally, each test has an offset that allows the user to specify that the test starts testing positive x days before or after person enters the stage.
+#' @export
+
+sim_test_results <- function(durations, visit_schedule, 
+  tests_and_properties = list(aptima_weib3_delaney = list(name = aptima_weib3_delaney,
+                                                          stage = 1,
+                                                          offset = -2),
+                              architech_weib3_delaney = list(name = architech_weib3_delaney,
+                                                             stage = 2,
+                                                             offset = -1),
+                              geenius_indet_weib3_delaney = list(name = geenius_indet_weib3_delaney,
+                                                              stage = 3,
+                                                              offset = 0),
+                              geenius_fr_weib3_delaney = list(name = geenius_fr_weib3_delaney,
+                                                              stage = 5,
+                                                              offset = 0)
+                              )){
+    return(1)
+}
 
 
 
