@@ -46,3 +46,23 @@ test_that("the numbers from sim_durations are similar to the distributions they 
   expect_gt(mean(durations$l5), 0.9*69.5)
   expect_lt(mean(durations$l5), 1.1*69.5)
 })
+
+test_that('sim_visit_dates is sane', {
+  durations <- 
+    sim_durations(n = 30,
+                  rates = 'fiebig',
+                  eclipse_distribution <- list(
+                    distr = function(n, shape, scale, location) {
+                      location + rweibull(n, shape = shape, scale = scale)
+                    },
+                    params = list(shape = 1.35, scale = 9, location = 4.8)))
+  visit_dates <-
+    sim_visit_dates(durations = durations, 
+                    inf_date = as.numeric(as.Date('2015-05-01')),
+                    n_before_infection = 2,
+                    gap_distribution = function(n){rnorm(n, 30, 3)})
+  expect_equal(class(visit_dates), 'data.frame')
+  expect_equal(names(visit_dates), c('ptid', 'visit_id', 'visit_date'))
+  expect_equal(class(visit_dates$visit_date), 'numeric')
+  expect_true(class(visit_dates$visit_id) %in% c('numeric', 'integer'))
+})

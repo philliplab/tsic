@@ -70,7 +70,7 @@ sim_visit_dates <- function(durations,
     inf_offset <- runif(1, 1, pot_gaps[n_before_infection] - 1)
     v1_date <- inf_date - (inf_offset + pot_gaps[n_before_infection])
     visit_dates <- v1_date + pot_gaps
-    last_transition <- inf_date + sum(durations[ptid == c_ptid, -1])
+    last_transition <- inf_date + sum(durations[durations$ptid == c_ptid, -1])
     while (last_transition > max(visit_dates)){
       pot_gaps <- cumsum(gap_distribution(max(n_before_infection + 5, 10)))
       visit_dates <- c(visit_dates, max(visit_dates) + pot_gaps)
