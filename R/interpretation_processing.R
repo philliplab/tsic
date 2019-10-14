@@ -7,9 +7,10 @@
 #' @param range_end End of interval containing the percentiles
 #' @param verbose Should verbose output be printed?
 #' @param label A label to print out with warnings. ptid is a good candidate
+#' @param warn_low_AOC Should a warning be issued when AOC is low? default = FALSE
 #' @export
 
-estimate_lb_med_ub <- function(fun, range_start, range_end, verbose = FALSE, label = 'unlabeled'){
+estimate_lb_med_ub <- function(fun, range_start, range_end, verbose = FALSE, label = 'unlabeled', warn_low_AOC = FALSE){
   if (FALSE){
     range_start <- -100
     range_end <- 100
@@ -46,7 +47,7 @@ estimate_lb_med_ub <- function(fun, range_start, range_end, verbose = FALSE, lab
                                 xmin = range_start,
                                 xmax = range_end,
                                 no_intervals = 1000)
-  if (total_aoc < 2){warning('AOC low')}
+  if (total_aoc < 2 & warn_low_AOC){warning('AOC low')}
 
   if (verbose){cat('manual rieman integral\n')}
   midpoint_heights <- (xy_points$y[1:(length(xy_points$y)-1)] + xy_points$y[2:(length(xy_points$y))]) / 2

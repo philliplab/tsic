@@ -13,11 +13,9 @@ test_that("Test sim_durations is sane", {
                                params = list(shape = 1.35, scale = 9, location = 4.8)))
   expect_equal(class(durations), 'data.frame')
   expect_equal(names(durations), c('ptid', 'eclipse', 'l1', 'l2', 'l3', 'l4', 'l5'))
-  stage_classes <- apply(durations[,-1], 2, class)
-  expect_equal(unique(stage_classes), 'numeric')
-
   expect_equal(nrow(durations), 30)
   for (c_col in c('eclipse', 'l1', 'l2', 'l3', 'l4', 'l5')){
+    expect_equal(class(durations[, c_col]), 'numeric')
     expect_true(all(durations[, c_col] > 0))
   }
 })

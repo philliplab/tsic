@@ -72,7 +72,6 @@ test_that('estimate_lb_med_ub works on basic functions', {
 test_that('estimate_lb_med_ub works with diagnostic histories', {
   ihists <- read.csv('/fridge/data/tsic/test_data.csv', stringsAsFactors = F)
   ihist <- subset(ihists, ptid == 'p01')
-  dput(ihist)
   # weibull dynamics aptima + architect
   ihist <- structure(list(ptid = c("p01", "p01", "p01", "p01", "p01", "p01",
 "p01", "p01", "p01", "p01", "p01", "p01"), sample_date = c("2017-02-01",
