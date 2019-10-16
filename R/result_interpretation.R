@@ -117,6 +117,10 @@ get_scatterpoints <- function(fun, seedpoints, max_delta = 0.02, min_length = 0.
 #' @export
 
 reduce_x_points <- function(x, y, min_delta = 0.0001, max_length = 14){
+  if (FALSE){
+    y <- (0:20)/20
+    indx <- 19
+  }
   stopifnot(length(x) == length(y))
   indx <- 1
   new_x <- rep(NA_real_, length(x))
@@ -125,16 +129,28 @@ reduce_x_points <- function(x, y, min_delta = 0.0001, max_length = 14){
   new_x[1] <- x[1]
   new_y[1] <- y[1]
   while (indx <= length(x)-2){
-    if ((abs(y[indx] - y[indx+1]) < min_delta) & 
+#    print ('----------------------------')
+#    print (indx)
+#    print (y[indx+0:2])
+    if (any(c(new_y[new_indx-1], y[indx+0:2]) %in% c(0,1)) & any(!(c(new_y[new_indx-1], y[indx+0:2]) %in% c(0,1)))){
+      zero_one_edge_points <- TRUE
+    } else {
+      zero_one_edge_points <- FALSE
+    }
+#    print (zero_one_edge_points)
+    if ((!zero_one_edge_points) &
+        (abs(y[indx] - y[indx+1]) < min_delta) & 
         (abs(y[indx] - y[indx+2]) < min_delta) & 
         (abs(y[indx+1] - y[indx+2]) < min_delta) &
         (abs(x[indx] - new_x[new_indx-1] + 1) < max_length)){
       indx <- indx + 1
+#      print('extending')
     } else {
       new_x[new_indx:(new_indx+2)] <- x[indx:(indx+2)]
       new_y[new_indx:(new_indx+2)] <- y[indx:(indx+2)]
       new_indx <- new_indx + 3
       indx <- indx + 2
+#      print('not extending')
     }
     indx <- indx + 1
   }
@@ -148,6 +164,56 @@ reduce_x_points <- function(x, y, min_delta = 0.0001, max_length = 14){
   new_y <- new_y[1:new_indx]
   return(list(x = new_x, y = new_y))
 }
+
+reduce_x_points_failed_fix <- function(x, y, min_delta = 0.0001, max_length = 14){
+  if (FALSE){
+    y <- (0:20)/20
+    indx <- 19
+  }
+  stopifnot(length(x) == length(y))
+  indx <- 1
+  new_x <- rep(NA_real_, length(x))
+  new_y <- rep(NA_real_, length(y))
+  new_indx <- 2
+  new_x[1] <- x[1]
+  new_y[1] <- y[1]
+  while (indx <= length(x)-2){
+    print ('----------------------------')
+    print (indx)
+    print (y[indx+0:2])
+    if (any(y[indx+0:2] %in% c(0,1)) & any(!(y[indx+0:2] %in% c(0,1)))){
+      zero_one_edge_points <- TRUE
+    } else {
+      zero_one_edge_points <- FALSE
+    }
+    print (zero_one_edge_points)
+    if ((!zero_one_edge_points) &
+        (abs(y[indx] - y[indx+1]) < min_delta) & 
+        (abs(y[indx] - y[indx+2]) < min_delta) & 
+        (abs(y[indx+1] - y[indx+2]) < min_delta) &
+        (abs(x[indx] - new_x[new_indx-1] + 1) < max_length)){
+      indx <- indx + 1
+      print('extending')
+    } else {
+      new_x[new_indx:(new_indx+1)] <- x[(indx+1):(indx+2)]
+      new_y[new_indx:(new_indx+1)] <- y[(indx+1):(indx+2)]
+      new_indx <- new_indx + 2
+      indx <- indx + 1
+      print('not extending')
+    }
+    indx <- indx + 1
+  }
+  if (new_x[new_indx-1] != x[length(x)]){
+    new_x[new_indx] <- x[length(x)]
+    new_y[new_indx] <- y[length(y)]
+  } else {
+    new_indx <- new_indx-1
+  }
+  new_x <- new_x[1:new_indx]
+  new_y <- new_y[1:new_indx]
+  return(list(x = new_x, y = new_y))
+}
+
 
 #' Trims range on which to evaluate a function
 #'

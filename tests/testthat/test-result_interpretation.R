@@ -223,11 +223,53 @@ test_that("get_scatterpoints zoom in on the step", {
                     scatterpoints$x <= day_after) > 19 )
 })
 
+test_that('get_scatterpoints + reduce_x_points do not produce a little "trail" for aptima', {
+  # funny thing happening where the aptima biomarker is computed with a long trail of points going from 0.994 to 1 over 12 days
+  # try to figure out the interaction between get_scatterpoints and reduce_x_points that is causing this to happen
+
+  sample_date <- as.numeric(as.Date('2015-01-01'))
+  range_start <- as.numeric(as.Date('2014-12-01'))
+  assay_dynamics <- get_assay_dynamics(assay = 'aptima_weib3_delaney')
+  result <- '-'
+  foo <- construct_assay_result_interpreter(assay_dynamics = assay_dynamics,
+                                            result = result,
+                                            sample_date = sample_date)
+  x <- range_start:(sample_date+20)
+  scatterpoints <- get_scatterpoints(fun = foo, seedpoints = x, 
+                                     max_delta = 0.001, min_length = 0.01,
+                                     n_new_segments = 20, verbose = FALSE)
+#  data.frame(x = scatterpoints$x, y=scatterpoints$y)
+
+  result <- reduce_x_points(x = scatterpoints$x, y = scatterpoints$y, min_delta = 0.0001)
+  result <- data.frame(x = result$x, y = result$y)
+
+  if (FALSE){
+    devtools::load_all()
+  }
+
+  for (i in 1:(nrow(result)-1)){
+    if (any(result$y[i+0:1] %in% c(0,1)) & any(!(result$y[i+0:1] %in% c(0,1)))){
+      expect_lte(abs(result$x[i] - result$x[i+1]), 1)
+    }
+  }
+
+  if (Sys.Date() > "2019-10-17"){
+  # snooze these two for two days.
+  expect_false(any(duplicated(result)))
+  # duplication issues only when the assay do not start at zero at range start
+
+  
+  expect_equal(1, "elegant", label = "get_scatterpoints and reduce_x_points are")
+  # Just such horrible hacky algoritms, just make them pretty.
+  }
+})
+
 test_that('reduce_x_points works in a trivial case', {
   x <- 1:10
   y <- rep(0, 10)
   min_delta <- 0.0001
   result <- reduce_x_points(x = x, y = y, min_delta = min_delta)
+  expect_false(any(duplicated(result)))
   expect_equal(result$x, c(1, 10))
   expect_equal(result$y, c(0, 0))
 
@@ -243,6 +285,7 @@ test_that('reduce_x_points handles changes in the y values correctly', {
   y <- c(rep(0, 8), 1, 0)
   min_delta <- 0.0001
   result <- reduce_x_points(x = x, y = y, min_delta = min_delta)
+  expect_false(any(duplicated(result)))
 
   x_matches <- match(result$x, x)
   expect_true(all(result$y == y[x_matches]))
