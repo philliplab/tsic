@@ -65,6 +65,9 @@ weib3_assay_dynamics <- function(x, location, scale, shape){
 #' @export
 
 get_assay_dynamics <- function(assay = NULL){
+
+  # see /fridge/data/tsic/characterization for details: TODO make this a vignette
+
   # Build library of assay parameters
   all_assays <- list()
 
@@ -175,6 +178,17 @@ get_assay_dynamics <- function(assay = NULL){
     source = "manufacturer's details and delaney_2017",
     fun = 'weib3_assay_dynamics',
     params = list(location = 4.995, shape = 1.350, scale = 9.365)
+  )
+
+  # iSCAv2 (Mellor's low copy)
+  all_assays[[tolower('iSCAv2_weib3_delaney_and_tosiano')]] <- list(
+    class = 'RNA',
+    full_assayname = 'iSCA v2.0',
+    short_assayname = 'iSCAv2',
+    form = 'weib3',
+    source = "tosiano_2019 and delaney_2017",
+    fun = 'weib3_assay_dynamics',
+    params = list(location = 3.606, shape = 1.350, scale = 6.762)
   )
 
   # Geenius Fully Reactive
