@@ -8,9 +8,10 @@
 #' @param verbose Should verbose output be printed?
 #' @param label A label to print out with warnings. ptid is a good candidate
 #' @param warn_low_AOC Should a warning be issued when AOC is low? default = FALSE
+#' @param extra_tiles A vector of additional percentiles to compute. If NULL, this process will be skipped.
 #' @export
 
-estimate_lb_med_ub <- function(fun, range_start, range_end, verbose = FALSE, label = 'unlabeled', warn_low_AOC = FALSE){
+estimate_lb_med_ub <- function(fun, range_start, range_end, verbose = FALSE, label = 'unlabeled', warn_low_AOC = FALSE, extra_tiles = NULL){
   if (FALSE){
     range_start <- -100
     range_end <- 100
@@ -102,11 +103,19 @@ estimate_lb_med_ub <- function(fun, range_start, range_end, verbose = FALSE, lab
   med <- find_perc(value = 0.500, width_toggle = 0.01)
   if (verbose){cat('solving for ub\n')}
   ub  <- find_perc(value = 0.975, width_toggle = 0.01)
+  extra_computed_tiles <- NULL
+  if (!is.null(extra_tiles)){
+    for (i in 1:length(extra_tiles)){
+      extra_computed_tiles <- c(extra_computed_tiles, find_perc(value = extra_tiles[i], width_toggle = 0.01))
+    }
+  }
 
   return(list(lb = lb$minimum,
               med = med$minimum,
               ub = ub$minimum,
               aoc = total_aoc,
+              extra_tiles = extra_tiles,
+              extra_computed_tiles = extra_computed_tiles,
               max_agg = max(xy_points$y)))
 }
 
