@@ -9,9 +9,11 @@
 #' @param label A label to print out with warnings. ptid is a good candidate
 #' @param warn_low_AOC Should a warning be issued when AOC is low? default = FALSE
 #' @param extra_tiles A vector of additional percentiles to compute. If NULL, this process will be skipped.
+#' @param date_splits Compute the AOC to the left of each of the dates listed in this parameter. If NULL, this process will be skipped.
 #' @export
 
-estimate_lb_med_ub <- function(fun, range_start, range_end, verbose = FALSE, label = 'unlabeled', warn_low_AOC = FALSE, extra_tiles = NULL){
+estimate_lb_med_ub <- function(fun, range_start, range_end, verbose = FALSE, label = 'unlabeled', 
+                               warn_low_AOC = FALSE, extra_tiles = NULL, date_splits = NULL){
   if (FALSE){
     range_start <- -100
     range_end <- 100
@@ -31,6 +33,12 @@ estimate_lb_med_ub <- function(fun, range_start, range_end, verbose = FALSE, lab
     range_end <- ceiling(max(ihist$sample_date) + 30)
     verbose <- TRUE
     label <- unique(ihist$ptid)
+  }
+  if (!is.null(date_splits)){
+    for (indx in 1:length(date_splits)){
+      stopifnot(date_splits[i] > range_start)
+      stopifnot(date_splits[i] < range_end)
+    }
   }
   if (verbose){cat('trim range\n')}
   ranges <- trim_range(fun, range_start, range_end, tol = 0.1^50)
@@ -61,11 +69,11 @@ estimate_lb_med_ub <- function(fun, range_start, range_end, verbose = FALSE, lab
     return('no solution')
   }  
 
-  integrated_fun <- function(x){
+  integrated_fun <- function(x, no_intervals = 100){
     pracma::integral(fun = function(x){fun(x)/total_aoc},
                      xmin = range_start, 
                      xmax = min(x, range_end),
-                     no_intervals = 100)
+                     no_intervals = no_intervals)
   }
 
   midpoints <- (xy_points$x[2:(length(xy_points$x))] + xy_points$x[1:(length(xy_points$x)-1)]) / 2
@@ -97,6 +105,13 @@ estimate_lb_med_ub <- function(fun, range_start, range_end, verbose = FALSE, lab
     return(c_perc)
   }
 
+  aoc_left_of_date <- NULL
+  if (!is.null(date_splits)){
+    for (indx in 1:length(date_splits)){
+      aoc_left_of_date <- c(aoc_left_of_date, integrated_fun(date_splits[i], no_intervals = 1000))
+    }
+  }
+
   if (verbose){cat('solving for lb\n')}
   lb  <- find_perc(value = 0.025, width_toggle = 0.01)
   if (verbose){cat('solving for med\n')}
@@ -117,6 +132,8 @@ estimate_lb_med_ub <- function(fun, range_start, range_end, verbose = FALSE, lab
               aoc = total_aoc,
               extra_tiles = extra_tiles,
               extra_computed_tiles = extra_computed_tiles,
+              date_splits = date_splits,
+              aoc_left_of_date = aoc_left_of_date,
               max_agg = max(xy_points$y)))
 }
 
