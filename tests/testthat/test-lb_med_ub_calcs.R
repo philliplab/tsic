@@ -70,8 +70,6 @@ test_that('estimate_lb_med_ub works on basic functions', {
 })
 
 test_that('estimate_lb_med_ub works with diagnostic histories', {
-  ihists <- read.csv('/fridge/data/tsic/test_data.csv', stringsAsFactors = F)
-  ihist <- subset(ihists, ptid == 'p01')
   # weibull dynamics aptima + architect
   ihist <- structure(list(ptid = c("p01", "p01", "p01", "p01", "p01", "p01",
 "p01", "p01", "p01", "p01", "p01", "p01"), sample_date = c("2017-02-01",
@@ -98,6 +96,46 @@ test_that('estimate_lb_med_ub works with diagnostic histories', {
   expect_lte(res$med, res$ub)
   expect_lte(min(ihist$sample_date) - 90, res$lb)
   expect_gte(max(ihist$sample_date) + 90, res$ub)
+})
+
+test_that('extra percentile computation works with diagnostic histories', {
+  # weibull dynamics aptima + architect
+  ihist <- structure(list(ptid = c("p01", "p01", "p01", "p01", "p01", "p01",
+"p01", "p01", "p01", "p01", "p01", "p01"), sample_date = c("2017-02-01",
+"2017-03-01", "2017-04-01", "2017-05-01", "2017-06-01", "2017-07-01",
+"2017-08-01", "2017-08-01", "2017-09-01", "2017-09-01", "2017-10-01",
+"2017-10-01"), test = c("aptima_weib3_delaney", "aptima_weib3_delaney",
+"aptima_weib3_delaney", "aptima_weib3_delaney", "aptima_weib3_delaney",
+"aptima_weib3_delaney", "aptima_weib3_delaney", "architect_weib3_delaney",
+"aptima_weib3_delaney", "architect_weib3_delaney", "aptima_weib3_delaney",
+"architect_weib3_delaney"), result = c("-", "-", "-", "-", "-",
+"-", "+", "+", "+", "+", "+", "+")), row.names = c(NA, 12L), class = "data.frame")
+  ihist$sample_date <- as.numeric(as.Date(ihist$sample_date))
+  
+  agg_interpreter <- construct_aggregate_interpreter(ihist)
+  range_start <- min(ihist$sample_date)
+  range_end <- max(ihist$sample_date)
+
+  range_to_int <- trim_range(fun = agg_interpreter, range_start = range_start, range_end = range_end)
+  res <- estimate_lb_med_ub(fun = agg_interpreter,
+                            range_start = range_to_int$range_start,
+                            range_end = range_to_int$range_end,
+                            verbose = FALSE,
+                            extra_tiles = c(0.025, 0.25, 0.5, 0.75, 0.975))
+  expect_lte(res$lb, res$med)
+  expect_lte(res$med, res$ub)
+  expect_lte(min(ihist$sample_date) - 90, res$lb)
+  expect_gte(max(ihist$sample_date) + 90, res$ub)
+  
+  expect_equal(res$lb, res$extra_computed_tiles[['0.025']]$minimum)
+  expect_equal(res$med, res$extra_computed_tiles[['0.5']]$minimum)
+  expect_equal(res$ub, res$extra_computed_tiles[['0.975']]$minimum)
+  
+  expect_lte(res$lb, res$extra_computed_tiles[['0.25']]$minimum)
+  expect_gte(res$med, res$extra_computed_tiles[['0.25']]$minimum)
+  
+  expect_lte(res$med, res$extra_computed_tiles[['0.75']]$minimum)
+  expect_gte(res$ub, res$extra_computed_tiles[['0.75']]$minimum)
 })
 
 

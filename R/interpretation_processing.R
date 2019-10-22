@@ -103,10 +103,11 @@ estimate_lb_med_ub <- function(fun, range_start, range_end, verbose = FALSE, lab
   med <- find_perc(value = 0.500, width_toggle = 0.01)
   if (verbose){cat('solving for ub\n')}
   ub  <- find_perc(value = 0.975, width_toggle = 0.01)
-  extra_computed_tiles <- NULL
+  extra_computed_tiles <- list()
   if (!is.null(extra_tiles)){
     for (i in 1:length(extra_tiles)){
-      extra_computed_tiles <- c(extra_computed_tiles, find_perc(value = extra_tiles[i], width_toggle = 0.01))
+      extra_computed_tiles <- c(extra_computed_tiles, list(find_perc(value = extra_tiles[i], width_toggle = 0.01)))
+      names(extra_computed_tiles)[i] <- extra_tiles[i]
     }
   }
 
