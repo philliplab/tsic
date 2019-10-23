@@ -36,8 +36,8 @@ estimate_lb_med_ub <- function(fun, range_start, range_end, verbose = FALSE, lab
   }
   if (!is.null(date_splits)){
     for (indx in 1:length(date_splits)){
-      stopifnot(date_splits[i] > range_start)
-      stopifnot(date_splits[i] < range_end)
+      stopifnot(date_splits[indx] > range_start)
+      stopifnot(date_splits[indx] < range_end)
     }
   }
   if (verbose){cat('trim range\n')}
@@ -108,7 +108,7 @@ estimate_lb_med_ub <- function(fun, range_start, range_end, verbose = FALSE, lab
   aoc_left_of_date <- NULL
   if (!is.null(date_splits)){
     for (indx in 1:length(date_splits)){
-      aoc_left_of_date <- c(aoc_left_of_date, integrated_fun(date_splits[i], no_intervals = 1000))
+      aoc_left_of_date <- c(aoc_left_of_date, integrated_fun(date_splits[indx], no_intervals = 1000))
     }
   }
 
