@@ -9,7 +9,7 @@ test_that("assay_result_interpreter gets build correctly", {
   result <- '+'
   foo <- construct_assay_result_interpreter(assay_dynamics = assay_dynamics,
                                             result = result,
-                                            sample_date = as.numeric(as.Date('2018-06-01')))
+                                            sample_date = as.numeric(as.Date('2018-06-01'))+0.5)
   expect_type(foo, 'closure')
   expect_equal(foo(as.numeric(as.Date('2010-05-01'))), 1)
   expect_equal(foo(as.numeric(as.Date('2018-05-01'))), 1)
@@ -19,7 +19,7 @@ test_that("assay_result_interpreter gets build correctly", {
   result <- '-'
   foo <- construct_assay_result_interpreter(assay_dynamics = assay_dynamics,
                                             result = result,
-                                            sample_date = as.numeric(as.Date('2018-06-01')))
+                                            sample_date = as.numeric(as.Date('2018-06-01'))+0.5)
   expect_type(foo, 'closure')
   expect_equal(foo(as.numeric(as.Date('2010-05-01'))), 0)
   expect_equal(foo(as.numeric(as.Date('2018-05-01'))), 0)
@@ -34,7 +34,7 @@ test_that("mucking about in the outer scope does not mess with the closure", {
   result <- '+'
   foo <- construct_assay_result_interpreter(assay_dynamics = assay_dynamics,
                                             result = result,
-                                            sample_date = as.numeric(as.Date('2018-06-01')))
+                                            sample_date = as.numeric(as.Date('2018-06-01'))+0.5)
   expect_type(foo, 'closure')
   expect_equal(foo(as.numeric(as.Date('2018-05-01'))), 1)
   expect_equal(foo(as.numeric(as.Date('2018-05-30'))), 0)
@@ -51,7 +51,7 @@ test_that("mucking about in the outer scope does not mess with the closure", {
   result <- '-'
   foo <- construct_assay_result_interpreter(assay_dynamics = assay_dynamics,
                                             result = result,
-                                            sample_date = as.numeric(as.Date('2018-06-01')))
+                                            sample_date = as.numeric(as.Date('2018-06-01'))+0.5)
   expect_type(foo, 'closure')
   expect_equal(foo(as.numeric(as.Date('2018-05-01'))), 0)
   expect_equal(foo(as.numeric(as.Date('2018-05-30'))), 1)
@@ -77,6 +77,7 @@ test_that("aggregate_interpreter gets build correctly in a basic case", {
     result = c('-', '+'),
     stringsAsFactors = FALSE
   )
+  diagnostic_history$sample_date <- diagnostic_history$sample_date + 0.5
   foo <- construct_aggregate_interpreter(diagnostic_history)
   expect_type(foo, 'closure')
   expect_equal(foo(as.numeric(as.Date('2010-05-01'))), 0)
@@ -89,19 +90,19 @@ test_that("aggregate_interpreter gets build correctly in a basic case", {
 
   # Find the jumps and make sure that there are no values that are not zero or one
   expect_equal(foo(as.numeric(as.Date('2016-02-19'))), 0)
-  expect_equal(foo(as.numeric(as.Date('2016-02-20'))), 1)
-  expect_equal(foo(as.numeric(as.Date('2016-02-19')+0.5)), 0)
-  expect_equal(foo(as.numeric(as.Date('2016-02-19')+0.9)), 0)
-  expect_equal(foo(as.numeric(as.Date('2016-02-19')+0.99)), 0)
-  expect_equal(foo(as.numeric(as.Date('2016-02-19')+0.999)), 0)
-  expect_equal(foo(as.numeric(as.Date('2016-02-19')+0.9999)), 0)
-  expect_equal(foo(as.numeric(as.Date('2016-02-19')+0.99999)), 0)
-  expect_equal(foo(as.numeric(as.Date('2016-02-19')+0.999999)), 0)
-  expect_equal(foo(as.numeric(as.Date('2016-02-19')+0.9999999)), 0)
-  expect_equal(foo(as.numeric(as.Date('2016-02-19')+0.99999999)), 0)
+  expect_equal(foo(as.numeric(as.Date('2016-02-20'))+0.5), 1)
+  expect_equal(foo(as.numeric(as.Date('2016-02-20'))), 0)
+  expect_equal(foo(as.numeric(as.Date('2016-02-20')+0.4)), 0)
+  expect_equal(foo(as.numeric(as.Date('2016-02-20')+0.49)), 0)
+  expect_equal(foo(as.numeric(as.Date('2016-02-20')+0.499)), 0)
+  expect_equal(foo(as.numeric(as.Date('2016-02-20')+0.4999)), 0)
+  expect_equal(foo(as.numeric(as.Date('2016-02-20')+0.49999)), 0)
+  expect_equal(foo(as.numeric(as.Date('2016-02-20')+0.499999)), 0)
+  expect_equal(foo(as.numeric(as.Date('2016-02-20')+0.4999999)), 0)
+  expect_equal(foo(as.numeric(as.Date('2016-02-20')+0.49999999)), 0)
 
-  expect_equal(foo(as.numeric(as.Date('2016-02-20')+0.1)), 1)
-  expect_equal(foo(as.numeric(as.Date('2016-02-20')+0.000001)), 1)
+  expect_equal(foo(as.numeric(as.Date('2016-02-20')+0.6)), 1)
+  expect_equal(foo(as.numeric(as.Date('2016-02-20')+0.500001)), 1)
 })
 
 test_that("get_scatterpoints work in normal circumstances", {
@@ -178,7 +179,7 @@ test_that("get_scatterpoints can recurse more than once", {
 test_that("get_scatterpoints zoom in on the step", {
   assay_dynamics <- get_assay_dynamics(assay = 'step_unit_testing')
   result <- '+'
-  sample_date <- as.numeric(as.Date('2015-01-01'))
+  sample_date <- as.numeric(as.Date('2015-01-01')) + 0.5
   range_start <- as.numeric(as.Date('2014-12-01'))
   foo <- construct_assay_result_interpreter(assay_dynamics = assay_dynamics,
                                             result = result,
@@ -201,7 +202,7 @@ test_that("get_scatterpoints zoom in on the step", {
   expect_equal( sum(scatterpoints$x <= day_before), 
                 length(range_start:day_before) )
   expect_equal( sum(scatterpoints$x >= day_after), 
-                length(day_after:sample_date) )
+                length(day_after:(sample_date-0.5)) )
   expect_true( sum( scatterpoints$x >= day_before & 
                     scatterpoints$x <= day_after) > 19 )
   
@@ -218,7 +219,7 @@ test_that("get_scatterpoints zoom in on the step", {
   expect_equal( sum(scatterpoints$x <= day_before), 
                 length(range_start:day_before) )
   expect_equal( sum(scatterpoints$x >= day_after), 
-                length(day_after:sample_date) )
+                length(day_after:(sample_date-0.5)) )
   expect_true( sum( scatterpoints$x >= day_before & 
                     scatterpoints$x <= day_after) > 19 )
 })
@@ -227,7 +228,7 @@ test_that('get_scatterpoints + reduce_x_points do not produce a little "trail" f
   # funny thing happening where the aptima biomarker is computed with a long trail of points going from 0.994 to 1 over 12 days
   # try to figure out the interaction between get_scatterpoints and reduce_x_points that is causing this to happen
 
-  sample_date <- as.numeric(as.Date('2015-01-01'))
+  sample_date <- as.numeric(as.Date('2015-01-01')) + 0.5
   range_start <- as.numeric(as.Date('2014-12-01'))
   assay_dynamics <- get_assay_dynamics(assay = 'aptima_weib3_delaney')
   result <- '-'
@@ -297,7 +298,7 @@ test_that('reduce_x_points handles changes in the y values correctly', {
 test_that('reduce_x_points handles a step function correctly', {
   assay_dynamics <- get_assay_dynamics(assay = 'step_unit_testing')
   result <- '+'
-  sample_date <- as.numeric(as.Date('2015-01-01'))
+  sample_date <- as.numeric(as.Date('2015-01-01')) + 0.5
   range_start <- as.numeric(as.Date('2014-12-01'))
   foo <- construct_assay_result_interpreter(assay_dynamics = assay_dynamics,
                                             result = result,
@@ -321,7 +322,7 @@ test_that('interpret_ihist works', {
   }
   ihist <- data.frame(
     ptid = c('p0', 'p0'),
-    sample_date = c(as.numeric(as.Date('2016-03-01')), as.numeric(as.Date('2016-09-01'))),
+    sample_date = c(as.numeric(as.Date('2016-03-01')) + 0.5, as.numeric(as.Date('2016-09-01')) + 0.5),
     test = c('step_unit_testing', 'step_unit_testing'),
     result = c('-', '+'),
     stringsAsFactors = FALSE
@@ -360,7 +361,7 @@ test_that('trim_range works', {
 test_that('INTEGRATION: get_scatterpoints and reduce_x_points on Linear', {
   assay_dynamics <- get_assay_dynamics(assay = 'linear_unit_testing')
   result <- '+'
-  sample_date <- as.numeric(as.Date('2015-01-01'))
+  sample_date <- as.numeric(as.Date('2015-01-01')) + 0.5
   range_start <- as.numeric(as.Date('2014-12-01'))
   foo <- construct_assay_result_interpreter(assay_dynamics = assay_dynamics,
                                             result = result,
@@ -387,7 +388,7 @@ test_that('INTEGRATION: get_scatterpoints and reduce_x_points on Weib3', {
   }
   assay_dynamics <- get_assay_dynamics(assay = 'weib3_unit_testing')
   result <- '+'
-  sample_date <- as.numeric(as.Date('2015-01-01'))
+  sample_date <- as.numeric(as.Date('2015-01-01')) + 0.5
   range_start <- as.numeric(as.Date('2014-11-01'))
   range_end <- as.numeric(as.Date('2015-02-01'))
   foo <- construct_assay_result_interpreter(assay_dynamics = assay_dynamics,
@@ -417,7 +418,7 @@ test_that('INTEGRATION: get_scatterpoints and reduce_x_points on Weib3', {
 test_that('PERFORMANCE: get_scatterpoints and reduce_x_points on Weib3 large interval', {
   assay_dynamics <- get_assay_dynamics(assay = 'weib3_unit_testing')
   result <- '+'
-  sample_date <- as.numeric(as.Date('2015-01-01'))
+  sample_date <- as.numeric(as.Date('2015-01-01')) + 0.5
   range_start <- as.numeric(as.Date('2014-03-11'))
   range_end <- as.numeric(as.Date('2016-02-01'))
   foo <- construct_assay_result_interpreter(assay_dynamics = assay_dynamics,
@@ -434,7 +435,7 @@ test_that('PERFORMANCE: get_scatterpoints and reduce_x_points on Weib3 large int
   int_lengths <- abs(result$x[1:(length(result$x)-1)] - result$x[2:(length(result$x))])
   expect_equal(sum(result$x <= range_start), 1)
   expect_equal(sum(result$x >= range_end), 1)
-  expect_false(any(int_lengths > max_length))
+  expect_false(any(int_lengths > (max_length+0.5)))
 
   x_matches <- match(result$x, scatterpoints$x)
   expect_true(all(result$y == scatterpoints$y[x_matches]))

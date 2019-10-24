@@ -38,6 +38,9 @@ estimate_lb_med_ub <- function(fun, range_start, range_end, verbose = FALSE, lab
     for (indx in 1:length(date_splits)){
       stopifnot(date_splits[indx] > range_start)
       stopifnot(date_splits[indx] < range_end)
+      if (date_splits[indx]%%1 != 0.5){
+        warning('Some date split not at midday')
+      }
     }
   }
   if (verbose){cat('trim range\n')}

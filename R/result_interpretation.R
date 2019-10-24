@@ -8,6 +8,7 @@
 #' @export
 
 construct_assay_result_interpreter <- function(assay_dynamics, result, sample_date){
+  if (sample_date %% 1 != 0.5) {warning('Sample date not at midday')}
   evaluate_dynamics <- function(x){
 #    tmp_x <- lubridate::as.duration(lubridate::ymd(sample_date) - lubridate::as_date(x))
 #    tmp_x <- as.numeric(tmp_x)/(60*60*24)
