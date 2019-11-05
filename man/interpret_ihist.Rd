@@ -18,3 +18,15 @@ interpret_ihist(ihist, range_start, range_end, verbose = FALSE)
 \description{
 Given a range of interest and an individual's diagnostic history, compute the likelihood that each day in the range was the day of infection. This produces the output in long format.
 }
+\examples{
+ihist <- data.frame(
+  ptid = c('p0', 'p0'),
+  sample_date = c('2016-03-01', '2016-09-01'),
+  test = c('step_unit_testing', 'step_unit_testing'),
+  result = c('-', '+'),
+  stringsAsFactors = FALSE
+)
+range_start <- as.Date('2016-01-01')
+range_end <- as.Date('2016-12-01')
+interpret_ihist(ihist = ihist, range_start = range_start, range_end = range_end, verbose = TRUE)
+}

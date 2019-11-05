@@ -17,4 +17,4 @@ Suggests:
 License: GPL-3
 https: https://github.com/philliplab/tsic
 RoxygenNote: 6.1.1
-
+Encoding: UTF-8

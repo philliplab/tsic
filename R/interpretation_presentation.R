@@ -2,7 +2,6 @@
 #'
 #' Will produce the interpretation itself.
 #'
-#' @param ihist
 #' @export
 
 plot_iihist <- function(ihist, lb_med_ub, range_start, range_end, 

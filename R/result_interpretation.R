@@ -166,6 +166,38 @@ reduce_x_points <- function(x, y, min_delta = 0.0001, max_length = 14){
   return(list(x = new_x, y = new_y))
 }
 
+reduce_x_points_new <- function(x, y, min_delta, max_length){
+  `%~=%` <- function(a, b){
+    if ( (a %in% c(0,1)) | (b %in% c(0,1)) ){
+      if (a != b){
+        return(FALSE)
+      } else {
+        return(TRUE)
+      }
+    } else {
+      if (abs(a - b) < min_delta){
+        return(TRUE)
+      } else {
+        return(FALSE)
+      }
+    }
+  } # end %~=%
+
+  prev_is_end <- TRUE
+  new_x <- NULL
+  new_y <- NULL
+
+  for (i in 1:length(x)){
+    this_is_start <- NULL
+    this_is_end <- NULL
+    if (prev_is_end) { this_is_start <- TRUE }
+    else if ( 1 == 0 ) {
+      print('TODO continue here')
+    }
+  }
+
+}
+
 reduce_x_points_failed_fix <- function(x, y, min_delta = 0.0001, max_length = 14){
   if (FALSE){
     y <- (0:20)/20
@@ -343,7 +375,7 @@ remove_strongly_dependent_results <- function(ihist, more_sensitive_test, less_s
 #' @param range_start The earliest day of interest.
 #' @param range_end The latest day of interest.
 #' @param verbose Should verbose output be printed during the computation?
-#' @example
+#' @examples
 #' ihist <- data.frame(
 #'   ptid = c('p0', 'p0'),
 #'   sample_date = c('2016-03-01', '2016-09-01'),
