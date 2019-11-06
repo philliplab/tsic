@@ -33,6 +33,16 @@ estimate_lb_med_ub <- function(fun, range_start, range_end, verbose = FALSE, lab
     range_end <- ceiling(max(ihist$sample_date) + 30)
     verbose <- TRUE
     label <- unique(ihist$ptid)
+
+    # debugging qexp(0.6)
+    verbose = FALSE
+    label = 'unlabeled'
+    warn_low_AOC = FALSE
+    date_splits = NULL
+    fun = dexp
+    range_start = range_to_int$range_start
+    range_end = range_to_int$range_end
+    extra_tiles = (1:9)/10
   }
   if (!is.null(date_splits)){
     for (indx in 1:length(date_splits)){
@@ -91,8 +101,16 @@ estimate_lb_med_ub <- function(fun, range_start, range_end, verbose = FALSE, lab
     start_indx <- max(which(probs < value - width_toggle))
     end_indx <- min(which(probs > value + width_toggle))
 
+    m2_start_indx <- max(which( probs < ((value - width_toggle + 1)/2) ))
+    m2_end_indx <- min(which(probs > ((value + width_toggle)/2) ))
+
     tight_range_start <- x[start_indx]
     tight_range_end <- x[end_indx]
+    m2_range_start <- x[m2_start_indx]
+    m2_range_end <- x[m2_end_indx]
+#    print(c(range_start, range_end, 
+#          tight_range_start, tight_range_end, 
+#          (tight_range_start + range_start)/2, (tight_range_end + range_end)/2))
 
     c_perc_w <- optimize(f = function(x){abs(integrated_fun(x) - value)},
                          interval = c(range_start, range_end),
@@ -100,12 +118,34 @@ estimate_lb_med_ub <- function(fun, range_start, range_end, verbose = FALSE, lab
     c_perc_t <- optimize(f = function(x){abs(integrated_fun(x) - value)},
                          interval = c(tight_range_start, tight_range_end),
                          tol = 2.220446e-16)
+    c_perc_m <- optimize(f = function(x){abs(integrated_fun(x) - value)},
+                         interval = c((tight_range_start + range_start)/2, 
+                                      (tight_range_end + range_end)/2),
+                         tol = 2.220446e-16)
+    c_perc_m2 <- optimize(f = function(x){abs(integrated_fun(x) - value)},
+                         interval = c(m2_range_start, m2_range_end),
+                         tol = 2.220446e-16)
+
     if (c_perc_w$objective < c_perc_t$objective){
       c_perc <- c_perc_w
     } else {
       c_perc <- c_perc_t
     }
+    if (c_perc_m$objective < c_perc$objective){
+      c_perc <- c_perc_m
+#      print('middle of the road did best')
+    }
+    if (c_perc_m2$objective < c_perc$objective){
+      c_perc <- c_perc_m2
+#      print('m2 did best')
+    }
+
     return(c_perc)
+  }
+
+  if (FALSE){
+    # debugging qexp(0.6)
+    find_perc(0.6, 0.01)
   }
 
   aoc_left_of_date <- NULL
