@@ -118,6 +118,68 @@ get_scatterpoints <- function(fun, seedpoints, max_delta = 0.02, min_length = 0.
 #' @export
 
 reduce_x_points <- function(x, y, min_delta = 0.0001, max_length = 14){
+
+  #!DO NOT MOVE! - this infix function must be declared here to have the correct value for min_delta
+  `%~=%` <- function(a, b){
+#    print(c(a,b))
+    result <- NULL
+    if ( (a %in% c(0,1)) | (b %in% c(0,1)) ){
+      if (a != b){
+        result <- FALSE
+      } else {
+        result <- TRUE
+      }
+    } else {
+      if (abs(a - b) < min_delta){
+        result <- TRUE
+      } else {
+        result <- FALSE
+      }
+    }
+#    print(result)
+    return(result)
+  } # end %~=%
+
+  prev_is_end <- TRUE # to ensure indx == 1 get's flagged as a start
+  new_x <- rep(NA_real_, length(x))
+  new_y <- rep(NA_real_, length(x))
+  new_indx <- 1
+
+  for (indx in 1:length(x)){
+    this_is_start <- FALSE
+    this_is_end <- FALSE
+    too_long <- FALSE
+    # checking
+    # is start?
+#    print(c(prev_is_end, indx, y[(indx-1):(indx+1)], new_indx))
+    if (prev_is_end) { this_is_start <- TRUE }
+    else if ( !(y[indx] %~=% y[indx - 1]) ) { this_is_start <- TRUE }
+    # is end?
+    if (indx == length(x)) { this_is_end <- TRUE }
+    else if ( !(y[indx] %~=% y[indx + 1]) ){ this_is_end <- TRUE }
+    # too long?
+    if (!(indx %in% c(1, length(x)) ) ){
+      if (abs(new_x[new_indx-1] - x[indx + 1]) > max_length) {too_long <- TRUE}
+    }
+
+#    print (c(this_is_start, this_is_end))
+    # doing
+    if (this_is_start | this_is_end | too_long) {
+      new_x[new_indx] <- x[indx]
+      new_y[new_indx] <- y[indx]
+      new_indx <- new_indx + 1
+    }
+    if (this_is_end){
+      prev_is_end <- TRUE
+    } else {
+      prev_is_end <- FALSE
+    }
+  }
+  return(list(x = new_x[1:(new_indx - 1)],
+              y = new_y[1:(new_indx - 1)]))
+}
+
+reduce_x_points_old <- function(x, y, min_delta = 0.0001, max_length = 14){
   if (FALSE){
     y <- (0:20)/20
     indx <- 19
@@ -164,38 +226,6 @@ reduce_x_points <- function(x, y, min_delta = 0.0001, max_length = 14){
   new_x <- new_x[1:new_indx]
   new_y <- new_y[1:new_indx]
   return(list(x = new_x, y = new_y))
-}
-
-reduce_x_points_new <- function(x, y, min_delta, max_length){
-  `%~=%` <- function(a, b){
-    if ( (a %in% c(0,1)) | (b %in% c(0,1)) ){
-      if (a != b){
-        return(FALSE)
-      } else {
-        return(TRUE)
-      }
-    } else {
-      if (abs(a - b) < min_delta){
-        return(TRUE)
-      } else {
-        return(FALSE)
-      }
-    }
-  } # end %~=%
-
-  prev_is_end <- TRUE
-  new_x <- NULL
-  new_y <- NULL
-
-  for (i in 1:length(x)){
-    this_is_start <- NULL
-    this_is_end <- NULL
-    if (prev_is_end) { this_is_start <- TRUE }
-    else if ( 1 == 0 ) {
-      print('TODO continue here')
-    }
-  }
-
 }
 
 reduce_x_points_failed_fix <- function(x, y, min_delta = 0.0001, max_length = 14){

@@ -246,6 +246,7 @@ test_that('get_scatterpoints + reduce_x_points do not produce a little "trail" f
 
   if (FALSE){
     devtools::load_all()
+    reduce_x_points <- reduce_x_points_new
   }
 
   for (i in 1:(nrow(result)-1)){
@@ -255,7 +256,7 @@ test_that('get_scatterpoints + reduce_x_points do not produce a little "trail" f
   }
 
 #TODO: fix these
-#  expect_false(any(duplicated(result)))
+  expect_false(any(duplicated(result)))
 #  # duplication issues only when the assay do not start at zero at range start
 #  
 #  # Just such horrible hacky algoritms, just make them pretty.

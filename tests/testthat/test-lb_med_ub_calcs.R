@@ -107,7 +107,8 @@ test_that('extra_tiles of estimate_lb_med_ub works on basic functions', {
   expect_lte((res$med - qexp(0.5)  )^2, 0.0001)
   expect_lte((res$ub  - qexp(0.975))^2, 0.0001)
   for (i in 1:9){
-    expect_lte((res$extra_computed_tiles[[as.character(i/10)]]$minimum  - qexp(i/10))^2, 0.0001)
+    expect_lte((res$extra_computed_tiles[[as.character(i/10)]]$minimum  - qexp(i/10))^2, 0.0001,
+               label = paste0('failed when i = ', i))
   }
 })
 
