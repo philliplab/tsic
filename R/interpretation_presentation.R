@@ -8,16 +8,19 @@ plot_iihist <- function(ihist, lb_med_ub, range_start, range_end,
                         x_breaks = NULL,
                         produce_plot = TRUE, save_plot = FALSE, 
                         verbose = FALSE, plot_aggregate = TRUE,
-                        show_test_dates = FALSE){
+                        show_test_dates = FALSE,
+                        custom_aggregate_label = NULL){
   # debugging stuff
   if (FALSE) {
     lb_med_ub <- TRUE
     plot_aggregate <- TRUE
-    plot_aggregate <- FALSE
-    lb_med_ub <- NULL
     produce_plot <- TRUE
     verbose <- TRUE
     show_test_dates <- TRUE
+    x_breaks <- NULL
+   
+    plot_aggregate <- FALSE
+    lb_med_ub <- NULL
     devtools::load_all()
     library(profvis)
     #1
@@ -106,9 +109,18 @@ plot_iihist <- function(ihist, lb_med_ub, range_start, range_end,
   }
   cols <- c("+" = rgb(1,0,0), "-" = rgb(0, 176/255, 240/255), "e" = "black")
 
+
+## Rename by name: change "beta" to "two"
+#levels(x)[levels(x)=="beta"] <- "two"
+
   if (plot_aggregate){
+    iihist_tmp <- iihist
+    if (!is.null(custom_aggregate_label)){
+      levels(iihist_tmp)[levels(iihist_tmp)=='Aggregate'] <- custom_aggregate_label
+    }
+
     x <- 
-    ggplot2::ggplot(iihist, ggplot2::aes(x = sample_date, y = prob_val, col = result)) +
+    ggplot2::ggplot(iihist_tmp, ggplot2::aes(x = sample_date, y = prob_val, col = result)) +
       ggplot2::geom_line() +
       ggplot2::facet_grid(test_details ~ .) +
       ggplot2::theme(legend.position = 'none') +
@@ -116,7 +128,11 @@ plot_iihist <- function(ihist, lb_med_ub, range_start, range_end,
       ggplot2::scale_x_continuous('Date of intial infection', breaks = x_breaks, labels = x_tick_labels) +
       ggplot2::scale_colour_manual(values = cols)
     if (!is.null(lb_med_ub)){
-      x <- x + ggplot2::geom_vline(data = vlines_dat, ggplot2::aes(xintercept = sample_date), col = 'black')
+      vlines_dat_tmp <- vlines_dat
+      if (!is.null(custom_aggregate_label)){
+        levels(vlines_dat_tmp)[levels(vlines_dat_tmp)=='Aggregate'] <- custom_aggregate_label
+      }
+      x <- x + ggplot2::geom_vline(data = vlines_dat_tmp, ggplot2::aes(xintercept = sample_date), col = 'black')
     }
   } else {
     x <- 
