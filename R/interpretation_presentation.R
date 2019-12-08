@@ -9,7 +9,8 @@ plot_iihist <- function(ihist, lb_med_ub, range_start, range_end,
                         produce_plot = TRUE, save_plot = FALSE, 
                         verbose = FALSE, plot_aggregate = TRUE,
                         show_test_dates = FALSE,
-                        custom_aggregate_label = NULL){
+                        custom_aggregate_label = NULL,
+                        scales = 'fixed'){
   # debugging stuff
   if (FALSE) {
     lb_med_ub <- TRUE
@@ -19,6 +20,7 @@ plot_iihist <- function(ihist, lb_med_ub, range_start, range_end,
     show_test_dates <- TRUE
     x_breaks <- NULL
    
+    custom_aggregate_label <- 'Aggregate\n5 repeats'
     plot_aggregate <- FALSE
     lb_med_ub <- NULL
     devtools::load_all()
@@ -56,6 +58,9 @@ plot_iihist <- function(ihist, lb_med_ub, range_start, range_end,
                                     range_end = range_to_int$range_end,
                                     verbose = TRUE)
   } # end of debugging stuff
+
+  stopifnot(scales %in% c('fixed', 'free', 'free_y', 'free_x'))
+
   iihist <- interpret_ihist(ihist = ihist,
                             range_start = range_start,
                             range_end = range_end,
@@ -85,7 +90,6 @@ plot_iihist <- function(ihist, lb_med_ub, range_start, range_end,
   }
 
   x_tick_labels <- as.character(as.Date(round(x_breaks, 0), origin = '1970-01-01'))
-  #x_tick_labels <- strftime(as.Date(round(x_breaks, 0), origin = '1970-01-01'), format = "%b-%y")
   
   if (!is.null(lb_med_ub) & plot_aggregate){
     vlines_dat <- data.frame(ptid = unique(iihist$ptid),
@@ -109,20 +113,18 @@ plot_iihist <- function(ihist, lb_med_ub, range_start, range_end,
   }
   cols <- c("+" = rgb(1,0,0), "-" = rgb(0, 176/255, 240/255), "e" = "black")
 
-
-## Rename by name: change "beta" to "two"
-#levels(x)[levels(x)=="beta"] <- "two"
-
   if (plot_aggregate){
     iihist_tmp <- iihist
     if (!is.null(custom_aggregate_label)){
-      levels(iihist_tmp)[levels(iihist_tmp)=='Aggregate'] <- custom_aggregate_label
+      levels(iihist_tmp$test_details)[levels(iihist_tmp$test_details)=='Aggregate'] <- custom_aggregate_label
     }
+
+    print(str(iihist_tmp))
 
     x <- 
     ggplot2::ggplot(iihist_tmp, ggplot2::aes(x = sample_date, y = prob_val, col = result)) +
       ggplot2::geom_line() +
-      ggplot2::facet_grid(test_details ~ .) +
+      ggplot2::facet_grid(test_details ~ ., scales = scales) +
       ggplot2::theme(legend.position = 'none') +
       ggplot2::labs(y = 'Probability of observed result given initial\ninfection on day indicated by x-axis') +
       ggplot2::scale_x_continuous('Date of intial infection', breaks = x_breaks, labels = x_tick_labels) +
@@ -130,7 +132,7 @@ plot_iihist <- function(ihist, lb_med_ub, range_start, range_end,
     if (!is.null(lb_med_ub)){
       vlines_dat_tmp <- vlines_dat
       if (!is.null(custom_aggregate_label)){
-        levels(vlines_dat_tmp)[levels(vlines_dat_tmp)=='Aggregate'] <- custom_aggregate_label
+        levels(vlines_dat_tmp$test_details)[levels(vlines_dat_tmp$test_details)=='Aggregate'] <- custom_aggregate_label
       }
       x <- x + ggplot2::geom_vline(data = vlines_dat_tmp, ggplot2::aes(xintercept = sample_date), col = 'black')
     }
@@ -138,7 +140,7 @@ plot_iihist <- function(ihist, lb_med_ub, range_start, range_end,
     x <- 
     ggplot2::ggplot(subset(iihist, test_details != 'Aggregate'), ggplot2::aes(x = sample_date, y = prob_val, col = result)) +
       ggplot2::geom_line() +
-      ggplot2::facet_grid(test_details ~ .) +
+      ggplot2::facet_grid(test_details ~ ., scales = scales) +
       ggplot2::theme(legend.position = 'none') +
       ggplot2::labs(y = 'Probability of observed result given initial\ninfection on day indicated by x-axis') +
       ggplot2::scale_x_continuous('Date of intial infection', breaks = x_breaks, labels = x_tick_labels) +
@@ -154,139 +156,3 @@ plot_iihist <- function(ihist, lb_med_ub, range_start, range_end,
   return(x)
 }
 
-#patient_plot <- function(lrs, vlines){
-#  lrs$facet_lab <- factor(lrs$facet_lab, 
-#         levels = c('Aggregate', setdiff(sort(unique(lrs$facet_lab)), 'Aggregate')),
-#         ordered = TRUE)
-#  vlines$facet_lab <- factor(vlines$facet_lab, 
-#         levels = c('Aggregate', setdiff(sort(unique(lrs$facet_lab)), 'Aggregate')),
-#         ordered = TRUE)
-#  x <- ggplot2::ggplot(lrs, aes(x = date, y = prob, col = facet_lab)) + 
-#    facet_grid(rows = vars(facet_lab)) + 
-#    geom_line() +
-#    theme(legend.position = 'none') +
-#    labs(y = 'Probability of observed result given initial\ninfection on day indicated by x-axis',
-#         x = 'Date of intial infection') +
-#    geom_vline(data = vlines, aes(xintercept = visit_date), col = 'black') +
-##    geom_text(data = vlines, 
-##              aes(x = visit_date, y = 0.05, label = result), 
-##              col = 'black', size = 10, 
-##              hjust = 0, nudge_x = 0.05,
-##              vjust = 0) +
-#    scale_x_date(date_breaks = "months", date_labels = "%b-%y")
-#  return(x)
-#}
-
-
-
-
-
-
-
-
-
-
-
-
-
-## obsolete
-#
-##' Create Dataset of test dates
-##'
-##' Prepares a dataset with the dates of the tests for easy inclusion in plots.
-##'
-##' @param in_dat An interpretated datasets in long format
-##' @export
-#
-#make_vlines_dat <- function(in_dat){
-#  vlines <- unique(in_dat$test)
-#  vlines <- vlines[!grepl("Aggregate", vlines)]
-#  vlines <- strsplit(vlines, '_')
-#  vlines <- lapply(vlines, function(x){data.frame(assay = x[1], visit_date = x[2], result = x[3], stringsAsFactors = FALSE)})
-#  all_dat <- NULL
-#  for (i in vlines){
-#    all_dat <- rbind(all_dat, i)
-#  }
-#  vlines <- all_dat
-#  vlines$facet_lab <- paste(vlines$assay, '\n', gsub('-', '', vlines$visit_date), '\n', vlines$result, sep = '')
-#  vlines$visit_date <- as_date(vlines$visit_date)
-#
-#  lb_med_ub <- round_date(estimate_lb_med_ub(in_dat), unit = 'day')
-#  if (!is.null(lb_med_ub)){
-#    vlines <- rbind(vlines, 
-#      data.frame(assay = "Aggregate",
-#                 visit_date = lb_med_ub,
-#                 result = NA,
-#                 facet_lab = "Aggregate"))
-#  }
-#
-#  return(vlines)
-#}
-#
-##' Plots a patients timelines
-##'
-##' Plots dates and the likelihoods that these dates are the DDI_1 for a patient.
-##'
-##' @param lrs An interpretated result set in long format.
-##' @param vlines Vertical lines indicating the test dates as produced by make_vlines_dat.
-##' @export
-#
-#patient_plot <- function(lrs, vlines){
-#  lrs$facet_lab <- factor(lrs$facet_lab, 
-#         levels = c('Aggregate', setdiff(sort(unique(lrs$facet_lab)), 'Aggregate')),
-#         ordered = TRUE)
-#  vlines$facet_lab <- factor(vlines$facet_lab, 
-#         levels = c('Aggregate', setdiff(sort(unique(lrs$facet_lab)), 'Aggregate')),
-#         ordered = TRUE)
-#  x <- ggplot2::ggplot(lrs, aes(x = date, y = prob, col = facet_lab)) + 
-#    facet_grid(rows = vars(facet_lab)) + 
-#    geom_line() +
-#    theme(legend.position = 'none') +
-#    labs(y = 'Probability of observed result given initial\ninfection on day indicated by x-axis',
-#         x = 'Date of intial infection') +
-#    geom_vline(data = vlines, aes(xintercept = visit_date), col = 'black') +
-##    geom_text(data = vlines, 
-##              aes(x = visit_date, y = 0.05, label = result), 
-##              col = 'black', size = 10, 
-##              hjust = 0, nudge_x = 0.05,
-##              vjust = 0) +
-#    scale_x_date(date_breaks = "months", date_labels = "%b-%y")
-#  return(x)
-#}
-#
-##' Plots a patients timelines compactly
-##'
-##' Plots dates and the likelihoods that these dates are the DDI_1 for a patient.
-##'
-##' @param lrs An interpretated result set in long format.
-##' @param vlines Vertical lines indicating the test dates as produced by make_vlines_dat.
-##' @export
-#
-#patient_plot_compact <- function(lrs, vlines){
-#  lrs$assay <- sapply(strsplit(lrs$test, '_'), function(x){x[1]})
-#  lrs$result <- sapply(strsplit(lrs$test, '_'), function(x){x[3]})
-#  lrs$result[is.na(lrs$result)] <- '*'
-#  x <- ggplot(lrs, aes(x = date, y = prob, col = result, group = facet_lab)) + 
-#    facet_grid(rows = vars(assay)) + 
-#    geom_line() +
-#    theme(legend.position = 'none') +
-#    labs(y = 'Probability of observed result given initial\ninfection on day indicated by x-axis',
-#         x = 'Date of intial infection') +
-#    geom_vline(data = vlines, aes(xintercept = visit_date), col = 'black') +
-#    scale_x_date(date_breaks = "months", date_labels = "%b-%y")
-#}
-#
-##' Plots and annotates a patients timelines
-##'
-##' Plots the dates and the likelihoods that these dates are the DDI_1 for a
-##' patient. Plots are annotated with the test dates as vertical lines.
-##'
-##' @param dat An interpretated result set in long format.
-##' @export
-#
-#wrapped_patient_plot <- function(dat){
-#  vlines <- make_vlines_dat(dat)
-#  x <- patient_plot(dat, vlines)
-#  return(x)
-#}
-#
