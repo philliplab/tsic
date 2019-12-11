@@ -1,4 +1,4 @@
-#' Estimates the 2.5, 50 and 97.5 percentiles
+#' Estimates the 2.5, 50 and 97.5 percentiles and much more
 #'
 #' Various hacks required to work around the inadequacy of R's numerical analysis tools.
 #'
@@ -14,6 +14,7 @@
 
 estimate_lb_med_ub <- function(fun, range_start, range_end, verbose = FALSE, label = 'unlabeled', 
                                warn_low_AOC = FALSE, extra_tiles = NULL, date_splits = NULL){
+  warning('This function is deprecated')
   if (FALSE){
     range_start <- -100
     range_end <- 100
@@ -75,7 +76,7 @@ estimate_lb_med_ub <- function(fun, range_start, range_end, verbose = FALSE, lab
   midpoint_heights <- (xy_points$y[1:(length(xy_points$y)-1)] + xy_points$y[2:(length(xy_points$y))]) / 2
   int_lengths <- xy_points$x[2:(length(xy_points$x))] - xy_points$x[1:(length(xy_points$x)-1)]
   riemans <- midpoint_heights * int_lengths
-  rieman_total_aoc <- sum(riemans)
+#  rieman_total_aoc <- sum(riemans)
 
   if (total_aoc <= 0.0001){
     print(total_aoc)
@@ -133,19 +134,12 @@ estimate_lb_med_ub <- function(fun, range_start, range_end, verbose = FALSE, lab
     }
     if (c_perc_m$objective < c_perc$objective){
       c_perc <- c_perc_m
-#      print('middle of the road did best')
     }
     if (c_perc_m2$objective < c_perc$objective){
       c_perc <- c_perc_m2
-#      print('m2 did best')
     }
 
     return(c_perc)
-  }
-
-  if (FALSE){
-    # debugging qexp(0.6)
-    find_perc(0.6, 0.01)
   }
 
   aoc_left_of_date <- NULL
@@ -180,115 +174,6 @@ estimate_lb_med_ub <- function(fun, range_start, range_end, verbose = FALSE, lab
               max_agg = max(xy_points$y)))
 }
 
-estimate_lb_med_ub_failed <- function(fun, range_start, range_end){
-  if (FALSE){
-    fun <- function(x){
-      return(ifelse(x < 0 | x > 10, 0, x))
-    }
-    range_start <- -5
-    range_end <- 15
-    x <- 4
-
-
-    fun <- dnorm
-    range_start <- -39
-    range_end <- 39
-  
-    fun <- dexp
-    range_start <- -10000
-    range_end <- 10000
-    range_start <- -1
-    range_end <- 746
-  }
-
-  total_aoc <- pracma::integral(fun = fun,
-                                xmin = range_start,
-                                xmax = range_end,
-                                no_intervals = 1000)
-
-  integrated_fun <- function(x){
-    pracma::integral(fun = function(x){fun(x)/total_aoc},
-                     xmin = range_start, 
-                     xmax = min(x, range_end),
-                     no_intervals = 1000)
-  }
-
-  # such a horrible hack to make this work for the normal distribution
-  n_precuts <- 20
-  precuts <- seq(from = range_start, to = range_end, length.out = n_precuts)
-  lb_start <- precuts[1]
-  med_start <- precuts[1]
-  ub_start <- precuts[1]
-
-  lb_end <- precuts[n_precuts]
-  med_end <- precuts[n_precuts]
-  ub_end <- precuts[n_precuts]
-
-  start_from_here <- precuts[1]
-  for (i in 1:n_precuts){
-    area_to_left <- integrated_fun(precuts[i])
-    if (area_to_left < 0.02){
-      lb_start <- precuts[i]
-    }
-    if (area_to_left < 0.49){
-      med_start <- precuts[i]
-    }
-    if (area_to_left < 0.097){
-      ub_start <- precuts[i]
-    }
-    
-    if (area_to_left > 0.03 & lb_end == precuts[n_precuts]){
-      lb_end <- precuts[i]
-    }
-    if (area_to_left > 0.51 & med_end == precuts[n_precuts]){
-      med_end <- precuts[i]
-    }
-    if (area_to_left > 0.098 & ub_end == precuts[n_precuts]){
-      ub_end <- precuts[i]
-    }
-  }
-
-  lb1 <- optimize(f = function(x){abs(integrated_fun(x) - 0.025)},
-           interval = c(range_start, range_end),
-           tol = 2.220446e-16)
-  lb2 <- optimize(f = function(x){abs(integrated_fun(x) - 0.025)},
-           interval = c(lb_start, lb_end),
-           tol = 2.220446e-16)
-  if (lb1$objective < lb2$objective){
-    lb <- lb1
-  } else {
-    lb <- lb2
-  }
-
-  ub1 <- optimize(f = function(x){abs(integrated_fun(x) - 0.975)},
-           interval = c(range_start, range_end),
-           tol = 2.220446e-16)
-  ub2 <- optimize(f = function(x){abs(integrated_fun(x) - 0.975)},
-           interval = c(ub_start, ub_end),
-           tol = 2.220446e-16)
-  if (ub1$objective < ub2$objective){
-    ub <- ub1
-  } else {
-    ub <- ub2
-  }
-
-  med1 <- optimize(f = function(x){abs(integrated_fun(x) - 0.5)},
-           interval = c(range_start, range_end),
-           tol = 2.220446e-16)
-  med2 <- optimize(f = function(x){abs(integrated_fun(x) - 0.5)},
-           interval = c(med_start, med_end),
-           tol = 2.220446e-16)
-  if (med1$objective < med2$objective){
-    med <- med1
-  } else {
-    med <- med2
-  }
-
-  return(list(lb = lb$minimum,
-              med = med$minimum,
-              ub = ub$minimum))
-
-}
 
 check_lb_med_ub <- function(lb, med, ub, fun, range_start, range_end){
   if (FALSE){
