@@ -174,18 +174,18 @@ estimate_lb_med_ub <- function(fun, range_start, range_end, verbose = FALSE, lab
               max_agg = max(xy_points$y)))
 }
 
+#' Basic function used for testing estimate_lb_med_ub
+#'
+#' Given a function and the lb, med and ub, verify that the lb, med and ub are correct.
 
 check_lb_med_ub <- function(lb, med, ub, fun, range_start, range_end){
   if (FALSE){
-
     lb  = qbeta(0.025, 2, 5)
     med = qbeta(0.5,   2, 5)
     ub  = qbeta(0.975, 2, 5)
     fun = function(x){dbeta(x, 2, 5)}
     range_start = 0
     range_end = 1
-
-
 
     lb <- lb$minimum
     med <- med$minimum
