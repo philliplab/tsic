@@ -174,6 +174,10 @@ estimate_lb_med_ub <- function(fun, range_start, range_end, verbose = FALSE, lab
               max_agg = max(xy_points$y)))
 }
 
+numerics_prep <- function(fun, range_start, range_end){
+
+}
+
 #' Basic function used for testing estimate_lb_med_ub
 #'
 #' Given a function and the lb, med and ub, verify that the lb, med and ub are correct.
