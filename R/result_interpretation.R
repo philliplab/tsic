@@ -20,7 +20,6 @@ construct_assay_result_interpreter <- function(assay_dynamics, result, sample_da
   } else {
     stop('result must be "+" or "-"')
   }
-
   return(result_interpreter)
 }
 
