@@ -10,9 +10,6 @@
 construct_assay_result_interpreter <- function(assay_dynamics, result, sample_date){
   if (sample_date %% 1 != 0.5) {warning('Sample date not at midday')}
   evaluate_dynamics <- function(x){
-#    tmp_x <- lubridate::as.duration(lubridate::ymd(sample_date) - lubridate::as_date(x))
-#    tmp_x <- as.numeric(tmp_x)/(60*60*24)
-#    assay_dynamics$params$x <- tmp_x
     assay_dynamics$params$x <- sample_date - x
     return(do.call(assay_dynamics$fun, assay_dynamics$params))
   }
@@ -121,7 +118,6 @@ reduce_x_points <- function(x, y, min_delta = 0.0001, max_length = 14){
 
   #!DO NOT MOVE! - this infix function must be declared here to have the correct value for min_delta
   `%~=%` <- function(a, b){
-#    print(c(a,b))
     result <- NULL
     if ( (a %in% c(0,1)) | (b %in% c(0,1)) ){
       if (a != b){
@@ -136,7 +132,6 @@ reduce_x_points <- function(x, y, min_delta = 0.0001, max_length = 14){
         result <- FALSE
       }
     }
-#    print(result)
     return(result)
   } # end %~=%
 
@@ -149,9 +144,7 @@ reduce_x_points <- function(x, y, min_delta = 0.0001, max_length = 14){
     this_is_start <- FALSE
     this_is_end <- FALSE
     too_long <- FALSE
-    # checking
-    # is start?
-#    print(c(prev_is_end, indx, y[(indx-1):(indx+1)], new_indx))
+    # checking: is start?
     if (prev_is_end) { this_is_start <- TRUE }
     else if ( !(y[indx] %~=% y[indx - 1]) ) { this_is_start <- TRUE }
     # is end?
@@ -161,8 +154,6 @@ reduce_x_points <- function(x, y, min_delta = 0.0001, max_length = 14){
     if (!(indx %in% c(1, length(x)) ) ){
       if (abs(new_x[new_indx-1] - x[indx + 1]) > max_length) {too_long <- TRUE}
     }
-
-#    print (c(this_is_start, this_is_end))
     # doing
     if (this_is_start | this_is_end | too_long) {
       new_x[new_indx] <- x[indx]
@@ -235,20 +226,11 @@ construct_aggregate_interpreter <- function(ihist){
     environment(assay_interpreters[[i]])$result <- ihist$result[i]
     environment(assay_interpreters[[i]])$assay_dynamics <- c_dynamics
     environment(assay_interpreters[[i]])$sample_date <- ihist$sample_date[i]
-    #    print(ls(environment(assay_interpreters[[i]])))
   }
-#  print(assay_interpreters)
-#  for (i in 1:length(assay_interpreters)){
-#    for (c_var in ls(environment(assay_interpreters[[i]]))){
-#      print (c('Assay interpter', i, ' variable ', c_var))
-#      print (get(c_var, envir = environment(assay_interpreters[[i]])))
-#    }
-#  }
   evaluate_proposed_infection_date <- function(x){
     overall_result <- 1
     for (i in 1:length(assay_interpreters)){
       c_result <- assay_interpreters[[i]](x)
-#      print(c('Assay result # ', i, ' at time ', x, ' is equal to ', c_result))
       overall_result <- overall_result * c_result
     }
     return(overall_result)
@@ -375,7 +357,6 @@ interpret_ihist <- function(ihist, range_start, range_end, verbose = FALSE){
       stringsAsFactors = FALSE)
     if (verbose){cat('.\n')}
   }
-#construct_aggregate_interpreter <- function(ihist){
   if (verbose){
     cat(paste0('Aggregate (Slow step)', ': Setting up'))
   }
