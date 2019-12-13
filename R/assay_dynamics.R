@@ -1,12 +1,12 @@
 #' Linear Assay Dynamics
 #'
-#' Returns the probability of testing positive x days after XXX
+#' Returns the probability of testing positive x days after infection
 #'
 #' A very simple scheme is used to compute these probabilities. Each assay is characterized by a diagnostic delay after which time 50 percent of patients will test positive. The assay also has a spread parameter. This parameter controls the window during which this probability is not 0 or 1. The default is 1.5 meaning that the period of time during which the assay result is not perfect is 50% longer than the diagnostic delay.
 #'
-#' @param x The time since XXX
-#' @param diagnostic_delay The number of days since XXX after which time 50 percent of patients will test positive.
-#' @param spread The multiplier applied to the diagnostic_delay to obtain the length of window centered at diagnostic_delay days after XXX during some patients will have different results.
+#' @param x The time since infection
+#' @param diagnostic_delay The number of days since infection after which time 50 percent of patients will test positive.
+#' @param spread The multiplier applied to the diagnostic_delay to obtain the length of window centered at diagnostic_delay days after infection during some patients will have different results.
 #' @param abs_spread The width of the range over which the probabilities are both not zero and not one. This range will be centered around the diagnostic_delay. Setting this will cause the function to ignore whatever was specified for spread. Defaults to NULL.
 #' @export
 
@@ -23,12 +23,12 @@ linear_assay_dynamics <- function(x, diagnostic_delay, spread = 1.5, abs_spread 
 
 #' Step Assay Dynamics
 #'
-#' Returns the probability of testing positive x days after XXX
+#' Returns the probability of testing positive x days after infection
 #'
 #' The simplest scheme is used to compute these probabilities. Each assay is characterized by a diagnostic delay after which time all of the results will be positive. Before this time, all results will be negative.
 #'
-#' @param x The time since XXX
-#' @param diagnostic_delay The number of days since XXX after which time all the results will be positive.
+#' @param x The time since infection
+#' @param diagnostic_delay The number of days since infection after which time all the results will be positive.
 #' @export
 
 step_assay_dynamics <- function(x, diagnostic_delay){
@@ -37,11 +37,11 @@ step_assay_dynamics <- function(x, diagnostic_delay){
 
 #' Weibull3 Assay Dynamics
 #'
-#' Returns the probability of testing positive x days after XXX
+#' Returns the probability of testing positive x days after infection
 #'
 #' Assumes that the probability of testing positive as a function of time given that the person is infected has the form of a Weibull distribution.
 #'
-#' @param x The time since XXX
+#' @param x The time since infection
 #' @param location The location parameter.
 #' @param scale The scale parameter.
 #' @param shape The shape parameter.
@@ -49,12 +49,6 @@ step_assay_dynamics <- function(x, diagnostic_delay){
 
 weib3_assay_dynamics <- function(x, location, scale, shape){
   return(ifelse(x <= location, 0, 1-exp(-((x - location)/scale)^shape)))
-#    return (sum((y-(1 - exp(-((x - location)/scale)^shape)))^2))^(1/2)
-#  if (x <= location){
-#    return(0)
-#  } else {
-#    return(1-exp(-((x - location)/scale)^shape))
-#  }
 }
 
 #' Get dynamics functions for an assay
@@ -231,7 +225,6 @@ get_assay_dynamics <- function(assay = NULL){
     params = list(location = 16.556, shape = 1.773, scale = 12.9)
   )
 
-
   # GS COMBO
   all_assays[[tolower('gs_combo_weib3_delaney')]] <- list(
     class = 'Ag/Ab',
@@ -242,7 +235,6 @@ get_assay_dynamics <- function(assay = NULL){
     fun = 'weib3_assay_dynamics',
     params = list(location = 9.9675, shape = 0.7206, scale = 7.6388)
   )
-
 
   # lookup
   if (is.null(assay)){
