@@ -279,6 +279,52 @@ remove_strongly_dependent_results <- function(ihist, more_sensitive_test, less_s
   return(ihist[, ihist_names])
 }
 
+#' Given two assays, returns which is faster
+#'
+#' A crude function that computes the areas between the curves. If the area bounded on the top by assay1 is larger than the area bounded on the top by assay2, then assay1 is said to be the faster assay.
+#'
+#' @param assay1 The first assay. Needs to be the full assay characterization as returned by get_assay_dynamics
+#' @param assay2 The second assay. Needs to be the full assay characterization as returned by get_assay_dynamics
+#' @param comp_range A vector of all the timepoints at which the two assays should be compared. The comparison will be on the basis of a positive test at the highest number in this vector. NOTE: the points in this vector must be evenly spaced.
+#' @export
+
+
+which_is_faster <- function(assay1, assay2, comp_range = (8000:10005)/10){
+  if (FALSE) { #DEBUGGING NOTES
+    assay1 <- get_assay_dynamics('architect_weib3_delaney')
+    assay2 <- get_assay_dynamics('aptima_weib3_delaney')
+    comp_range <- (8000:10005)/10
+    which_is_faster(assay1, assay2)
+  }
+
+  # ensure intervals between comp_range elements are equal.
+  interval_length <- unique(round(comp_range[2:length(comp_range)] - comp_range[1:(length(comp_range)-1)],5))
+  stopifnot(length(interval_length) == 1)
+
+  a1i <- construct_assay_result_interpreter(assay1, '+', max(comp_range))
+  a2i <- construct_assay_result_interpreter(assay2, '+', max(comp_range))
+  i <- sort(comp_range)[1]
+  i <- sort(comp_range, decreasing = TRUE)[100]
+  r1_less_r2 <- rep(NA_real_, length(8000:10005))
+  indx <- 1
+  for (i in (8000:10005)/10){
+    r1 <- t1i(i)
+    r2 <- t2i(i)
+    r1_less_r2[indx] <- (r1 - r2)*interval_length
+    indx <- indx+1
+  }
+  area_under_1_less_area_under_2 <- sum(r1_less_r2)
+  if (area_under_1_less_area_under_2 >= 0){
+    return(list(faster = test1,
+                slower = test2,
+                diff = area_under_1_less_area_under_2))
+  } else {
+    return(list(faster = test2,
+                slower = test1,
+                diff = area_under_1_less_area_under_2))
+  }
+}
+
 #' Interprets an ihist into daily likelihoods
 #'
 #' Given a range of interest and an individual's diagnostic history, compute the likelihood that each day in the range was the day of infection. This produces the output in long format.

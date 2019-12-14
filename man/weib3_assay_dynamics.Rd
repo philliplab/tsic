@@ -7,7 +7,7 @@
 weib3_assay_dynamics(x, location, scale, shape)
 }
 \arguments{
-\item{x}{The time since XXX}
+\item{x}{The time since infection}
 
 \item{location}{The location parameter.}
 
@@ -16,7 +16,7 @@ weib3_assay_dynamics(x, location, scale, shape)
 \item{shape}{The shape parameter.}
 }
 \description{
-Returns the probability of testing positive x days after XXX
+Returns the probability of testing positive x days after infection
 }
 \details{
 Assumes that the probability of testing positive as a function of time given that the person is infected has the form of a Weibull distribution.

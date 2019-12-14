@@ -8,16 +8,16 @@ linear_assay_dynamics(x, diagnostic_delay, spread = 1.5,
   abs_spread = NULL)
 }
 \arguments{
-\item{x}{The time since XXX}
+\item{x}{The time since infection}
 
-\item{diagnostic_delay}{The number of days since XXX after which time 50 percent of patients will test positive.}
+\item{diagnostic_delay}{The number of days since infection after which time 50 percent of patients will test positive.}
 
-\item{spread}{The multiplier applied to the diagnostic_delay to obtain the length of window centered at diagnostic_delay days after XXX during some patients will have different results.}
+\item{spread}{The multiplier applied to the diagnostic_delay to obtain the length of window centered at diagnostic_delay days after infection during some patients will have different results.}
 
 \item{abs_spread}{The width of the range over which the probabilities are both not zero and not one. This range will be centered around the diagnostic_delay. Setting this will cause the function to ignore whatever was specified for spread. Defaults to NULL.}
 }
 \description{
-Returns the probability of testing positive x days after XXX
+Returns the probability of testing positive x days after infection
 }
 \details{
 A very simple scheme is used to compute these probabilities. Each assay is characterized by a diagnostic delay after which time 50 percent of patients will test positive. The assay also has a spread parameter. This parameter controls the window during which this probability is not 0 or 1. The default is 1.5 meaning that the period of time during which the assay result is not perfect is 50% longer than the diagnostic delay.

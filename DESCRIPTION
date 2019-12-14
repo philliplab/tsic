@@ -1,6 +1,6 @@
 Package: tsic
 Title: Time since infection calculator
-Description: Computes the time since HIV infection based on series of diagnostic test results.
+Description: Computes the time since HIV infection based on set of diagnostic test results.
 Version: 1.0.1
 Author: Phillip Labuschagne <jlabusch2@fredhutch.org>
 Maintainer: Phillip Labuschagne <jlabusch2@fredhutch.org>
