@@ -442,4 +442,43 @@ test_that('PERFORMANCE: get_scatterpoints and reduce_x_points on Weib3 large int
   expect_true(all(abs(interpolated$y - scatterpoints$y) < min_delta))
 })
 
+test_that('which_is_faster works', {
+  check_which_is_faster <- function(faster, slower){
+    if (FALSE){
+      faster <- "iscav2_weib3_delaney_and_tosiano"
+      slower <- "geenius_fr_weib3_delaney"
+    }
+    faster <- get_assay_dynamics(faster)
+    slower <- get_assay_dynamics(slower)
+    resultfs <- which_is_faster(assay1 = faster, assay2 = slower)
+    resultsf <- which_is_faster(assay1 = slower, assay2 = faster)
+    expect_equal(resultfs$diff, -resultsf$diff)
+    expect_equal(resultfs$faster, faster)
+    expect_equal(resultfs$slower, slower)
+    expect_equal(resultsf$faster, faster)
+    expect_equal(resultsf$slower, slower)
+  }
+  check_which_is_faster(faster = "iscav2_weib3_delaney_and_tosiano", 
+                        slower = "geenius_fr_weib3_delaney")
+  check_which_is_faster(faster = "architect_weib3_delaney", 
+                        slower = "geenius_fr_weib3_delaney")
+  check_which_is_faster(faster = "gs_combo_weib3_delaney", 
+                        slower = "geenius_fr_weib3_delaney")
+  check_which_is_faster(faster = "aptima_weib3_delaney", 
+                        slower = "gs_combo_weib3_delaney")
+  check_which_is_faster(faster = "aptima_weib3_delaney", 
+                        slower = "architect_weib3_delaney")
 
+  check_which_is_faster(faster = "iscav2_weib3_delaney_and_tosiano", 
+                        slower = "abbott_real_time_weib3_delaney_and_manufacturer")
+  check_which_is_faster(faster = "iscav2_weib3_delaney_and_tosiano", 
+                        slower = "taqman_weib3_delaney_and_manufacturer")
+  check_which_is_faster(faster = "taqman_weib3_delaney_and_manufacturer", 
+                        slower = "gs_combo_weib3_delaney")
+  check_which_is_faster(faster = "abbott_real_time_weib3_delaney_and_manufacturer", 
+                        slower = "architect_weib3_delaney")
+  check_which_is_faster(faster = "iscav2_weib3_delaney_and_tosiano", 
+                        slower = "abbott_real_time_weib3_delaney_and_manufacturer")
+  check_which_is_faster(faster = "iscav2_weib3_delaney_and_tosiano", 
+                        slower = "taqman_weib3_delaney_and_manufacturer")
+})

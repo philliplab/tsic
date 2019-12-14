@@ -308,19 +308,19 @@ which_is_faster <- function(assay1, assay2, comp_range = (8000:10005)/10){
   r1_less_r2 <- rep(NA_real_, length(8000:10005))
   indx <- 1
   for (i in (8000:10005)/10){
-    r1 <- t1i(i)
-    r2 <- t2i(i)
+    r1 <- a1i(i)
+    r2 <- a2i(i)
     r1_less_r2[indx] <- (r1 - r2)*interval_length
     indx <- indx+1
   }
   area_under_1_less_area_under_2 <- sum(r1_less_r2)
   if (area_under_1_less_area_under_2 >= 0){
-    return(list(faster = test1,
-                slower = test2,
+    return(list(faster = assay1,
+                slower = assay2,
                 diff = area_under_1_less_area_under_2))
   } else {
-    return(list(faster = test2,
-                slower = test1,
+    return(list(faster = assay2,
+                slower = assay1,
                 diff = area_under_1_less_area_under_2))
   }
 }
