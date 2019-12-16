@@ -448,6 +448,7 @@ test_that('which_is_faster works', {
       faster <- "iscav2_weib3_delaney_and_tosiano"
       slower <- "geenius_fr_weib3_delaney"
     }
+    devtools::load_all()
     faster <- get_assay_dynamics(faster)
     slower <- get_assay_dynamics(slower)
     resultfs <- which_is_faster(assay1 = faster, assay2 = slower)

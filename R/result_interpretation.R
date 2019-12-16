@@ -303,11 +303,9 @@ which_is_faster <- function(assay1, assay2, comp_range = (8000:10005)/10){
 
   a1i <- construct_assay_result_interpreter(assay1, '+', max(comp_range))
   a2i <- construct_assay_result_interpreter(assay2, '+', max(comp_range))
-  i <- sort(comp_range)[1]
-  i <- sort(comp_range, decreasing = TRUE)[100]
-  r1_less_r2 <- rep(NA_real_, length(8000:10005))
+  r1_less_r2 <- rep(NA_real_, length(comp_range))
   indx <- 1
-  for (i in (8000:10005)/10){
+  for (i in comp_range){
     r1 <- a1i(i)
     r2 <- a2i(i)
     r1_less_r2[indx] <- (r1 - r2)*interval_length
