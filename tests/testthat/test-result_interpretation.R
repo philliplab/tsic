@@ -489,7 +489,6 @@ if (FALSE) {
 }
 
 test_that('select_most_informative_results works', {
-  
   ihist <- data.frame(
     ptid = c('p0', 'p1'),
     sample_date = c(as.numeric(as.Date('2016-03-01')) + 0.5, as.numeric(as.Date('2016-09-01')) + 0.5),
@@ -498,4 +497,16 @@ test_that('select_most_informative_results works', {
     stringsAsFactors = FALSE
   )
   expect_error(select_most_informative_results(ihist, NULL))
+  
+  ihist <- data.frame(
+    ptid = c("p314", "p314", "p314", "p314", "p314", "p314", "p314", "p314", "p314"), 
+    sample_date = c(16860.5, 16910.5, 16921.5, 16921.5, 16910.5, 16921.5, 16921.5, 16910.5, 16860.5), 
+    test = c("architect_weib3_delaney", "architect_weib3_delaney", "architect_weib3_delaney", 
+             "geenius_fr_weib3_delaney", "geenius_indet_weib3_delaney", "geenius_indet_weib3_delaney", 
+             "taqman_weib3_delaney_and_manufacturer", "taqman_weib3_delaney_and_manufacturer", 
+             "taqman_weib3_delaney_and_manufacturer"), 
+    result = c("-", "+", "+", "+", "-", "+", "+", "+", "-"),
+    stringsAsFactors = FALSE)
+  inf_ihist <- select_most_informative_results(ihist)
+  expect_true(FALSE)
 })
