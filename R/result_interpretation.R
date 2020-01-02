@@ -330,10 +330,12 @@ which_is_faster <- function(assay1, assay2, comp_range = (8000:10005)/10){
 #'
 #' Given a diagnostic history and an ordered list of tests by window period, this function will return a restricted diagnostic history that only contains the most informative test results for each sample date. The most informative results are the test with the shortest window period that produced a negative result and the test with the longest window period that produced a positive result. The motivation for doing this is to ensure that the aggregate function is constructed using independent results.
 #'
-
+#' @param ihist The diagnostic test history of the individual.
+#' @param fastest_to_slowest_tests A vector listing the tests in the order from the test with the shortest window period to the test with the longest window period. This ordering will be consulted in conjunction with the test result to decide which tests are the most informative.
 #' @export
 
 select_most_informative_results <- function(ihist, fastest_to_slowest_tests){
+  stopifnot(length(unique(ihist$ptid))==1)
   return(0)
 }
 

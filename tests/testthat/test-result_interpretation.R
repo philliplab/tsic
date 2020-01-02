@@ -483,3 +483,19 @@ test_that('which_is_faster works', {
   check_which_is_faster(faster = "iscav2_weib3_delaney_and_tosiano", 
                         slower = "taqman_weib3_delaney_and_manufacturer")
 })
+
+if (FALSE) {
+  devtools::load_all()
+}
+
+test_that('select_most_informative_results works', {
+  
+  ihist <- data.frame(
+    ptid = c('p0', 'p1'),
+    sample_date = c(as.numeric(as.Date('2016-03-01')) + 0.5, as.numeric(as.Date('2016-09-01')) + 0.5),
+    test = c('step_unit_testing', 'step_unit_testing'),
+    result = c('-', '+'),
+    stringsAsFactors = FALSE
+  )
+  expect_error(select_most_informative_results(ihist, NULL))
+})
