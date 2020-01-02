@@ -174,8 +174,10 @@ estimate_lb_med_ub <- function(fun, range_start, range_end, verbose = FALSE, lab
               max_agg = max(xy_points$y)))
 }
 
-numerics_prep <- function(fun, range_start, range_end){
+compute_daily_grid <- function(agg_fun, tauc, range_start, range_end){
+  if (FALSE) {
 
+  }
 }
 
 #' Basic function used for testing estimate_lb_med_ub

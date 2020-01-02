@@ -1,5 +1,3 @@
-# {{{ construct_assay_result_interpreter <- function(assay_dynamics, result, sample_date){
-
 #' Construct an assay result interpretation function
 #'
 #' Given the dynamics of an assay and a result with a date (in days since 1970-01-01), produce a function that when evaluated for a potential exposure date (in days since 1970-01-01) will produce the probability of observing the given result at the relevant sample date. This function will only take x as input, which is the potential exposure date (in days since 1970-01-01), and will already have the particulars of the result and assay loaded into it.
@@ -24,7 +22,6 @@ construct_assay_result_interpreter <- function(assay_dynamics, result, sample_da
   }
   return(result_interpreter)
 }
-# }}} construct_assay_result_interpreter
 
 
 #' Evaluates a function over a range
@@ -105,6 +102,7 @@ get_scatterpoints <- function(fun, seedpoints, max_delta = 0.02, min_length = 0.
   return(list(x = new_x, y = new_y))
 }
 
+
 #' Reduce the number of scatter points
 #'
 #' Given a set of scatterpoints, remove those points that does not lead to an improvement in the accuracy of a plot. For now this is just if you take three points, and all their y values are identical, then remove the middle point. Identical is tested by ensuring that the absolute difference is below a tolerance parameter called min_delta.
@@ -173,6 +171,7 @@ reduce_x_points <- function(x, y, min_delta = 0.0001, max_length = 14){
               y = new_y[1:(new_indx - 1)]))
 }
 
+
 #' Trims range on which to evaluate a function
 #'
 #' Because the duration of the trial is long and often the region in which the infection could plausibly have happened is small, the integratoin functions often produces zero. Since we know that any aggregate function that produces a probable infection interval shorted than 1 day is problematic, we can devise an easy scheme to remove large chunks from the range where the interpreter function is zero.
@@ -208,6 +207,7 @@ trim_range <- function(fun, range_start, range_end, tol = 0){
               range_end = new_range_end))
 }
 
+
 #' Constructs an interpreter for a diagnostic history
 #'
 #' Construct a closure that gives the likelihood of a diagnostic history if the infection event was on the date supplied.
@@ -240,6 +240,7 @@ construct_aggregate_interpreter <- function(ihist){
   }
   return(evaluate_proposed_infection_date)
 }
+
 
 #' Removes strongly dependent results at the same timepoint
 #'
@@ -282,6 +283,7 @@ remove_strongly_dependent_results <- function(ihist, more_sensitive_test, less_s
   ihist <- subset(ihist, remove_flag == 0)
   return(ihist[, ihist_names])
 }
+     
 
 #' Given two assays, returns which is faster
 #'
@@ -326,6 +328,7 @@ which_is_faster <- function(assay1, assay2, comp_range = (8000:10005)/10){
   }
 }
 
+
 #' Selects most informative test results only
 #'
 #' Given a diagnostic history and an ordered list of tests by window period, this function will return a restricted diagnostic history that only contains the most informative test results for each sample date. The most informative results are the test with the shortest window period that produced a negative result and the test with the longest window period that produced a positive result. The motivation for doing this is to ensure that the aggregate function is constructed using independent results.
@@ -334,10 +337,29 @@ which_is_faster <- function(assay1, assay2, comp_range = (8000:10005)/10){
 #' @param fastest_to_slowest_tests A vector listing the tests in the order from the test with the shortest window period to the test with the longest window period. This ordering will be consulted in conjunction with the test result to decide which tests are the most informative.
 #' @export
 
-select_most_informative_results <- function(ihist, fastest_to_slowest_tests){
+select_most_informative_results <- function(ihist, fastest_to_slowest_tests = NULL){
+  if (FALSE){
+    fastest_to_slowest_tests <- NULL
+    for (i in 1:(length(fastest_to_slowest_tests)-1)){
+      res <- which_is_faster(get_assay_dynamics(fastest_to_slowest_tests[i]), get_assay_dynamics(fastest_to_slowest_tests[i+1]))
+      print(c("IN", fastest_to_slowest_tests[i], fastest_to_slowest_tests[i+1]))
+      print(c("OUT", res$faster$full_assayname, res$slower$full_assayname))
+    }
+  }
+  if (is.null(fastest_to_slowest_tests)){
+    fastest_to_slowest_tests <- c("iscav2_weib3_delaney_and_tosiano",
+      "aptima_weib3_delaney",
+      "taqman_weib3_delaney_and_manufacturer",
+      "abbott_real_time_weib3_delaney_and_manufacturer",
+      "architect_weib3_delaney",
+      "gs_combo_weib3_delaney",
+      "geenius_indet_weib3_delaney",
+      "geenius_fr_weib3_delaney")
+  }
   stopifnot(length(unique(ihist$ptid))==1)
   return(0)
 }
+
 
 #' Interprets an ihist into daily likelihoods
 #'
