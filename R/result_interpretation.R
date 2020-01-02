@@ -1,3 +1,5 @@
+# {{{ construct_assay_result_interpreter <- function(assay_dynamics, result, sample_date){
+
 #' Construct an assay result interpretation function
 #'
 #' Given the dynamics of an assay and a result with a date (in days since 1970-01-01), produce a function that when evaluated for a potential exposure date (in days since 1970-01-01) will produce the probability of observing the given result at the relevant sample date. This function will only take x as input, which is the potential exposure date (in days since 1970-01-01), and will already have the particulars of the result and assay loaded into it.
@@ -22,6 +24,8 @@ construct_assay_result_interpreter <- function(assay_dynamics, result, sample_da
   }
   return(result_interpreter)
 }
+# }}} construct_assay_result_interpreter
+
 
 #' Evaluates a function over a range
 #'
@@ -288,7 +292,6 @@ remove_strongly_dependent_results <- function(ihist, more_sensitive_test, less_s
 #' @param comp_range A vector of all the timepoints at which the two assays should be compared. The comparison will be on the basis of a positive test at the highest number in this vector. NOTE: the points in this vector must be evenly spaced.
 #' @export
 
-
 which_is_faster <- function(assay1, assay2, comp_range = (8000:10005)/10){
   if (FALSE) { #DEBUGGING NOTES
     assay1 <- get_assay_dynamics('architect_weib3_delaney')
@@ -321,6 +324,17 @@ which_is_faster <- function(assay1, assay2, comp_range = (8000:10005)/10){
                 slower = assay1,
                 diff = area_under_1_less_area_under_2))
   }
+}
+
+#' Selects most informative test results only
+#'
+#' Given a diagnostic history and an ordered list of tests by window period, this function will return a restricted diagnostic history that only contains the most informative test results for each sample date. The most informative results are the test with the shortest window period that produced a negative result and the test with the longest window period that produced a positive result. The motivation for doing this is to ensure that the aggregate function is constructed using independent results.
+#'
+
+#' @export
+
+select_most_informative_results <- function(ihist, fastest_to_slowest_tests){
+  return(0)
 }
 
 #' Interprets an ihist into daily likelihoods
@@ -424,4 +438,5 @@ interpret_ihist <- function(ihist, range_start, range_end, verbose = FALSE){
 
   return(all_xy_points)
 }
+
 
