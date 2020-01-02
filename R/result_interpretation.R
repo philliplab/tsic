@@ -345,6 +345,9 @@ select_most_informative_results <- function(ihist, fastest_to_slowest_tests = NU
       print(c("IN", fastest_to_slowest_tests[i], fastest_to_slowest_tests[i+1]))
       print(c("OUT", res$faster$full_assayname, res$slower$full_assayname))
     }
+    devtools::load_all()
+    dat <- load_dsmb_nov_2019_data(file_name = '/fridge/data/AMP/DSMB_timing_nov_2019/AMP_diagnostic_testing_history_DSMB_2019_Nov.csv')
+    ihist <- subset(dat, ptid == "p_703-0013")
   }
   if (is.null(fastest_to_slowest_tests)){
     fastest_to_slowest_tests <- c("iscav2_weib3_delaney_and_tosiano",
@@ -357,7 +360,30 @@ select_most_informative_results <- function(ihist, fastest_to_slowest_tests = NU
       "geenius_fr_weib3_delaney")
   }
   stopifnot(length(unique(ihist$ptid))==1)
-  return(0)
+
+  kept_hist <- NULL
+  rm_hist   <- NULL
+
+  for (c_date in sort(unique(ihist$sample_date))){
+    c_ihist <- subset(ihist, sample_date == c_date)
+    for (c_res in sort(unique(c_ihist$result))){
+      if (c_res == '-') {
+        test_order <- fastest_to_slowest_tests
+      } else {
+        test_order <- rev(fastest_to_slowest_tests)
+      }
+      cc_ihist <- subset(c_ihist, result == c_res)
+      for (c_test in test_order){
+        if (c_test %in% cc_ihist$test){
+          kept_hist <- rbind(kept_hist, subset(cc_ihist, test == c_test))
+          rm_hist   <- rbind(rm_hist,   subset(cc_ihist, test != c_test))
+          break
+        }
+      }
+    }
+  }
+  return(list(kept_hist = kept_hist,
+              rm_hist   = rm_hist))
 }
 
 
