@@ -360,6 +360,7 @@ select_most_informative_results <- function(ihist, fastest_to_slowest_tests = NU
       "geenius_fr_weib3_delaney")
   }
   stopifnot(length(unique(ihist$ptid))==1)
+  stopifnot(all(ihist$test %in% fastest_to_slowest_tests))
 
   kept_ihist <- NULL
   rm_ihist   <- NULL

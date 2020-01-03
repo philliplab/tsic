@@ -497,7 +497,16 @@ test_that('select_most_informative_results works', {
     stringsAsFactors = FALSE
   )
   expect_error(select_most_informative_results(ihist, NULL))
-  
+
+  ihist <- data.frame(
+    ptid = c('p0', 'p0'),
+    sample_date = c(as.numeric(as.Date('2016-03-01')) + 0.5, as.numeric(as.Date('2016-09-01')) + 0.5),
+    test = c('step_unit_testing', 'step_unit_testing'),
+    result = c('-', '+'),
+    stringsAsFactors = FALSE
+  )
+  expect_error(select_most_informative_results(ihist, NULL))
+
   ihist <- data.frame(
     ptid = c("p314", "p314", "p314", "p314", "p314", "p314", "p314", "p314", "p314"), 
     sample_date = c(16860.5, 16910.5, 16921.5, 16921.5, 16910.5, 16921.5, 16921.5, 16910.5, 16860.5), 
