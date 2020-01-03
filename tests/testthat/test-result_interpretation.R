@@ -507,11 +507,27 @@ test_that('select_most_informative_results works', {
              "taqman_weib3_delaney_and_manufacturer"), 
     result = c("-", "+", "+", "+", "-", "+", "+", "+", "-"),
     stringsAsFactors = FALSE)
+  expected_result <- list(kept_ihist = structure(list(ptid = c("p314", "p314", "p314",
+"p314"), sample_date = c(16860.5, 16910.5, 16910.5, 16921.5),
+    test = c("taqman_weib3_delaney_and_manufacturer", "geenius_indet_weib3_delaney",
+    "architect_weib3_delaney", "geenius_fr_weib3_delaney"), result = c("-",
+    "-", "+", "+")), row.names = c(9L, 5L, 2L, 4L), class = "data.frame"),
+    rm_ihist = structure(list(ptid = c("p314", "p314", "p314",
+    "p314", "p314"), sample_date = c(16860.5, 16910.5, 16921.5,
+    16921.5, 16921.5), test = c("architect_weib3_delaney", "taqman_weib3_delaney_and_manufacturer",
+    "architect_weib3_delaney", "geenius_indet_weib3_delaney",
+    "taqman_weib3_delaney_and_manufacturer"), result = c("-",
+    "+", "+", "+", "+")), row.names = c(1L, 8L, 3L, 6L, 7L), class = "data.frame"))
+
   inf_ihist <- select_most_informative_results(ihist)
   expect_true(class(inf_ihist) == 'list')
   expect_true(all(sort(names(inf_ihist)) == c('kept_ihist', 'rm_ihist')))
   expect_true(all(sort(unique(ihist$sample_date)) == sort(unique(inf_ihist$kept_ihist$sample_date))))
   expect_equal(nrow(ihist), nrow(inf_ihist$kept_ihist) + nrow(inf_ihist$rm_ihist))
+  counts <- with(inf_ihist$kept_ihist, tapply(test, list(sample_date, result), length))
+  expect_lte(max(counts, na.rm = TRUE), 1)
+  expect_gte(min(counts, na.rm = TRUE), 0)
+  expect_equal(inf_ihist, expected_result)
 })
 
 
