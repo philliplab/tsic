@@ -361,8 +361,8 @@ select_most_informative_results <- function(ihist, fastest_to_slowest_tests = NU
   }
   stopifnot(length(unique(ihist$ptid))==1)
 
-  kept_hist <- NULL
-  rm_hist   <- NULL
+  kept_ihist <- NULL
+  rm_ihist   <- NULL
 
   for (c_date in sort(unique(ihist$sample_date))){
     c_ihist <- subset(ihist, sample_date == c_date)
@@ -375,15 +375,15 @@ select_most_informative_results <- function(ihist, fastest_to_slowest_tests = NU
       cc_ihist <- subset(c_ihist, result == c_res)
       for (c_test in test_order){
         if (c_test %in% cc_ihist$test){
-          kept_hist <- rbind(kept_hist, subset(cc_ihist, test == c_test))
-          rm_hist   <- rbind(rm_hist,   subset(cc_ihist, test != c_test))
+          kept_ihist <- rbind(kept_ihist, subset(cc_ihist, test == c_test))
+          rm_ihist   <- rbind(rm_ihist,   subset(cc_ihist, test != c_test))
           break
         }
       }
     }
   }
-  return(list(kept_hist = kept_hist,
-              rm_hist   = rm_hist))
+  return(list(kept_ihist = kept_ihist,
+              rm_ihist   = rm_ihist))
 }
 
 

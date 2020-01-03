@@ -508,5 +508,15 @@ test_that('select_most_informative_results works', {
     result = c("-", "+", "+", "+", "-", "+", "+", "+", "-"),
     stringsAsFactors = FALSE)
   inf_ihist <- select_most_informative_results(ihist)
-  expect_true(FALSE)
+  expect_true(class(inf_ihist) == 'list')
+  expect_true(all(sort(names(inf_ihist)) == c('kept_ihist', 'rm_ihist')))
+  expect_true(all(sort(unique(ihist$sample_date)) == sort(unique(inf_ihist$kept_ihist$sample_date))))
+  expect_equal(nrow(ihist), nrow(inf_ihist$kept_ihist) + nrow(inf_ihist$rm_ihist))
 })
+
+
+
+
+
+
+
