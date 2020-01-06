@@ -236,12 +236,9 @@ get_assay_dynamics <- function(assay = NULL){
     params = list(location = 9.9675, shape = 0.7206, scale = 7.6388)
   )
 
-#  location    shape    scale
-#     8.431   1.686   13.352
-
   # Determine
   all_assays[[tolower('determine_weib3_delaney')]] <- list(
-    class = 'Ag/Ab Rapid',
+    class = 'Ag/Ab_Rapid',
     full_assayname = 'Determine HIV-1/2 Ag/Ab Combo',
     short_assayname = 'Determine',
     form = 'weib3',
@@ -250,10 +247,16 @@ get_assay_dynamics <- function(assay = NULL){
     params = list(location = 8.431, shape = 1.686, scale = 13.352)
   )
 
-
-
-
-
+  # Oraquick
+  all_assays[[tolower('oraquick_weib3_delaney')]] <- list(
+    class = 'IgG_Rapid',
+    full_assayname = 'Oraquick ADVANCE Rapid HIV-1/2 Antibody Assay',
+    short_assayname = 'Oraquick',
+    form = 'weib3',
+    source = 'delaney_2017',
+    fun = 'weib3_assay_dynamics',
+    params = list(location = 18.328, shape = 1.977, scale = 20.419)
+  )
 
   # lookup
   if (is.null(assay)){
