@@ -339,6 +339,7 @@ which_is_faster <- function(assay1, assay2, comp_range = (8000:10005)/10){
 
 select_most_informative_results <- function(ihist, fastest_to_slowest_tests = NULL){
   if (FALSE){
+    devtools::load_all()
     fastest_to_slowest_tests <- NULL
     for (i in 1:(length(fastest_to_slowest_tests)-1)){
       res <- which_is_faster(get_assay_dynamics(fastest_to_slowest_tests[i]), get_assay_dynamics(fastest_to_slowest_tests[i+1]))
@@ -356,8 +357,10 @@ select_most_informative_results <- function(ihist, fastest_to_slowest_tests = NU
       "abbott_real_time_weib3_delaney_and_manufacturer",
       "architect_weib3_delaney",
       "gs_combo_weib3_delaney",
+      "determine_weib3_delaney",
       "geenius_indet_weib3_delaney",
-      "geenius_fr_weib3_delaney")
+      "geenius_fr_weib3_delaney",
+      "oraquick_weib3_delaney")
   }
   stopifnot(length(unique(ihist$ptid))==1)
   stopifnot(all(ihist$test %in% fastest_to_slowest_tests))

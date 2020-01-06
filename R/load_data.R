@@ -40,6 +40,7 @@ parse_data_first_mock <- function(file_name){
 load_dsmb_nov_2019_data <- function(file_name){
   if (FALSE){
     file_name <- '/fridge/data/AMP/DSMB_timing_nov_2019/AMP_diagnostic_testing_history_DSMB_2019_Nov.csv'
+    file_name <- '/fridge/data/AMP/misc_timing_runs/erika_2019-12-30/v704_nonmitt_diagnostic_testing_history.csv'
   }
   dat <- read.csv(file_name, stringsAsFactors = FALSE)
   names(dat) <- c('ptid', 'sample_date', 'test', 'result')
@@ -51,7 +52,8 @@ load_dsmb_nov_2019_data <- function(file_name){
   valid_tests <- c(
     "Abbott ARCHITECT HIV Ag/Ab Combo", "Abbott Real Time HIV01 v1.0 m2000sp/m2000rt",
     "BioRad Geenius Fully Reactive", "BioRad Geenius Indeterminate",
-    "BioRad GS HIV Combo Ag/Ab EIA", "Roche Taqman v2.0"
+    "BioRad GS HIV Combo Ag/Ab EIA", "Roche Taqman v2.0",
+    "Alere Determine Rapid-HIV 1/2 Test", "OraSure OraQuick ADVANCE whole blood"
   )
   input_rows <- nrow(dat)
   dat <- subset(dat, test %in% valid_tests)
@@ -64,7 +66,10 @@ c(
 "BioRad Geenius Fully Reactive", 'geenius_fr_weib3_delaney',
 "BioRad Geenius Indeterminate", 'geenius_indet_weib3_delaney',
 "BioRad GS HIV Combo Ag/Ab EIA", 'gs_combo_weib3_delaney',
-"Roche Taqman v2.0", 'taqman_weib3_delaney_and_manufacturer'),
+"Roche Taqman v2.0", 'taqman_weib3_delaney_and_manufacturer',
+"Alere Determine Rapid-HIV 1/2 Test", "determine_weib3_delaney",
+"OraSure OraQuick ADVANCE whole blood", "oraquick_weib3_delaney"
+),
     ncol = 2,
     byrow = TRUE)
   test_mapping <- data.frame(
