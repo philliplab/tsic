@@ -19,6 +19,31 @@ test_that('Daily Grid works on known distributions', {
 })
 
 
+test_that('Daily Grid works on known distributions', {
+  ihist <- structure(list(ptid = c("p01", "p01", "p01", "p01", "p01", "p01", "p01", "p01", "p01", "p01", "p01", "p01"), 
+                          sample_date = c("2017-06-01", "2017-07-01", "2017-08-01", "2017-08-01", "2017-09-01", "2017-09-01"), 
+                          test = c("aptima_weib3_delaney", "aptima_weib3_delaney", "aptima_weib3_delaney", "architect_weib3_delaney", 
+                                   "aptima_weib3_delaney", "architect_weib3_delaney"), 
+                          result = c("-", "-", "+", "+", "+", "+")), 
+                     row.names = c(NA, 12L), 
+                     class = "data.frame")
+  ihist$sample_date <- as.numeric(as.Date(ihist$sample_date)) + 0.5
 
+  inf_ihist <- select_most_informative_results(ihist)$kept_ihist
+  agg_inter <-  construct_aggregate_interpreter(inf_ihist)
+  agg_fun <- agg_inter
+  range_start <- floor(min(inf_ihist$sample_date) - 60)
+  range_end <- ceiling(max(inf_ihist$sample_date) + 30)
+  lb_med_ub <- estimate_lb_med_ub(agg_fun, range_start, range_end)
+  tauc <- lb_med_ub$aoc
+
+  x <- compute_daily_grid(agg_fun, tauc, range_start, range_end)
+  expect_equal(sum(x$daily_probs), 1)
+  expect_equal(range_start, min(x$starts_of_daily_intervals))
+  expect_equal(range_end-1, max(x$starts_of_daily_intervals))
+  expect_true(all(x$daily_probs >= 0))
+  # agg function always lte 1
+  expect_true(all(x$daily_probs <= 1))
+})
 
 
