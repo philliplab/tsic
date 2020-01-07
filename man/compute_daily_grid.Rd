@@ -4,7 +4,9 @@
 \alias{compute_daily_grid}
 \title{Computes probability that infection was on each of a range of days}
 \usage{
-compute_daily_grid(agg_fun, tauc, range_start, range_end)
+compute_daily_grid(agg_fun, tauc, range_start, range_end,
+  end_mass_thresh = 1/1e+06, max_days_extend = 100,
+  expansion_size = 20)
 }
 \arguments{
 \item{agg_fun}{The aggregate curve associated with the ihist of interest as computed by construct_aggregate_interpreter.}
@@ -17,4 +19,7 @@ compute_daily_grid(agg_fun, tauc, range_start, range_end)
 }
 \description{
 Given an aggregate curve, a range of dates and the total area under the curve compute a vector of probabilities so that each element reflects the probability that infection occurred on a specific day.
+}
+\details{
+If the amount of mass in the first (last) of the daily intervals exceeds the end_mass_thresh value, then another expansion_size daily blocks will be added to the front (back) of the interval until either the first (last) interval's mass no longer exceeds the end_mass_thresh value, or more than max_days_extend days was added to the interval.
 }

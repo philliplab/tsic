@@ -7,15 +7,15 @@ if(FALSE){
 test_that('Daily Grid works on known distributions', {
   agg_fun <- function(x){dnorm(x, 17500, 10)}
   x <- compute_daily_grid(agg_fun, 1, 17400, 17600)
-  expect_equal(sum(x$daily_probs), 1)
-  expect_equal(17400, min(x$starts_of_daily_intervals))
-  expect_equal(17599, max(x$starts_of_daily_intervals))
+  expect_equal(sum(x$mass), 1)
+  expect_equal(17400, min(x$interval_start))
+  expect_equal(17600, max(x$interval_end))
 
   agg_fun <- function(x){dweibull(x, 10, 10)}
   x <- compute_daily_grid(agg_fun, 1, 0, 20)
-  expect_equal(sum(x$daily_probs), 1)
-  expect_equal(0, min(x$starts_of_daily_intervals))
-  expect_equal(19, max(x$starts_of_daily_intervals))
+  expect_equal(sum(x$mass), 1)
+  expect_equal(0, min(x$interval_start))
+  expect_equal(20, max(x$interval_end))
 })
 
 
@@ -38,12 +38,12 @@ test_that('Daily Grid works on known distributions', {
   tauc <- lb_med_ub$aoc
 
   x <- compute_daily_grid(agg_fun, tauc, range_start, range_end)
-  expect_equal(sum(x$daily_probs), 1)
-  expect_equal(range_start, min(x$starts_of_daily_intervals))
-  expect_equal(range_end-1, max(x$starts_of_daily_intervals))
-  expect_true(all(x$daily_probs >= 0))
+  expect_equal(sum(x$mass), 1)
+  expect_equal(range_start, min(x$interval_start))
+  expect_equal(range_end, max(x$interval_end))
+  expect_true(all(x$mass >= 0))
   # agg function always lte 1
-  expect_true(all(x$daily_probs <= 1))
+  expect_true(all(x$mass <= 1))
 })
 
 

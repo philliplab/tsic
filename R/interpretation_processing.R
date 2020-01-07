@@ -177,13 +177,16 @@ estimate_lb_med_ub <- function(fun, range_start, range_end, verbose = FALSE, lab
 #'
 #' Given an aggregate curve, a range of dates and the total area under the curve compute a vector of probabilities so that each element reflects the probability that infection occurred on a specific day.
 #'
+#' If the amount of mass in the first (last) of the daily intervals exceeds the end_mass_thresh value, then another expansion_size daily blocks will be added to the front (back) of the interval until either the first (last) interval's mass no longer exceeds the end_mass_thresh value, or more than max_days_extend days was added to the interval.
+#'
 #' @param agg_fun The aggregate curve associated with the ihist of interest as computed by construct_aggregate_interpreter.
 #' @param tauc The total area under the aggregate curve.
 #' @param range_start The start of the range over which daily probabilities should be computed.
 #' @param range_end The end of the range over which daily probabilities should be computed.
 #' @export
 
-compute_daily_grid <- function(agg_fun, tauc, range_start, range_end){
+compute_daily_grid <- function(agg_fun, tauc, range_start, range_end, end_mass_thresh = 1/1e6, 
+                               max_days_extend = 100, expansion_size = 20){
   if (FALSE) {
     devtools::load_all('/home/phillipl/projects/tsic/code/tsic')
     dat <- load_dsmb_nov_2019_data(file_name = '/fridge/data/AMP/DSMB_timing_nov_2019/AMP_diagnostic_testing_history_DSMB_2019_Nov.csv')
@@ -197,17 +200,39 @@ compute_daily_grid <- function(agg_fun, tauc, range_start, range_end){
     lb_med_ub <- estimate_lb_med_ub(agg_fun, range_start, range_end)
     tauc <- lb_med_ub$aoc
   }
-  daily_integs <- NULL
-  starts_of_daily_intervals <- (floor(range_start)):(ceiling(range_end)-1)
-  for (c_date in starts_of_daily_intervals){
-    c_integ <- pracma::integral(fun = function(x){agg_fun(x)/tauc},
-                     xmin = c_date, 
-                     xmax = c_date+1,
-                     no_intervals = 24)
-    daily_integs <- c(daily_integs, c_integ)
+  daily_integrals <- data.frame(
+    interval_start = (floor(range_start)):(ceiling(range_end)-1),
+    interval_end = (floor(range_start)+1):(ceiling(range_end)),
+    mass = -1,
+    done = 0,
+    stringsAsFactors = FALSE
+    )
+
+  while (sum(daily_integrals$done) != nrow(daily_integrals)){
+    c_indx <- sort(which(daily_integrals$done == 0))[1]
+    c_int <- daily_integrals[c_indx, , drop=FALSE]
+    stopifnot(nrow(c_int)==1)
+    c_mass <- pracma::integral(fun = function(x){agg_fun(x)/tauc},
+                               xmin = c_int$interval_start, 
+                               xmax = c_int$interval_end,
+                               no_intervals = 24)
+    daily_integrals[c_indx, 'mass'] <- c_mass
+    daily_integrals[c_indx, 'done'] <- 1
   }
-  return(list(daily_probs = daily_integs,
-              starts_of_daily_intervals = starts_of_daily_intervals))
+
+  return(daily_integrals)
+
+#  daily_integs <- NULL
+#  starts_of_daily_intervals <- (floor(range_start)):(ceiling(range_end)-1)
+#  for (c_date in starts_of_daily_intervals){
+#    c_integ <- pracma::integral(fun = function(x){agg_fun(x)/tauc},
+#                     xmin = c_date, 
+#                     xmax = c_date+1,
+#                     no_intervals = 24)
+#    daily_integs <- c(daily_integs, c_integ)
+#  }
+#  return(list(daily_probs = daily_integs,
+#              starts_of_daily_intervals = starts_of_daily_intervals))
 }
 
 #' Basic function used for testing estimate_lb_med_ub
