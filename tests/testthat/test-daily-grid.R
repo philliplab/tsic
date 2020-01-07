@@ -46,4 +46,18 @@ test_that('Daily Grid works on known distributions', {
   expect_true(all(x$mass <= 1))
 })
 
+test_that('Daily grid expands automatically', {
+  agg_fun <- function(x){dnorm(x, 17500, 10)}
+  x <- compute_daily_grid(agg_fun, 1, 17500, 17600)
+  expect_equal(sum(x$mass), 1)
+  expect_gte(17480, min(x$interval_start))
+  expect_equal(17600, max(x$interval_end))
+
+  agg_fun <- function(x){dweibull(x, 10, 10)}
+  x <- compute_daily_grid(agg_fun, 1, 0, 10)
+  expect_equal(sum(x$mass), 1)
+  expect_equal(0, min(x$interval_start))
+  expect_lte(11, max(x$interval_end))
+})
+
 

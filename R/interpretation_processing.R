@@ -195,10 +195,16 @@ compute_daily_grid <- function(agg_fun, tauc, range_start, range_end, end_mass_t
     inf_ihist <- select_most_informative_results(ihist)$kept_ihist
     agg_inter <-  construct_aggregate_interpreter(inf_ihist)
     agg_fun <- agg_inter
+    range_start <- floor(min(inf_ihist$sample_date))
     range_start <- floor(min(inf_ihist$sample_date) - 60)
     range_end <- ceiling(max(inf_ihist$sample_date) + 30)
     lb_med_ub <- estimate_lb_med_ub(agg_fun, range_start, range_end)
     tauc <- lb_med_ub$aoc
+
+    end_mass_thresh = 1/1e6 
+    max_days_extend = 100
+    expansion_size = 20
+
   }
   daily_integrals <- data.frame(
     interval_start = (floor(range_start)):(ceiling(range_end)-1),
@@ -218,6 +224,36 @@ compute_daily_grid <- function(agg_fun, tauc, range_start, range_end, end_mass_t
                                no_intervals = 24)
     daily_integrals[c_indx, 'mass'] <- c_mass
     daily_integrals[c_indx, 'done'] <- 1
+
+    result_ordering <- order(daily_integrals$interval_start)
+    if (!all(result_ordering == 1:nrow(daily_integrals))){
+      daily_integrals <- daily_integrals[result_ordering,]
+    }
+
+    if (daily_integrals$done[1] == 1){
+      if (daily_integrals$mass[1] >= end_mass_thresh){
+        daily_integrals <- rbind(
+          data.frame(                       
+            interval_start = (min(daily_integrals$interval_start)-expansion_size):(min(daily_integrals$interval_start)-1),
+            interval_end = (min(daily_integrals$interval_end)-expansion_size):(min(daily_integrals$interval_end)-1),
+            mass = -1,
+            done = 0,
+            stringsAsFactors = FALSE),
+          daily_integrals)
+      }
+    }
+    if (daily_integrals$done[nrow(daily_integrals)] == 1){
+      if (daily_integrals$mass[nrow(daily_integrals)] >= end_mass_thresh){
+        daily_integrals <- rbind(
+          daily_integrals,
+          data.frame(                       
+            interval_start = (max(daily_integrals$interval_start) + 1):(max(daily_integrals$interval_start) + expansion_size),
+            interval_end = (max(daily_integrals$interval_end) + 1):(max(daily_integrals$interval_end) + expansion_size),
+            mass = -1,
+            done = 0,
+            stringsAsFactors = FALSE))
+      }
+    }
   }
 
   return(daily_integrals)
