@@ -417,8 +417,7 @@ interpret_ihist <- function(ihist, range_start, range_end, verbose = FALSE){
   stopifnot(class(range_end) == 'numeric')
   stopifnot(length(unique(ihist$ptid)) == 1)
 
-  # Debugging stuff
-  if (FALSE){
+  if (FALSE){  # Debugging stuff
     ihist <- data.frame(
       ptid = c('p0', 'p0'),
       sample_date = c(as.numeric(as.Date('2016-03-01')), as.numeric(as.Date('2016-09-01'))),

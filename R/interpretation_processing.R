@@ -14,7 +14,6 @@
 
 estimate_lb_med_ub <- function(fun, range_start, range_end, verbose = FALSE, label = 'unlabeled', 
                                warn_low_AOC = FALSE, extra_tiles = NULL, date_splits = NULL){
-  warning('This function is deprecated')
   if (FALSE){
     range_start <- -100
     range_end <- 100
@@ -174,10 +173,41 @@ estimate_lb_med_ub <- function(fun, range_start, range_end, verbose = FALSE, lab
               max_agg = max(xy_points$y)))
 }
 
+#' Computes probability that infection was on each of a range of days
+#'
+#' Given an aggregate curve, a range of dates and the total area under the curve compute a vector of probabilities so that each element reflects the probability that infection occurred on a specific day.
+#'
+#' @param agg_fun The aggregate curve associated with the ihist of interest as computed by construct_aggregate_interpreter.
+#' @param tauc The total area under the aggregate curve.
+#' @param range_start The start of the range over which daily probabilities should be computed.
+#' @param range_end The end of the range over which daily probabilities should be computed.
+#' @export
+
 compute_daily_grid <- function(agg_fun, tauc, range_start, range_end){
   if (FALSE) {
-
+    devtools::load_all('/home/phillipl/projects/tsic/code/tsic')
+    dat <- load_dsmb_nov_2019_data(file_name = '/fridge/data/AMP/DSMB_timing_nov_2019/AMP_diagnostic_testing_history_DSMB_2019_Nov.csv')
+    unique(dat$ptid)
+    ihist <- subset(dat, ptid == 'p_703-0013')
+    inf_ihist <- select_most_informative_results(ihist)$kept_ihist
+    agg_inter <-  construct_aggregate_interpreter(inf_ihist)
+    agg_fun <- agg_inter
+    range_start <- floor(min(inf_ihist$sample_date) - 60)
+    range_end <- ceiling(max(inf_ihist$sample_date) + 30)
+    lb_med_ub <- estimate_lb_med_ub(agg_fun, range_start, range_end)
+    tauc <- lb_med_ub$aoc
   }
+  daily_integs <- NULL
+  starts_of_daily_intervals <- (floor(range_start)):(ceiling(range_end)-1)
+  for (c_date in starts_of_daily_intervals){
+    c_integ <- pracma::integral(fun = function(x){agg_fun(x)/tauc},
+                     xmin = c_date, 
+                     xmax = c_date+1,
+                     no_intervals = 24)
+    daily_integs <- c(daily_integs, c_integ)
+  }
+  return(list(daily_probs = daily_integs,
+              starts_of_daily_intervals = starts_of_daily_intervals))
 }
 
 #' Basic function used for testing estimate_lb_med_ub
