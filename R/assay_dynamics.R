@@ -258,6 +258,17 @@ get_assay_dynamics <- function(assay = NULL){
     params = list(location = 18.328, shape = 1.977, scale = 20.419)
   )
 
+  # GS HIV-1/HIV-2 PLUS O EIA
+  all_assays[[tolower('gs_eia_weib3_delaney')]] <- list(
+    class = 'IgG/IgM_Lab',
+    full_assayname = 'GS HIV-1/HIV-2 PLUS O EIA',
+    short_assayname = 'GS PLUS O EIA',
+    form = 'weib3',
+    source = 'delaney_2017',
+    fun = 'weib3_assay_dynamics',
+    params = list(location = 13.961, shape = 1.722, scale = 13.278)
+  )
+
   # lookup
   if (is.null(assay)){
     return(names(all_assays))

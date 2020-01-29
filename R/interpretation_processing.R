@@ -185,7 +185,7 @@ estimate_lb_med_ub <- function(fun, range_start, range_end, verbose = FALSE, lab
 #' @param range_end The end of the range over which daily probabilities should be computed.
 #' @export
 
-compute_daily_grid <- function(agg_fun, tauc, range_start, range_end, end_mass_thresh = 1/1e6, 
+compute_daily_grid <- function(agg_fun, tauc, range_start, range_end, end_mass_thresh = 1/1e10, 
                                max_days_extend = 100, expansion_size = 20){
   if (FALSE) {
     devtools::load_all('/home/phillipl/projects/tsic/code/tsic')
