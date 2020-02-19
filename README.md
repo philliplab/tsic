@@ -12,6 +12,9 @@ The window period distribution of an assay desribes the probability of an assay 
 Thus for each observed test result, a curve can be constructed indicating the probability of in fact observing that test result given that the infecting exposure was on some hypothesised day. Assuming independence, the product of these curves indicates the probability of observing *all* the results in the dataset given that the infecting exposure was on associated day. The curve representing the product is referred to as the aggregate curve.
 
 ![delaney window period](inst/readme_imgs/delaney_2017_window_period_distributions_50.png)
+Figure: The window period distributions of different classes of assays reported by Delaney et al., 2017.
+
+
 
 
 
