@@ -41,7 +41,6 @@ ihist$sample_date <- ihist$sample_date + 0.5
 knitr::kable(ihist)
 ```
 
-
 Note: `sample_date` is expressed as a `numeric`. (The number of days since 1970-01-01)
 
 Note: It will almost always make sense to add 0.5 to the sample date, since it is more likely that the visit occurred at noon than at midnight.
@@ -53,7 +52,58 @@ Note: The test names must match those available from the `get_assay_dynamics()` 
 get_assay_dynamics()
 ```
 
-Once the `ihist` is constructed, it must be 'interpreted'. This is the process by which the individual results are interpreted into curves that describe the probability (indicated by the y-axis) of observing the result for various possible infection dates (indicated by the x-axis). Since `tsic` should be able to operate accurately on step functions (which have discontinuities in their derivatives), there is a fair bit going on in the `interpret_ihist` function.
+The next step is to construct a function that computes the probability of observing *all* the results in the `ihist` for a given infection date. This is done by calling the `construct_aggregate_interpreter` function on the `ihist`. The value returned from `construct_aggregate_interpreter` is a function that takes a date (expressed as the number of days since 1970-01-01) as input and returns a probability. This returned function is assigned to the variable `agg_interpreter` which is short for aggregate interpreter.
+
+```{r}
+agg_interpreter <- construct_aggregate_interpreter(ihist)
+class(agg_interpreter)
+agg_interpreter(17928) # 2019-02-01
+agg_interpreter(17988) # 2019-04-02
+agg_interpreter(18020) # 2019-05-04
+```
+
+In computer programming terminology, `agg_interpreter` is called a [closure](https://en.wikipedia.org/wiki/Closure_(computer_programming)).
+
+Next you have to compute the various percentiles of `agg_interpreter` curve. This is done with the `estimate_lb_meb_ub` function. `estimate_lb_med_ub` will normalize `agg_interpreter` as required. 
+```{r}
+range_start <- min(ihist$sample_date) - 100
+range_end <- max(ihist$sample_date) + 100
+lb_med_ub <- estimate_lb_med_ub(fun = agg_interpreter,                            
+                                range_start = range_start,
+                                range_end = range_end,
+                                verbose = TRUE)
+print(lb_med_ub)
+```
+
+`estimate_lb_med_ub` returns a list. The `lb`, `med` and `ub` elements are the 2.5th, 50th and 97.5th percentiles of the distribution obtained when normalizing `agg_interpreter`. These quantities are estimate (50th) of the infection date as well as the 95% uncertainty interval.
+
+The `aoc` element of the list is the total area under the non-normalized `agg_interpreter` and the `max_agg` element is the maximum value the function attains.
+
+A key application of `tsic` is to compute the amount of mass that falls in specific intervals. The `estimate_lb_med_ub` function's `date_splits` argument facilitates this. For each date in `date_splits`, `estimate_lb_med_ub` will compute the area under the normalized version of `agg_interpreter` that is to the left of that date. For the current example, if you want to compute the total mass between the two visit dates, to supply both dates to `estimate_lb_med_ub` via the `date_splits` argument and then subtract the two results from each other.
+
+```{r}
+range_start <- min(ihist$sample_date) - 100
+range_end <- max(ihist$sample_date) + 100
+lb_med_ub <- estimate_lb_med_ub(fun = agg_interpreter,                            
+                                range_start = range_start,
+                                range_end = range_end,
+                                verbose = TRUE,
+                                date_splits = c(17987.5, 18017.5))
+print(lb_med_ub)
+```
+
+The probability that the infection date was between `r as.Date(17987, origin = '1970-01-01')` and `r as.Date(18017, origin = '1970-01-01')` is `r lb_med_ub$date_splits[2] - lb_med_ub$date_splits[1]`
+
+You will probably have to write some code to compute the values you want to supply to `date_splits` for each person.
+
+
+
+
+
+
+TODO: process everything below this line.
+
+A key internal step of tsic is to interpret an ihist. This is the process by which the individual results are interpreted into curves that describe the probability (indicated by the y-axis) of observing the result for various possible infection dates (indicated by the x-axis). Since `tsic` should be able to operate accurately on step functions (which have discontinuities in their derivatives), there is a fair bit going on in the `interpret_ihist` function.
 
 The `range_start` and `range_end` arguments should be set to such values that at least one of the curves will be extremely close to 0 outside of the range.
 
@@ -74,51 +124,3 @@ rm(tmp_iihist)
 
 
 
-
-Vignettes are long form documentation commonly included in packages. Because they are part of the distribution of the package, they need to be as compact as possible. The `html_vignette` output type provides a custom style sheet (and tweaks some options) to ensure that the resulting html is as small as possible. The `html_vignette` format:
-
-- Never uses retina figures
-- Has a smaller default figure size
-- Uses a custom CSS stylesheet instead of the default Twitter Bootstrap style
-
-## Vignette Info
-
-Note the various macros within the `vignette` section of the metadata block above. These are required in order to instruct R how to build the vignette. Note that you should change the `title` field and the `\VignetteIndexEntry` to match the title of your vignette.
-
-## Styles
-
-The `html_vignette` template includes a basic CSS theme. To override this theme you can specify your own CSS in the document metadata as follows:
-
-    output: 
-      rmarkdown::html_vignette:
-        css: mystyles.css
-
-## Figures
-
-The figure sizes have been customised so that you can easily put two images side-by-side. 
-
-```{r, fig.show='hold'}
-plot(1:10)
-plot(10:1)
-```
-
-You can enable figure captions by `fig_caption: yes` in YAML:
-
-    output:
-      rmarkdown::html_vignette:
-        fig_caption: yes
-
-Then you can use the chunk option `fig.cap = "Your figure caption."` in **knitr**.
-
-## More Examples
-
-You can write math expressions, e.g. $Y = X\beta + \epsilon$, footnotes^[A footnote here.], and tables, e.g. using `knitr::kable()`.
-
-```{r, echo=FALSE, results='asis'}
-knitr::kable(head(mtcars, 10))
-```
-
-Also a quote using `>`:
-
-> "He who gives up [code] safety for [code] speed deserves neither."
-([via](https://twitter.com/hadleywickham/status/504368538874703872))
