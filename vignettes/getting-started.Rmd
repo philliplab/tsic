@@ -1,10 +1,10 @@
 ---
-title: "TSIC Introduction"
+title: "TSIC Getting Started"
 author: "Phillip Labuschagne"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{TSIC Introduction}
+  %\VignetteIndexEntry{TSIC Getting Started}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -15,6 +15,41 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 ```
+
+This guide assumes that you successfully installed `tsic` - this is when you run `library(tsic)` in R, you do not get any errors.
+
+```{r}
+library(tsic)
+```
+
+The current version of the guide will only consider a single participant. You have to write the code that will read in your datasets and that will loop over the individual persons in the dataset and select out their data into the format that `tsic` requires. Feel free to ask the package author for help.
+
+The main data structure is the diagnostic history which contains a single patient's test result history. This is usually assigned to a variable named `ihist` (which is short of individual history). Below is an example of such an history. The column names and order must be matched exactly.
+
+```{r}
+ihist <- data.frame(
+  ptid = c('p0', 'p0'),
+  sample_date = c(as.numeric(as.Date('2019-04-01')), as.numeric(as.Date('2019-05-01'))),
+  test = c('architect_weib3_delaney', 'architect_weib3_delaney'),
+  result = c('-', '+'),
+  stringsAsFactors = FALSE
+)
+ihist$sample_date <- ihist$sample_date + 0.5
+```
+
+Note: `sample_date` is expressed as a `numeric`. (The number of days since 1970-01-01)
+
+Note: It will almost always make sense to add 0.5 to the sample date, since it is more likely that the visit occurred at noon than at midnight.
+
+Note: The test names must match those available from the `get_assay_dynamics()` function. Listed below:
+
+```{r}
+# running this will print the available assays
+get_assay_dynamics()
+```
+
+
+
 
 Vignettes are long form documentation commonly included in packages. Because they are part of the distribution of the package, they need to be as compact as possible. The `html_vignette` output type provides a custom style sheet (and tweaks some options) to ensure that the resulting html is as small as possible. The `html_vignette` format:
 
