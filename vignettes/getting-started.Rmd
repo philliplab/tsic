@@ -37,6 +37,11 @@ ihist <- data.frame(
 ihist$sample_date <- ihist$sample_date + 0.5
 ```
 
+```{r echo=FALSE,results='asis'}
+knitr::kable(ihist)
+```
+
+
 Note: `sample_date` is expressed as a `numeric`. (The number of days since 1970-01-01)
 
 Note: It will almost always make sense to add 0.5 to the sample date, since it is more likely that the visit occurred at noon than at midnight.
@@ -47,6 +52,25 @@ Note: The test names must match those available from the `get_assay_dynamics()` 
 # running this will print the available assays
 get_assay_dynamics()
 ```
+
+Once the `ihist` is constructed, it must be 'interpreted'. This is the process by which the individual results are interpreted into curves that describe the probability (indicated by the y-axis) of observing the result for various possible infection dates (indicated by the x-axis). Since `tsic` should be able to operate accurately on step functions (which have discontinuities in their derivatives), there is a fair bit going on in the `interpret_ihist` function.
+
+The `range_start` and `range_end` arguments should be set to such values that at least one of the curves will be extremely close to 0 outside of the range.
+
+```{r}
+iihist <- interpret_ihist(ihist = ihist,
+                          range_start = as.numeric(as.Date('2019-02-01')),
+                          range_end = as.numeric(as.Date('2019-06-15')),
+                          verbose = FALSE)
+```
+
+```{r echo=FALSE,results='asis'}
+tmp_iihist <- iihist
+tmp_iihist$test_details <- gsub('\\\n', ' ', tmp_iihist$test_details)
+knitr::kable(tmp_iihist[1:15,])
+rm(tmp_iihist)
+```
+
 
 
 
