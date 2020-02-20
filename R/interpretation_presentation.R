@@ -89,7 +89,7 @@ plot_iihist <- function(ihist, lb_med_ub, range_start, range_end,
     stopifnot(max(x_breaks) <= range_end)
   }
 
-  x_tick_labels <- as.character(as.Date(round(x_breaks, 0), origin = '1970-01-01'))
+  x_tick_labels <- as.character(as.Date(floor(x_breaks), origin = '1970-01-01'))
   
   if (!is.null(lb_med_ub) & plot_aggregate){
     vlines_dat <- data.frame(ptid = unique(iihist$ptid),
