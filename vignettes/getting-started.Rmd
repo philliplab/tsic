@@ -123,21 +123,20 @@ The probability that the infection date was between `r as.Date(17987, origin = '
 
 You will probably have to write some code to compute the values you want to supply to `date_splits` for each person.
 
-Use the plot_iihist function to plot an ihist.
+Use the `plot_iihist` function to plot an `ihist`.
 
-```{r fig.keep='none'}
+```{r}
 the_plot <- 
 plot_iihist(ihist = ihist, lb_med_ub = lb_med_ub, 
             range_start = as.numeric(as.Date('2019-02-01')),
-            range_end = as.numeric(as.Date('2019-06-15')), 
+            range_end = as.numeric(as.Date('2019-05-15')), 
             plot_aggregate = TRUE,
+            produce_plot = FALSE,
             show_test_dates = 0.5,
             x_breaks = c(as.numeric(as.Date('2019-03-01'))+0.49, 
                          as.numeric(as.Date('2019-05-01'))+0.49 
                          )
             )
-```
-```{r}
 the_plot <- the_plot + 
   ggplot2::theme_grey(base_size = 9) + # 18 is a good number of non-vignette applications
   ggplot2::guides(color = FALSE)
