@@ -16,6 +16,14 @@ knitr::opts_chunk$set(
 )
 ```
 
+This is a simple getting started guide that show the basic operations `tsic` can perform in a straight-forward way.
+
+* The main data structure: `ihist`
+* Estimate the time of infection
+* Compute probability that the infection occurred in an interval
+* Plot the estimation procedure for a single participant
+* Produce a grid of daily probabilities
+
 This guide assumes that you successfully installed `tsic`. This means that you can run `library(tsic)` in R without getting any errors.
 
 ```{r}
@@ -23,6 +31,8 @@ library(tsic)
 ```
 
 The current version of the guide will only consider a single participant. You have to write the code that will read in your datasets and that will loop over the individual persons in the dataset and select out their data into the format that `tsic` requires. Feel free to ask the package author for help.
+
+## The main data structure: `ihist`
 
 The main data structure is the diagnostic history which contains a single patient's test result history. This is usually assigned to a variable named `ihist` (which is short of individual history). Below is an example of such an history. The column names and order must be matched exactly.
 
@@ -51,6 +61,8 @@ Note: The test names must match those available from the `get_assay_dynamics()` 
 # running this will print the available assays
 get_assay_dynamics()
 ```
+
+### Estimate the time of infection
 
 The next step is to construct a function that computes the probability of observing *all* the results in the `ihist` for a given infection date. This is done by calling the `construct_aggregate_interpreter` function on the `ihist` variable. The value returned from `construct_aggregate_interpreter` is a function that takes a date (expressed as the number of days since 1970-01-01) as input and returns a probability. This returned function is assigned to the variable `agg_interpreter` which is short for aggregate interpreter.
 
@@ -104,6 +116,8 @@ knitr::kable(format_lb_med_ub(lb_med_ub))
 
 The `aoc` element of the list is the total area under the non-normalized `agg_interpreter` and the `max_agg` element is the maximum value the function attains.
 
+### Compute probability that the infection occurred in an interval
+
 A key application of `tsic` is to compute the amount of mass that falls in specific intervals. The `estimate_lb_med_ub` function's `date_splits` argument facilitates this. For each date in `date_splits`, `estimate_lb_med_ub` will compute the area under the normalized version of `agg_interpreter` that is to the left of that date. For the current example, if you want to compute the total mass between the two visit dates, to supply both dates to `estimate_lb_med_ub` via the `date_splits` argument and then subtract the two results from each other.
 
 ```{r}
@@ -122,6 +136,8 @@ area_between <- lb_med_ub$aoc_left_of_date[2] - lb_med_ub$aoc_left_of_date[1]
 The probability that the infection date was between `r as.Date(17987, origin = '1970-01-01')` and `r as.Date(18017, origin = '1970-01-01')` is `r area_between`
 
 You will probably have to write some code to compute the values you want to supply to `date_splits` for each person.
+
+### Plot the estimation procedure for a single participant
 
 Use the `plot_iihist` function to plot an `ihist`.
 
@@ -143,6 +159,7 @@ the_plot <- the_plot +
 print(the_plot)
 ```
 
+### Produce a grid of daily probabilities
 
 
 
