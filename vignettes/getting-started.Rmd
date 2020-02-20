@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-This guide assumes that you successfully installed `tsic` - this is when you run `library(tsic)` in R, you do not get any errors.
+This guide assumes that you successfully installed `tsic`. This means that you can run `library(tsic)` in R without getting any errors.
 
 ```{r}
 library(tsic)
@@ -52,11 +52,12 @@ Note: The test names must match those available from the `get_assay_dynamics()` 
 get_assay_dynamics()
 ```
 
-The next step is to construct a function that computes the probability of observing *all* the results in the `ihist` for a given infection date. This is done by calling the `construct_aggregate_interpreter` function on the `ihist`. The value returned from `construct_aggregate_interpreter` is a function that takes a date (expressed as the number of days since 1970-01-01) as input and returns a probability. This returned function is assigned to the variable `agg_interpreter` which is short for aggregate interpreter.
+The next step is to construct a function that computes the probability of observing *all* the results in the `ihist` for a given infection date. This is done by calling the `construct_aggregate_interpreter` function on the `ihist` variable. The value returned from `construct_aggregate_interpreter` is a function that takes a date (expressed as the number of days since 1970-01-01) as input and returns a probability. This returned function is assigned to the variable `agg_interpreter` which is short for aggregate interpreter.
 
 ```{r}
 agg_interpreter <- construct_aggregate_interpreter(ihist)
 class(agg_interpreter)
+# and some usage examples
 agg_interpreter(17928) # 2019-02-01
 agg_interpreter(17988) # 2019-04-02
 agg_interpreter(18020) # 2019-05-04
@@ -65,17 +66,33 @@ agg_interpreter(18020) # 2019-05-04
 In computer programming terminology, `agg_interpreter` is called a [closure](https://en.wikipedia.org/wiki/Closure_(computer_programming)).
 
 Next you have to compute the various percentiles of `agg_interpreter` curve. This is done with the `estimate_lb_meb_ub` function. `estimate_lb_med_ub` will normalize `agg_interpreter` as required. 
+
+The `range_start` and `range_end` arguments should be set to such values that `agg_interpreter` will be extremely close to 0 outside of the range. The shorter the range you specify, the more likely it is that the numerical integration will be performed accurately.
+
+```{r echo=FALSE, results='hide'}
+format_lb_med_ub <- function(lb_med_ub){
+  outp <- NULL
+  for (cname in names(lb_med_ub)){
+    outp <- rbind(outp,
+      data.frame(variable = cname,
+                 value = paste(lb_med_ub[[cname]], ', ')))
+  }
+  return(outp)
+}
+```
+
+
 ```{r}
 range_start <- min(ihist$sample_date) - 100
 range_end <- max(ihist$sample_date) + 100
 lb_med_ub <- estimate_lb_med_ub(fun = agg_interpreter,                            
                                 range_start = range_start,
                                 range_end = range_end,
-                                verbose = TRUE)
+                                verbose = FALSE)
 print(lb_med_ub)
 ```
 
-`estimate_lb_med_ub` returns a list. The `lb`, `med` and `ub` elements are the 2.5th, 50th and 97.5th percentiles of the distribution obtained when normalizing `agg_interpreter`. These quantities are estimate (50th) of the infection date as well as the 95% uncertainty interval.
+`estimate_lb_med_ub` returns a list. The `lb`, `med` and `ub` elements are the 2.5th, 50th and 97.5th percentiles of the distribution obtained when normalizing `agg_interpreter`. These quantities are estimate as well as the 95% uncertainty interval for the infection date.
 
 The `aoc` element of the list is the total area under the non-normalized `agg_interpreter` and the `max_agg` element is the maximum value the function attains.
 
@@ -87,39 +104,16 @@ range_end <- max(ihist$sample_date) + 100
 lb_med_ub <- estimate_lb_med_ub(fun = agg_interpreter,                            
                                 range_start = range_start,
                                 range_end = range_end,
-                                verbose = TRUE,
+                                verbose = FALSE,
                                 date_splits = c(17987.5, 18017.5))
 print(lb_med_ub)
 ```
 
-The probability that the infection date was between `r as.Date(17987, origin = '1970-01-01')` and `r as.Date(18017, origin = '1970-01-01')` is `r lb_med_ub$date_splits[2] - lb_med_ub$date_splits[1]`
+The probability that the infection date was between `r as.Date(17987, origin = '1970-01-01')` and `r as.Date(18017, origin = '1970-01-01')` is `r lb_med_ub$aoc_left_of_date[2] - lb_med_ub$aoc_left_of_date[1]`
 
 You will probably have to write some code to compute the values you want to supply to `date_splits` for each person.
 
 
-
-
-
-
-TODO: process everything below this line.
-
-A key internal step of tsic is to interpret an ihist. This is the process by which the individual results are interpreted into curves that describe the probability (indicated by the y-axis) of observing the result for various possible infection dates (indicated by the x-axis). Since `tsic` should be able to operate accurately on step functions (which have discontinuities in their derivatives), there is a fair bit going on in the `interpret_ihist` function.
-
-The `range_start` and `range_end` arguments should be set to such values that at least one of the curves will be extremely close to 0 outside of the range.
-
-```{r}
-iihist <- interpret_ihist(ihist = ihist,
-                          range_start = as.numeric(as.Date('2019-02-01')),
-                          range_end = as.numeric(as.Date('2019-06-15')),
-                          verbose = FALSE)
-```
-
-```{r echo=FALSE,results='asis'}
-tmp_iihist <- iihist
-tmp_iihist$test_details <- gsub('\\\n', ' ', tmp_iihist$test_details)
-knitr::kable(tmp_iihist[1:15,])
-rm(tmp_iihist)
-```
 
 
 
