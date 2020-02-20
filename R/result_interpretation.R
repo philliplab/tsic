@@ -455,7 +455,7 @@ interpret_ihist <- function(ihist, range_start, range_end, verbose = FALSE){
                                         y = c_xy_points[['y']])
     if (verbose){ cat(paste0('. Binding')) }
     test_details <- paste0(assay_dynamics$short_assayname, '\n', 
-                           as.character(as.Date(round(ihist[i, 'sample_date'],0), origin = '1970-01-01')), '\n', 
+                           as.character(as.Date(floor(ihist[i, 'sample_date']), origin = '1970-01-01')), '\n', 
                            ihist[i, 'result'])
     all_xy_points <- rbind(
       all_xy_points,
