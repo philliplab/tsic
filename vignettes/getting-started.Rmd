@@ -161,6 +161,12 @@ print(the_plot)
 
 ### Produce a grid of daily probabilities
 
+The normalized aggregate curve is the posterior distribution for the time of infection when assuming suitable priors. Thus it is important to be able to output this distribution for downstream analyses. This is performed by the `compute_daily_grid` function.
 
+```{r}
+daily_grid <- compute_daily_grid(agg_interpreter, tauc = lb_med_ub$aoc, 
+                                 range_start = range_start-0.5, range_end = range_end+0.5)
+str(daily_grid)
+```
 
-
+This produces a rather large dataset for each participant. It is in long format with each row containing the start date and end date of a single interval together with the proportion of the mass that falls in that interval.
