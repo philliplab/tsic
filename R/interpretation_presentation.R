@@ -119,7 +119,7 @@ plot_iihist <- function(ihist, lb_med_ub, range_start, range_end,
       levels(iihist_tmp$test_details)[levels(iihist_tmp$test_details)=='Aggregate'] <- custom_aggregate_label
     }
 
-    print(str(iihist_tmp))
+    if(verbose){print(str(iihist_tmp))}
 
     x <- 
     ggplot2::ggplot(iihist_tmp, ggplot2::aes(x = sample_date, y = prob_val, col = result)) +
