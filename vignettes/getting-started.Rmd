@@ -75,12 +75,14 @@ format_lb_med_ub <- function(lb_med_ub){
   for (cname in names(lb_med_ub)){
     if (is.null(lb_med_ub[[cname]])){
       val <- ''
+    } else if (is.numeric(lb_med_ub[[cname]])) {
+      val <- sapply(lb_med_ub[[cname]], round, 2)
     } else {
-      val <- ifelse(is.numeric(lb_med_ub[[cname]]), round(lb_med_ub[[cname]], 2), lb_med_ub[[cname]])
+      val <- lb_med_ub[[cname]]
     }
     outp <- rbind(outp,
       data.frame(variable = cname,
-                 value = paste(val, collapse = ', ')))
+                 value = paste(val, collapse = '; ')))
   }
   outp$value <- gsub(', ', '', outp$value)
   return(outp)
@@ -112,7 +114,7 @@ lb_med_ub <- estimate_lb_med_ub(fun = agg_interpreter,
                                 range_end = range_end,
                                 verbose = FALSE,
                                 date_splits = c(17987.5, 18017.5))
-print(lb_med_ub)
+knitr::kable(format_lb_med_ub(lb_med_ub))
 ```
 
 The probability that the infection date was between `r as.Date(17987, origin = '1970-01-01')` and `r as.Date(18017, origin = '1970-01-01')` is `r lb_med_ub$aoc_left_of_date[2] - lb_med_ub$aoc_left_of_date[1]`
