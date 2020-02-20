@@ -165,8 +165,10 @@ The normalized aggregate curve is the posterior distribution for the time of inf
 
 ```{r}
 daily_grid <- compute_daily_grid(agg_interpreter, tauc = lb_med_ub$aoc, 
-                                 range_start = range_start-0.5, range_end = range_end+0.5)
+                                 range_start = range_start, range_end = range_end)
 str(daily_grid)
 ```
+
+Note that both range_start and range_end ends with 0.5 indicating that the intervals will run from noon to noon. This is something that you will have to think carefully about. Does your visits have times? Or just the dates? When do you want to assume the visit occurred?
 
 This produces a rather large dataset for each participant. It is in long format with each row containing the start date and end date of a single interval together with the proportion of the mass that falls in that interval.

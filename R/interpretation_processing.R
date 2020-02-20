@@ -207,8 +207,8 @@ compute_daily_grid <- function(agg_fun, tauc, range_start, range_end, end_mass_t
 
   }
   daily_integrals <- data.frame(
-    interval_start = (floor(range_start)):(ceiling(range_end)-1),
-    interval_end = (floor(range_start)+1):(ceiling(range_end)),
+    interval_start = (range_start):(range_end-1),
+    interval_end = (range_start+1):(range_end),
     mass = -1,
     done = 0,
     stringsAsFactors = FALSE
@@ -257,18 +257,6 @@ compute_daily_grid <- function(agg_fun, tauc, range_start, range_end, end_mass_t
   }
 
   return(daily_integrals)
-
-#  daily_integs <- NULL
-#  starts_of_daily_intervals <- (floor(range_start)):(ceiling(range_end)-1)
-#  for (c_date in starts_of_daily_intervals){
-#    c_integ <- pracma::integral(fun = function(x){agg_fun(x)/tauc},
-#                     xmin = c_date, 
-#                     xmax = c_date+1,
-#                     no_intervals = 24)
-#    daily_integs <- c(daily_integs, c_integ)
-#  }
-#  return(list(daily_probs = daily_integs,
-#              starts_of_daily_intervals = starts_of_daily_intervals))
 }
 
 #' Basic function used for testing estimate_lb_med_ub
