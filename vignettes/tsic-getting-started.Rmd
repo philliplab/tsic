@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-This is a simple getting started guide that show the basic operations `tsic` can perform in a straight-forward way.
+This is a simple getting started guide that show the basic `tsic` operations.
 
 * The main data structure: `ihist`
 * Estimate the time of infection

@@ -1,0 +1,68 @@
+---
+title: "Simulate Diagnostic Histories"
+author: "Phillip Labuschagne"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Simulate Diagnostic Histories}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r}
+library(tsic)
+```
+
+
+IN PROGRESS
+
+This is a guide for simulating diagnostic test histories. It uses the window period distributions built into `tsic` to simulate histories that have the exact assumptions that `tsic` uses.
+
+* Getting a diagnostic test result if you know the time since infection.
+
+```{r}
+assay_dynamics <- get_assay_dynamics("taqman_weib3_delaney_and_manufacturer")
+
+evaluate_dynamics <- function(x){ #x is time since infection event
+  assay_dynamics$params$x <- x
+  return(do.call(assay_dynamics$fun, assay_dynamics$params))
+}
+
+evaluate_dynamics(0:50)
+options(scipen=99)
+
+list_of_assays <- c("taqman_weib3_delaney_and_manufacturer", "architect_linear_abs_spread_delaney", 
+                    "geenius_indet_weib3_delaney", "geenius_fr_weib3_delaney")
+
+# function start
+
+tsi <- 20 # time since infection
+dx_results <- list()
+# check that assay list is in correct order
+for (c_assay in list_of_assays){
+  dx_results[[c_assay]] <- NA_character_
+  assay_dynamics <- get_assay_dynamics("taqman_weib3_delaney_and_manufacturer")
+
+  evaluate_dynamics <- function(x){ #x is time since infection event
+    assay_dynamics$params$x <- x
+    return(do.call(assay_dynamics$fun, assay_dynamics$params))
+  }
+
+  pos_prob <- evaluate_dynamics(tsi)
+  if (runif(1) < pos_prob){
+    dx_results[[c_assay]] <- '+'
+  } else {
+    dx_results[[c_assay]] <- '-'
+    return(dx_results)
+  }
+}
+
+```
+
