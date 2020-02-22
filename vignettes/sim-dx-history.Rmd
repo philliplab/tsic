@@ -28,51 +28,44 @@ This is a guide for simulating diagnostic test histories. It uses the window per
 * Getting a diagnostic test result if you know the time since infection.
 
 ```{r}
-assay_dynamics <- get_assay_dynamics("taqman_weib3_delaney_and_manufacturer")
-
-evaluate_dynamics <- function(x){ #x is time since infection event
-  assay_dynamics$params$x <- x
-  return(do.call(assay_dynamics$fun, assay_dynamics$params))
-}
-
-evaluate_dynamics(0:50)
-options(scipen=99)
-
-list_of_assays <- c("taqman_weib3_delaney_and_manufacturer", "architect_linear_abs_spread_delaney", 
+list_of_assays <- c("taqman_weib3_delaney_and_manufacturer", "architect_weib3_delaney", 
                     "geenius_indet_weib3_delaney", "geenius_fr_weib3_delaney")
-
-# function start
-
 tsi <- 30 # time since infection
-indx <- 1
-dx_results <- list()
 
-# check that assay list is in correct order
-for (indx in 1:(length(list_of_assays)-1)){
-  assay1 <- get_assay_dynamics(list_of_assays[indx])
-  assay2 <- get_assay_dynamics(list_of_assays[indx+1])
-  res <- which_is_faster(assay1, assay2)
-  stopifnot(assay1$short_assayname == res$faster$short_assayname)
+sim_dx_results <- function(tsi, list_of_assays){
+
+  dx_results <- list()
+  
+  # check that assay list is in correct order
+  for (indx in 1:(length(list_of_assays)-1)){
+    assay1 <- get_assay_dynamics(list_of_assays[indx])
+    assay2 <- get_assay_dynamics(list_of_assays[indx+1])
+    res <- which_is_faster(assay1, assay2)
+    if (assay1$short_assayname != res$faster$short_assayname){
+      stop('assay list must be from fastest to slowest')
+    }
+  }
+  
+  # draw result for each assay until first negative result
+  for (c_assay in list_of_assays){
+    assay_dynamics <- get_assay_dynamics(c_assay)
+  
+    evaluate_dynamics <- function(x){ #x is time since infection event
+      assay_dynamics$params$x <- x
+      return(do.call(assay_dynamics$fun, assay_dynamics$params))
+    }
+  
+    pos_prob <- evaluate_dynamics(tsi)
+    if (runif(1) < pos_prob){
+      dx_results[[c_assay]] <- '+'
+    } else {
+      dx_results[[c_assay]] <- '-'
+      return(dx_results)
+    }
+  }
+  return(dx_results)
 }
 
-# draw result for each assay until first negative result
-for (c_assay in list_of_assays){
-  assay_dynamics <- get_assay_dynamics(c_assay)
-
-  evaluate_dynamics <- function(x){ #x is time since infection event
-    assay_dynamics$params$x <- x
-    return(do.call(assay_dynamics$fun, assay_dynamics$params))
-  }
-
-  pos_prob <- evaluate_dynamics(tsi)
-  if (runif(1) < pos_prob){
-    dx_results[[c_assay]] <- '+'
-  } else {
-    dx_results[[c_assay]] <- '-'
-    return(dx_results)
-  }
-}
-print(dx_results)
-
+sim_dx_results(tsi = 30, list_of_assay = list_of_assays)
 ```
 
