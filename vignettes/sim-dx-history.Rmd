@@ -17,6 +17,7 @@ knitr::opts_chunk$set(
 ```
 
 ```{r}
+library(ggplot2)
 library(tsic)
 ```
 
@@ -26,28 +27,53 @@ IN PROGRESS
 This is a guide for simulating diagnostic test histories. It uses the window period distributions built into `tsic` to simulate histories that have the exact assumptions that `tsic` uses.
 
 * Simulating diagnostic test results if you know the time since infection.
-* Simulating the time until first positive
+* Simulating the time until first positive (TODO)
 
 ## Getting diagnostic test results if you know the time since infection.
 
-The `sim_dx_function` will produce a set of diagnostic test results given a time since infection. Note:
-
-* The function must be provided with a character vector specifying the assays to consider and that this vector must be ordered from the fastest assay to the slowest assay.
+The `sim_dx_function` will produce a set of diagnostic test results given a time since infection. Note that the function must be provided with a character vector specifying the assays to consider and that this vector must be ordered from the fastest assay to the slowest assay.
 
 ```{r}
-list_of_assays <- c("taqman_weib3_delaney_and_manufacturer", "architect_weib3_delaney", 
-                    "geenius_indet_weib3_delaney", "geenius_fr_weib3_delaney")
+list_of_assays <- c("iscav2_weib3_delaney_and_tosiano", "taqman_weib3_delaney_and_manufacturer", 
+                    "architect_weib3_delaney", "geenius_indet_weib3_delaney", 
+                    "geenius_fr_weib3_delaney")
 tsi <- 25 # time since infection
 
-print(sim_dx_results(tsi, list_of_assays))
+print(sim_dx_results(tsi, list_of_assays)) # call 1
+print(sim_dx_results(tsi, list_of_assays)) # call 2
 ```
 
-Note that for this function, successive calls are independent of each other. So it is a poor tool if you want to simulate a diagnostic test trajectory for any single participant. For example the RNA assay can be positive 4 days after infection on the first run of the function and then be negative 5 days after infection on the second run of the function. If the visits are spaced far enough apart, then such concerns are much lower, but if you want to build up a consistent history for a participant, then this is not the right tool for the job.
+Note that for this function, successive calls are independent of each other. So it is a poor tool if you want to simulate a diagnostic test trajectory for any single participant. For example the RNA assay can be positive 4 days after infection on the first run of the function and then be negative 5 days after infection on the second run of the function. If the visits are spaced far enough apart, then such concerns are much lower, but if you want to build up a consistent history for a participant, then this is not the right tool for the job. This is demonstrated in the figure below.
 
-```{r}
-for (i in 1:40){
-  # twiddle thumbs
+```{r fig.width=7, fig.height=2, echo = FALSE}
+all_results <- data.frame(tsi = 0,
+                          test = list_of_assays,
+                          result = '-',
+                          stringsAsFactors = FALSE)
+
+for (tsi in 1:60){
+  cresults <- data.frame(tsi = tsi,
+                         test = list_of_assays,
+                         result = '-',
+                         stringsAsFactors = FALSE)
+
+  dx_results <- sim_dx_results(tsi = tsi, list_of_assays = list_of_assays)
+  for (ctest in names(dx_results)){
+    cresults[cresults$test == ctest, 'result'] <- dx_results[[ctest]]
+  }
+  all_results <- rbind(all_results, cresults)
 }
-```
 
+all_results$test <- ordered(all_results$test, levels = list_of_assays)
+
+print(
+ggplot(all_results, aes(x = tsi, y = test)) +
+  geom_point(aes(label = result, col = result), size = 2)
+)
+```
+Figure: Repeated calls to `sim_dx_results` on each of the first 60 days since infection. Not the incongruence between some subsequent days driven by the independence of the subsequent calls.
+
+## Performance
+
+The current function is slow. This is probably driven by the very inefficient assay detail storage system that is used. TODO: make it faster.
 
