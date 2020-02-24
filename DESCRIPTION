@@ -16,6 +16,8 @@ Suggests:
     testthat,
     knitr,
     rmarkdown
+Depends:
+    R (>= 3.5.0)
 License: GPL-3
 https: https://github.com/philliplab/tsic
 RoxygenNote: 6.1.1

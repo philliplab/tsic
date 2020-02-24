@@ -63,211 +63,212 @@ get_assay_dynamics <- function(assay = NULL){
   # see /fridge/data/tsic/characterization for details: TODO make this a vignette
 
   # Build library of assay parameters
-  all_assays <- list()
-
-  # BASICs for UNIT TESTING
-  all_assays[[tolower('step_unit_testing')]] <- list(
-    class = 'unit testing',
-    full_assayname = 'Unit Testing',
-    short_assayname = 'Unit_Testing',
-    form = 'step',
-    source = 'made-up',
-    fun = 'step_assay_dynamics',
-    params = list(diagnostic_delay = 10)
-  )
-  all_assays[[tolower('linear_unit_testing')]] <- list(
-    class = 'unit testing',
-    full_assayname = 'Unit Testing',
-    short_assayname = 'Unit_Testing',
-    form = 'linear_abs_spread',
-    source = 'made-up',
-    fun = 'linear_assay_dynamics',
-    params = list(diagnostic_delay = 10, abs_spread = 10)
-  )
-  all_assays[[tolower('weib3_unit_testing')]] <- list(
-    class = 'unit testing',
-    full_assayname = 'Unit Testing',
-    short_assayname = 'Unit_Testing',
-    form = 'weib3',
-    source = 'aptima_in_delaney_2017',
-    fun = 'weib3_assay_dynamics',
-    params = list(location = 4.8, shape = 1.35, scale = 9)
-  )
-
-  # ARCHITECT
-  all_assays[[tolower('architect_step_delaney')]] <- list(
-    class = 'Ag/Ab',
-    full_assayname = 'Abbott Architect HIV Ag/Ab Combo',
-    short_assayname = 'Architect',
-    form = 'step',
-    source = 'delaney_2017',
-    fun = 'step_assay_dynamics',
-    params = list(diagnostic_delay = 17.9)
-  )
-  all_assays[[tolower('architect_linear_abs_spread_delaney')]] <- list(
-    class = 'Ag/Ab',
-    full_assayname = 'Abbott Architect HIV Ag/Ab Combo',
-    short_assayname = 'Architect',
-    form = 'linear_abs_spread',
-    source = 'delaney_2017',
-    fun = 'linear_assay_dynamics',
-    params = list(diagnostic_delay = 17.9, abs_spread = 2*9.5)
-  )
-  all_assays[[tolower('architect_weib3_delaney')]] <- list(
-    class = 'Ag/Ab',
-    full_assayname = 'Abbott Architect HIV Ag/Ab Combo',
-    short_assayname = 'Architect',
-    form = 'weib3',
-    source = 'delaney_2017',
-    fun = 'weib3_assay_dynamics',
-    params = list(location = 7.209, shape = 1.725, scale = 13.185)
-  )
-
-  # APTIMA
-  all_assays[[tolower('aptima_step_delaney')]] <- list(
-    class = 'RNA',
-    full_assayname = 'Aptima HIV-1 RNA Qualitative Assay',
-    short_assayname = 'Aptima RNA',
-    form = 'step',
-    source = 'delaney_2017',
-    fun = 'step_assay_dynamics',
-    params = list(diagnostic_delay = 11.679)
-  )
-  all_assays[[tolower('aptima_linear_abs_spread_delaney')]] <- list(
-    class = 'RNA',
-    full_assayname = 'Aptima HIV-1 RNA Qualitative Assay',
-    short_assayname = 'Aptima RNA',
-    form = 'linear_abs_spread',
-    source = 'delaney_2017',
-    fun = 'linear_assay_dynamics',
-    params = list(diagnostic_delay = 11.679, abs_spread = 2*7.875)
-  )
-  all_assays[[tolower('aptima_weib3_delaney')]] <- list(
-    class = 'RNA',
-    full_assayname = 'Aptima HIV-1 RNA Qualitative Assay',
-    short_assayname = 'Aptima RNA',
-    form = 'weib3',
-    source = 'delaney_2017',
-    fun = 'weib3_assay_dynamics',
-    params = list(location = 4.8, shape = 1.35, scale = 9)
-  )
-
-  # Abbott real time
-  all_assays[[tolower('abbott_real_time_weib3_delaney_and_manufacturer')]] <- list(
-    class = 'RNA',
-    full_assayname = 'Abbott Real Time HIV01 v1.0 m2000sp/m2000rt',
-    short_assayname = 'Abbott Real Time',
-    form = 'weib3',
-    source = "manufacturer's details and delaney_2017",
-    fun = 'weib3_assay_dynamics',
-    params = list(location = 5.1252, shape = 1.350, scale = 9.660)
-  )
-
-  # Taqman
-  all_assays[[tolower('taqman_weib3_delaney_and_manufacturer')]] <- list(
-    class = 'RNA',
-    full_assayname = 'Roche Taqman v2.0',
-    short_assayname = 'Taqman',
-    form = 'weib3',
-    source = "manufacturer's details and delaney_2017",
-    fun = 'weib3_assay_dynamics',
-    params = list(location = 4.995, shape = 1.350, scale = 9.365)
-  )
-
-  # iSCAv2 (Mellor's low copy)
-  all_assays[[tolower('iSCAv2_weib3_delaney_and_tosiano')]] <- list(
-    class = 'RNA',
-    full_assayname = 'iSCA v2.0',
-    short_assayname = 'iSCAv2',
-    form = 'weib3',
-    source = "tosiano_2019 and delaney_2017",
-    fun = 'weib3_assay_dynamics',
-    params = list(location = 3.606, shape = 1.350, scale = 6.762)
-  )
-
-  # Geenius Fully Reactive
-  all_assays[[tolower('geenius_fr_step_delaney')]] <- list(
-    class = 'IgG_Supp',
-    full_assayname = 'BioRad Geenius Fully Reactive',
-    short_assayname = 'Geenius_FR',
-    form = 'step',
-    source = 'delaney_2017',
-    fun = 'step_assay_dynamics',
-    params = list(diagnostic_delay = 32.9)
-  )
-  all_assays[[tolower('geenius_fr_linear_abs_spread_delaney')]] <- list(
-    class = 'IgG_Supp',
-    full_assayname = 'BioRad Geenius Fully Reactive',
-    short_assayname = 'Geenius_FR',
-    form = 'linear_abs_spread',
-    source = 'delaney_2017',
-    fun = 'linear_assay_dynamics',
-    params = list(diagnostic_delay = 32.9, abs_spread = 2*10.4)
-  )
-  all_assays[[tolower('geenius_fr_weib3_delaney')]] <- list(
-    class = 'IgG_Supp',
-    full_assayname = 'BioRad Geenius Fully Reactive',
-    short_assayname = 'Geenius_FR',
-    form = 'weib3',
-    source = 'delaney_2017',
-    fun = 'weib3_assay_dynamics',
-    params = list(location = 21.151, shape = 1.733, scale = 14.483)
-  )
-
-  # Geenius indeterminate
-  all_assays[[tolower('geenius_indet_weib3_delaney')]] <- list(
-    class = 'IgG_Rapid',
-    full_assayname = 'BioRad Geenius Indeterminate',
-    short_assayname = 'Geenius_Indet',
-    form = 'weib3',
-    source = 'delaney_2017_relationship_to_multispot',
-    fun = 'weib3_assay_dynamics',
-    params = list(location = 16.556, shape = 1.773, scale = 12.9)
-  )
-
-  # GS COMBO
-  all_assays[[tolower('gs_combo_weib3_delaney')]] <- list(
-    class = 'Ag/Ab',
-    full_assayname = 'BioRad GS HIV Combo Ag/Ab EIA',
-    short_assayname = 'GS_Combo',
-    form = 'weib3',
-    source = 'delaney_2017',
-    fun = 'weib3_assay_dynamics',
-    params = list(location = 9.9675, shape = 0.7206, scale = 7.6388)
-  )
-
-  # Determine
-  all_assays[[tolower('determine_weib3_delaney')]] <- list(
-    class = 'Ag/Ab_Rapid',
-    full_assayname = 'Determine HIV-1/2 Ag/Ab Combo',
-    short_assayname = 'Determine',
-    form = 'weib3',
-    source = 'delaney_2017',
-    fun = 'weib3_assay_dynamics',
-    params = list(location = 8.431, shape = 1.686, scale = 13.352)
-  )
-
-  # Oraquick
-  all_assays[[tolower('oraquick_weib3_delaney')]] <- list(
-    class = 'IgG_Rapid',
-    full_assayname = 'Oraquick ADVANCE Rapid HIV-1/2 Antibody Assay',
-    short_assayname = 'Oraquick',
-    form = 'weib3',
-    source = 'delaney_2017',
-    fun = 'weib3_assay_dynamics',
-    params = list(location = 18.328, shape = 1.977, scale = 20.419)
-  )
-
-  # GS HIV-1/HIV-2 PLUS O EIA
-  all_assays[[tolower('gs_eia_weib3_delaney')]] <- list(
-    class = 'IgG/IgM_Lab',
-    full_assayname = 'GS HIV-1/HIV-2 PLUS O EIA',
-    short_assayname = 'GS PLUS O EIA',
-    form = 'weib3',
-    source = 'delaney_2017',
-    fun = 'weib3_assay_dynamics',
-    params = list(location = 13.961, shape = 1.722, scale = 13.278)
-  )
+  all_assays <- tsic::all_assay_dynamics
+#  all_assays <- list()
+#
+#  # BASICs for UNIT TESTING
+#  all_assays[[tolower('step_unit_testing')]] <- list(
+#    class = 'unit testing',
+#    full_assayname = 'Unit Testing',
+#    short_assayname = 'Unit_Testing',
+#    form = 'step',
+#    source = 'made-up',
+#    fun = 'step_assay_dynamics',
+#    params = list(diagnostic_delay = 10)
+#  )
+#  all_assays[[tolower('linear_unit_testing')]] <- list(
+#    class = 'unit testing',
+#    full_assayname = 'Unit Testing',
+#    short_assayname = 'Unit_Testing',
+#    form = 'linear_abs_spread',
+#    source = 'made-up',
+#    fun = 'linear_assay_dynamics',
+#    params = list(diagnostic_delay = 10, abs_spread = 10)
+#  )
+#  all_assays[[tolower('weib3_unit_testing')]] <- list(
+#    class = 'unit testing',
+#    full_assayname = 'Unit Testing',
+#    short_assayname = 'Unit_Testing',
+#    form = 'weib3',
+#    source = 'aptima_in_delaney_2017',
+#    fun = 'weib3_assay_dynamics',
+#    params = list(location = 4.8, shape = 1.35, scale = 9)
+#  )
+#
+#  # ARCHITECT
+#  all_assays[[tolower('architect_step_delaney')]] <- list(
+#    class = 'Ag/Ab',
+#    full_assayname = 'Abbott Architect HIV Ag/Ab Combo',
+#    short_assayname = 'Architect',
+#    form = 'step',
+#    source = 'delaney_2017',
+#    fun = 'step_assay_dynamics',
+#    params = list(diagnostic_delay = 17.9)
+#  )
+#  all_assays[[tolower('architect_linear_abs_spread_delaney')]] <- list(
+#    class = 'Ag/Ab',
+#    full_assayname = 'Abbott Architect HIV Ag/Ab Combo',
+#    short_assayname = 'Architect',
+#    form = 'linear_abs_spread',
+#    source = 'delaney_2017',
+#    fun = 'linear_assay_dynamics',
+#    params = list(diagnostic_delay = 17.9, abs_spread = 2*9.5)
+#  )
+#  all_assays[[tolower('architect_weib3_delaney')]] <- list(
+#    class = 'Ag/Ab',
+#    full_assayname = 'Abbott Architect HIV Ag/Ab Combo',
+#    short_assayname = 'Architect',
+#    form = 'weib3',
+#    source = 'delaney_2017',
+#    fun = 'weib3_assay_dynamics',
+#    params = list(location = 7.209, shape = 1.725, scale = 13.185)
+#  )
+#
+#  # APTIMA
+#  all_assays[[tolower('aptima_step_delaney')]] <- list(
+#    class = 'RNA',
+#    full_assayname = 'Aptima HIV-1 RNA Qualitative Assay',
+#    short_assayname = 'Aptima RNA',
+#    form = 'step',
+#    source = 'delaney_2017',
+#    fun = 'step_assay_dynamics',
+#    params = list(diagnostic_delay = 11.679)
+#  )
+#  all_assays[[tolower('aptima_linear_abs_spread_delaney')]] <- list(
+#    class = 'RNA',
+#    full_assayname = 'Aptima HIV-1 RNA Qualitative Assay',
+#    short_assayname = 'Aptima RNA',
+#    form = 'linear_abs_spread',
+#    source = 'delaney_2017',
+#    fun = 'linear_assay_dynamics',
+#    params = list(diagnostic_delay = 11.679, abs_spread = 2*7.875)
+#  )
+#  all_assays[[tolower('aptima_weib3_delaney')]] <- list(
+#    class = 'RNA',
+#    full_assayname = 'Aptima HIV-1 RNA Qualitative Assay',
+#    short_assayname = 'Aptima RNA',
+#    form = 'weib3',
+#    source = 'delaney_2017',
+#    fun = 'weib3_assay_dynamics',
+#    params = list(location = 4.8, shape = 1.35, scale = 9)
+#  )
+#
+#  # Abbott real time
+#  all_assays[[tolower('abbott_real_time_weib3_delaney_and_manufacturer')]] <- list(
+#    class = 'RNA',
+#    full_assayname = 'Abbott Real Time HIV01 v1.0 m2000sp/m2000rt',
+#    short_assayname = 'Abbott Real Time',
+#    form = 'weib3',
+#    source = "manufacturer's details and delaney_2017",
+#    fun = 'weib3_assay_dynamics',
+#    params = list(location = 5.1252, shape = 1.350, scale = 9.660)
+#  )
+#
+#  # Taqman
+#  all_assays[[tolower('taqman_weib3_delaney_and_manufacturer')]] <- list(
+#    class = 'RNA',
+#    full_assayname = 'Roche Taqman v2.0',
+#    short_assayname = 'Taqman',
+#    form = 'weib3',
+#    source = "manufacturer's details and delaney_2017",
+#    fun = 'weib3_assay_dynamics',
+#    params = list(location = 4.995, shape = 1.350, scale = 9.365)
+#  )
+#
+#  # iSCAv2 (Mellor's low copy)
+#  all_assays[[tolower('iSCAv2_weib3_delaney_and_tosiano')]] <- list(
+#    class = 'RNA',
+#    full_assayname = 'iSCA v2.0',
+#    short_assayname = 'iSCAv2',
+#    form = 'weib3',
+#    source = "tosiano_2019 and delaney_2017",
+#    fun = 'weib3_assay_dynamics',
+#    params = list(location = 3.606, shape = 1.350, scale = 6.762)
+#  )
+#
+#  # Geenius Fully Reactive
+#  all_assays[[tolower('geenius_fr_step_delaney')]] <- list(
+#    class = 'IgG_Supp',
+#    full_assayname = 'BioRad Geenius Fully Reactive',
+#    short_assayname = 'Geenius_FR',
+#    form = 'step',
+#    source = 'delaney_2017',
+#    fun = 'step_assay_dynamics',
+#    params = list(diagnostic_delay = 32.9)
+#  )
+#  all_assays[[tolower('geenius_fr_linear_abs_spread_delaney')]] <- list(
+#    class = 'IgG_Supp',
+#    full_assayname = 'BioRad Geenius Fully Reactive',
+#    short_assayname = 'Geenius_FR',
+#    form = 'linear_abs_spread',
+#    source = 'delaney_2017',
+#    fun = 'linear_assay_dynamics',
+#    params = list(diagnostic_delay = 32.9, abs_spread = 2*10.4)
+#  )
+#  all_assays[[tolower('geenius_fr_weib3_delaney')]] <- list(
+#    class = 'IgG_Supp',
+#    full_assayname = 'BioRad Geenius Fully Reactive',
+#    short_assayname = 'Geenius_FR',
+#    form = 'weib3',
+#    source = 'delaney_2017',
+#    fun = 'weib3_assay_dynamics',
+#    params = list(location = 21.151, shape = 1.733, scale = 14.483)
+#  )
+#
+#  # Geenius indeterminate
+#  all_assays[[tolower('geenius_indet_weib3_delaney')]] <- list(
+#    class = 'IgG_Rapid',
+#    full_assayname = 'BioRad Geenius Indeterminate',
+#    short_assayname = 'Geenius_Indet',
+#    form = 'weib3',
+#    source = 'delaney_2017_relationship_to_multispot',
+#    fun = 'weib3_assay_dynamics',
+#    params = list(location = 16.556, shape = 1.773, scale = 12.9)
+#  )
+#
+#  # GS COMBO
+#  all_assays[[tolower('gs_combo_weib3_delaney')]] <- list(
+#    class = 'Ag/Ab',
+#    full_assayname = 'BioRad GS HIV Combo Ag/Ab EIA',
+#    short_assayname = 'GS_Combo',
+#    form = 'weib3',
+#    source = 'delaney_2017',
+#    fun = 'weib3_assay_dynamics',
+#    params = list(location = 9.9675, shape = 0.7206, scale = 7.6388)
+#  )
+#
+#  # Determine
+#  all_assays[[tolower('determine_weib3_delaney')]] <- list(
+#    class = 'Ag/Ab_Rapid',
+#    full_assayname = 'Determine HIV-1/2 Ag/Ab Combo',
+#    short_assayname = 'Determine',
+#    form = 'weib3',
+#    source = 'delaney_2017',
+#    fun = 'weib3_assay_dynamics',
+#    params = list(location = 8.431, shape = 1.686, scale = 13.352)
+#  )
+#
+#  # Oraquick
+#  all_assays[[tolower('oraquick_weib3_delaney')]] <- list(
+#    class = 'IgG_Rapid',
+#    full_assayname = 'Oraquick ADVANCE Rapid HIV-1/2 Antibody Assay',
+#    short_assayname = 'Oraquick',
+#    form = 'weib3',
+#    source = 'delaney_2017',
+#    fun = 'weib3_assay_dynamics',
+#    params = list(location = 18.328, shape = 1.977, scale = 20.419)
+#  )
+#
+#  # GS HIV-1/HIV-2 PLUS O EIA
+#  all_assays[[tolower('gs_eia_weib3_delaney')]] <- list(
+#    class = 'IgG/IgM_Lab',
+#    full_assayname = 'GS HIV-1/HIV-2 PLUS O EIA',
+#    short_assayname = 'GS PLUS O EIA',
+#    form = 'weib3',
+#    source = 'delaney_2017',
+#    fun = 'weib3_assay_dynamics',
+#    params = list(location = 13.961, shape = 1.722, scale = 13.278)
+#  )
 
   # lookup
   if (is.null(assay)){
