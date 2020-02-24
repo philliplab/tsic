@@ -55,7 +55,7 @@ weib3_assay_dynamics <- function(x, location, scale, shape){
 #'
 #' Constructs the assay dynamics list with suitable parameter set given the name of an assay
 #'
-#' @param assay The name of the assay whose dynamics are required. If NULL (default), list of available assays will be returned.
+#' @param assay The name of the assay whose dynamics are required. If NULL (default), list of available assays will be returned. If 'all' a list of all assay dynamics will be returned.
 #' @export
 
 get_assay_dynamics <- function(assay = NULL){
