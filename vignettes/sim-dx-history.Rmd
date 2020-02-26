@@ -21,7 +21,6 @@ library(ggplot2)
 library(tsic)
 ```
 
-
 IN PROGRESS
 
 This is a guide for simulating diagnostic test histories. It uses the window period distributions built into `tsic` to simulate histories that have the exact assumptions that `tsic` uses.
@@ -31,7 +30,7 @@ This is a guide for simulating diagnostic test histories. It uses the window per
 
 ## Getting diagnostic test results if you know the time since infection.
 
-The `sim_dx_function` will produce a set of diagnostic test results given a time since infection. Note that the function must be provided with a character vector specifying the assays to consider and that this vector must be ordered from the fastest assay to the slowest assay.
+The `sim_dx_results` will produce a set of diagnostic test results given a time since infection. Note that the function must be provided with a character vector specifying the assays to consider and that this vector must be ordered from the fastest assay to the slowest assay.
 
 ```{r}
 list_of_assays <- c("iscav2_weib3_delaney_and_tosiano", "taqman_weib3_delaney_and_manufacturer", 
@@ -71,6 +70,32 @@ ggplot(all_results, aes(x = tsi, y = test)) +
   geom_point(aes(label = result, col = result), size = 2)
 )
 ```
+
+```{r echo = FALSE, eval=FALSE, include=FALSE}
+library(lineprof)
+lineprof({
+all_results <- data.frame(tsi = 0,
+                          test = list_of_assays,
+                          result = '-',
+                          stringsAsFactors = FALSE)
+
+for (tsi in 1:60){
+  cresults <- data.frame(tsi = tsi,
+                         test = list_of_assays,
+                         result = '-',
+                         stringsAsFactors = FALSE)
+
+  dx_results <- sim_dx_results(tsi = tsi, list_of_assays = list_of_assays)
+  for (ctest in names(dx_results)){
+    cresults[cresults$test == ctest, 'result'] <- dx_results[[ctest]]
+  }
+  all_results <- rbind(all_results, cresults)
+}
+})
+```
+
+
+
 Figure: Repeated calls to `sim_dx_results` on each of the first 60 days since infection. Not the incongruence between some subsequent days driven by the independence of the subsequent calls.
 
 ## Performance
