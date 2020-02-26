@@ -4,12 +4,14 @@
 \alias{sim_dx_results}
 \title{Simulates a visit's diagnostic results}
 \usage{
-sim_dx_results(tsi, list_of_assays)
+sim_dx_results(tsi, list_of_assays, skip_order_check = TRUE)
 }
 \arguments{
 \item{tsi}{The time since infection in days. tsi = 0 is the day of infection.}
 
 \item{list_of_assays}{ORDERED list of assays for which test results should be produced. They must be ordered with the fastest assay first (fastest = assay with the shortest window period)}
+
+\item{skip_order_check}{When set to TRUE (the default), it is assumed that the order of the list_of_assays is correct. It is EXTREMELY important that this order is correct. This option defaults to TRUE since this step is very slow, so run it the first time only to check that your list is ordered correctly (by setting skip_order_check = FALSE).}
 }
 \description{
 Given the time since infection, this function will draw from the window period distributions of the specified assays to obtain a set of diagnostic test result.

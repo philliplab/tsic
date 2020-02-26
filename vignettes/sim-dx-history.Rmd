@@ -25,17 +25,33 @@ IN PROGRESS
 
 This is a guide for simulating diagnostic test histories. It uses the window period distributions built into `tsic` to simulate histories that have the exact assumptions that `tsic` uses.
 
+* Producing an ordered list of diagnostic tests.
 * Simulating diagnostic test results if you know the time since infection.
 * Simulating the time until first positive (TODO)
+
+## Producing an ordered list of diagnostic tests.
+
+It is extremely important that the simulation function be provided with a list of assays that is ordered by the duration of the window period of the assays from shortest to longest. If this list is not ordered correctly, the simulation WILL produce incorrect results.
+
+The `sim_dx_results` function includes the option to check the list order. It is controlled via the `skip_order_check` argument. By default it is skipped since it is very slow. It is HIGHLY recommended that you set this argument to FALSE and check your assay order before you start your simulations.
+
+```{r}
+list_of_assays <- c("iscav2_weib3_delaney_and_tosiano", "taqman_weib3_delaney_and_manufacturer", 
+                    "architect_weib3_delaney", "geenius_indet_weib3_delaney", 
+                    "geenius_fr_weib3_delaney")
+
+result <- try(
+  sim_dx_results(10, c(list_of_assays[5], list_of_assays[1:4]), skip_order_check = FALSE)
+)
+
+sim_dx_results(10, list_of_assays, skip_order_check = FALSE)
+```
 
 ## Getting diagnostic test results if you know the time since infection.
 
 The `sim_dx_results` will produce a set of diagnostic test results given a time since infection. Note that the function must be provided with a character vector specifying the assays to consider and that this vector must be ordered from the fastest assay to the slowest assay.
 
 ```{r}
-list_of_assays <- c("iscav2_weib3_delaney_and_tosiano", "taqman_weib3_delaney_and_manufacturer", 
-                    "architect_weib3_delaney", "geenius_indet_weib3_delaney", 
-                    "geenius_fr_weib3_delaney")
 tsi <- 25 # time since infection
 
 print(sim_dx_results(tsi, list_of_assays)) # call 1
@@ -67,38 +83,9 @@ all_results$test <- ordered(all_results$test, levels = list_of_assays)
 
 print(
 ggplot(all_results, aes(x = tsi, y = test)) +
-  geom_point(aes(label = result, col = result), size = 2)
+  geom_point(aes(col = result), size = 2)
 )
 ```
 
-```{r echo = FALSE, eval=FALSE, include=FALSE}
-library(lineprof)
-lineprof({
-all_results <- data.frame(tsi = 0,
-                          test = list_of_assays,
-                          result = '-',
-                          stringsAsFactors = FALSE)
-
-for (tsi in 1:60){
-  cresults <- data.frame(tsi = tsi,
-                         test = list_of_assays,
-                         result = '-',
-                         stringsAsFactors = FALSE)
-
-  dx_results <- sim_dx_results(tsi = tsi, list_of_assays = list_of_assays)
-  for (ctest in names(dx_results)){
-    cresults[cresults$test == ctest, 'result'] <- dx_results[[ctest]]
-  }
-  all_results <- rbind(all_results, cresults)
-}
-})
-```
-
-
-
 Figure: Repeated calls to `sim_dx_results` on each of the first 60 days since infection. Not the incongruence between some subsequent days driven by the independence of the subsequent calls.
-
-## Performance
-
-The current function is slow. This is probably driven by the very inefficient assay detail storage system that is used. TODO: make it faster.
 
