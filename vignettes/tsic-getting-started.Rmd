@@ -56,11 +56,12 @@ Note: `sample_date` is expressed as a `numeric`. (The number of days since 1970-
 
 Note: It will almost always make sense to add 0.5 to the sample date, since it is more likely that the visit occurred at noon than at midnight.
 
-Note: The test names must match those available from the `get_assay_dynamics()` function. Listed below:
+Note: The test names must match those available from the `get_assay_dynamics()` function. (New: These are now stored in the `all_assay_dynamics` list distributed with `tsic`).
 
 ```{r}
 # running this will print the available assays
-get_assay_dynamics()
+# get_assay_dynamics()
+names(all_assay_dynamics)
 ```
 
 ### Estimate the time of infection
@@ -101,7 +102,6 @@ format_lb_med_ub <- function(lb_med_ub){
   return(outp)
 }
 ```
-
 
 ```{r results = 'asis'}
 range_start <- min(ihist$sample_date) - 100
