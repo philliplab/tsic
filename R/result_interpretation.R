@@ -284,7 +284,6 @@ remove_strongly_dependent_results <- function(ihist, more_sensitive_test, less_s
   return(ihist[, ihist_names])
 }
      
-
 #' Given two assays, returns which is faster
 #'
 #' A crude function that computes the areas between the curves. If the area bounded on the top by assay1 is larger than the area bounded on the top by assay2, then assay1 is said to be the faster assay.
@@ -328,6 +327,39 @@ which_is_faster <- function(assay1, assay2, comp_range = (8000:10005)/10){
   }
 }
 
+#' Check that assays are ordered by window period
+#'
+#' Given a list (format: character vector of names) of assays, compare pairs of sequential assays using which_is_faster to ensure that they are ordered correctly. If the order is correct, then TRUE will be returned. If not, then FALSE will be returned and a warning will be raised if verbose = TRUE.
+#'
+#' @param list_of_assays A character vector specifying the names of the assays. The order of this list will be checked.
+#' @param short_window_period_first If True, check that the vector is ordered from the assay with the shortest window period to the assay with the longest window period.
+#' @param verbose If the order is incorrect, a warning will be raised specifying each sequential pair that is incorrectly ordered. 
+#' @export
+
+check_assay_order <- function(list_of_assays, short_window_period_first = TRUE, verbose = TRUE){
+  ordered_comp <- function(x, y){
+    if (short_window_period_first){
+      return(x == y)
+    } else {
+      return(x != y)
+    }
+  }
+
+  all_good <- TRUE
+  for (indx in 1:(length(list_of_assays)-1)){
+    assay1 <- all_assay_dynamics[[list_of_assays[indx]]]
+    assay2 <- all_assay_dynamics[[list_of_assays[indx+1]]]
+
+    res <- which_is_faster(assay1, assay2)
+    if (ordered_comp(assay1$short_assayname, res$faster$short_assayname)){
+      if (verbose){
+        warning(paste0(assay1$short_assayname, ' and ', assay2$short_assayname, ' ordered incorrectly'))
+      }
+      all_good <- FALSE
+    }
+  }
+  return(all_good)
+}
 
 #' Selects most informative test results only
 #'
