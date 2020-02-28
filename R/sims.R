@@ -57,7 +57,6 @@ sim_sc_times <- function(list_of_assays, skip_order_check = TRUE){
                         "geenius_fr_weib3_delaney")
     skip_order_check = TRUE
   }
-  sc_times <- list()
   # check that assay list is in correct order
   if (!skip_order_check){
     order_ok <- check_assay_order(list_of_assays, verbose = FALSE)
@@ -65,6 +64,8 @@ sim_sc_times <- function(list_of_assays, skip_order_check = TRUE){
   }
 
   # draw result for each assay
+  sc_times <- list()
+  min_sc <- 0
   for (c_assay in list_of_assays){
     assay_dynamics <- all_assay_dynamics[[c_assay]]
   
@@ -73,14 +74,14 @@ sim_sc_times <- function(list_of_assays, skip_order_check = TRUE){
       return(do.call(assay_dynamics$fun, assay_dynamics$params))
     }
 
-    min_sc <- 0
     sc <- -1
     counter <- 0
+    r_unif_lb <- 0
 
     while (sc < min_sc){ # enforce expected assay seroconversion time order
       counter <- counter + 1
       stopifnot(counter < 100)
-      u <- runif(1)
+      u <- runif(1, min = r_unif_lb) #use r_unif_lb to reduce number of iterations before valid sc pattern.
       if (evaluate_dynamics(150) < u){
         warning('Simulated seroconversion date more than 150 days after infection date - this is not supported - returning 150. Proceed with caution')
         sc <- 150
@@ -89,10 +90,11 @@ sim_sc_times <- function(list_of_assays, skip_order_check = TRUE){
                        interval = c(0, 150),
                        tol = 2.220446e-16)
         sc <- sc$minimum
-        min_sc <- sc
         stopifnot(abs(evaluate_dynamics(sc) - u) < 0.02)
       }
+      r_unif_lb <- u
     }
+    min_sc <- sc
   
     sc_times[[c_assay]] <- sc
   }
