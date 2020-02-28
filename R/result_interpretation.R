@@ -374,7 +374,7 @@ select_most_informative_results <- function(ihist, fastest_to_slowest_tests = NU
     devtools::load_all()
     fastest_to_slowest_tests <- NULL
     for (i in 1:(length(fastest_to_slowest_tests)-1)){
-      res <- which_is_faster(get_assay_dynamics(fastest_to_slowest_tests[i]), get_assay_dynamics(fastest_to_slowest_tests[i+1]))
+      res <- which_is_faster(all_assay_dynamics[[fastest_to_slowest_tests[i]]], all_assay_dynamics[[fastest_to_slowest_tests[i+1]]])
       print(c("IN", fastest_to_slowest_tests[i], fastest_to_slowest_tests[i+1]))
       print(c("OUT", res$faster$full_assayname, res$slower$full_assayname))
     }

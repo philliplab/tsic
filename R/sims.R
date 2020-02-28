@@ -17,25 +17,13 @@ sim_dx_results <- function(tsi, list_of_assays, skip_order_check = TRUE){
   
   # check that assay list is in correct order
   if (!skip_order_check){
-#    for (indx in 1:(length(list_of_assays)-1)){
-#
-##      assay1 <- all_assay_dynamics[[list_of_assays[indx]]]
-##      assay2 <- all_assay_dynamics[[list_of_assays[indx+1]]]
-#
-#      assay1 <- get_assay_dynamics(list_of_assays[indx])
-#      assay2 <- get_assay_dynamics(list_of_assays[indx+1])
-#      res <- which_is_faster(assay1, assay2)
-#      if (assay1$short_assayname != res$faster$short_assayname){
-#        stop('assay list must be from fastest to slowest')
-#      }
-#    }
     order_ok <- check_assay_order(list_of_assays, verbose = FALSE)
     stopifnot(order_ok)
   }
   
   # draw result for each assay until first negative result
   for (c_assay in list_of_assays){
-    assay_dynamics <- get_assay_dynamics(c_assay)
+    assay_dynamics <- all_assay_dynamics[[c_assay]]
   
     evaluate_dynamics <- function(x){ #x is time since infection event
       assay_dynamics$params$x <- x
@@ -62,7 +50,11 @@ sim_dx_results <- function(tsi, list_of_assays, skip_order_check = TRUE){
 #' @export
 
 sim_sc_times <- function(list_of_assays, skip_order_check = TRUE){
-
+  # check that assay list is in correct order
+  if (!skip_order_check){
+    order_ok <- check_assay_order(list_of_assays, verbose = FALSE)
+    stopifnot(order_ok)
+  }
 }
 
 
