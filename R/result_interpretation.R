@@ -221,7 +221,7 @@ construct_aggregate_interpreter <- function(ihist){
   stopifnot(nrow(ihist) >= 1)
   assay_interpreters <- list()
   for (i in 1:nrow(ihist)){
-    c_dynamics <- get_assay_dynamics(assay = ihist$test[i])
+    c_dynamics <- all_assay_dynamics[[assay = ihist$test[i]]]
     c_interpreter <- construct_assay_result_interpreter(assay_dynamics = c_dynamics, 
                                                         result = ihist$result[i], 
                                                         sample_date = ihist$sample_date[i] )
@@ -472,7 +472,7 @@ interpret_ihist <- function(ihist, range_start, range_end, verbose = FALSE){
     if (verbose){
       cat(paste0(ihist[i, 'test'], '_', ihist[i, 'sample_date'], '_', ihist[i, 'result'], ': Setting up'))
     }
-    assay_dynamics <- get_assay_dynamics(ihist[i, 'test'])
+    assay_dynamics <- all_assay_dynamics[[ihist[i, 'test']]]
     assay_interpreter <-
       construct_assay_result_interpreter(assay_dynamics = assay_dynamics,
                                          result = ihist[i, 'result'],
