@@ -484,6 +484,21 @@ test_that('which_is_faster works', {
                         slower = "taqman_weib3_delaney_and_manufacturer")
 })
 
+test_that('check_assay_order works', {
+  list_of_assays <- c("iscav2_weib3_delaney_and_tosiano", "taqman_weib3_delaney_and_manufacturer",
+                      "architect_weib3_delaney", "geenius_indet_weib3_delaney",
+                      "geenius_fr_weib3_delaney")
+  expect_true(check_assay_order(list_of_assays))
+  expect_false(check_assay_order(c(list_of_assays[5], list_of_assays[1:4]), verbose = FALSE))
+  expect_warning(check_assay_order(c(list_of_assays[5], list_of_assays[1:4]), verbose = TRUE))
+  expect_false(check_assay_order(rev(list_of_assays), verbose = FALSE))
+
+  expect_true(check_assay_order(rev(list_of_assays), short_window_period_first = FALSE))
+  expect_false(check_assay_order(c(list_of_assays[5], list_of_assays[1:4]), short_window_period_first = FALSE, verbose = FALSE))
+  expect_warning(check_assay_order(c(list_of_assays[5], list_of_assays[1:4]), short_window_period_first = FALSE, verbose = TRUE))
+  expect_false(check_assay_order(list_of_assays, short_window_period_first = FALSE, verbose = FALSE))
+})
+
 if (FALSE) {
   devtools::load_all()
 }

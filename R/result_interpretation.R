@@ -339,9 +339,9 @@ which_is_faster <- function(assay1, assay2, comp_range = (8000:10005)/10){
 check_assay_order <- function(list_of_assays, short_window_period_first = TRUE, verbose = TRUE){
   ordered_comp <- function(x, y){
     if (short_window_period_first){
-      return(x == y)
-    } else {
       return(x != y)
+    } else {
+      return(x == y)
     }
   }
 
