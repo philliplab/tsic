@@ -17,18 +17,20 @@ sim_dx_results <- function(tsi, list_of_assays, skip_order_check = TRUE){
   
   # check that assay list is in correct order
   if (!skip_order_check){
-    for (indx in 1:(length(list_of_assays)-1)){
-
-#      assay1 <- all_assay_dynamics[[list_of_assays[indx]]]
-#      assay2 <- all_assay_dynamics[[list_of_assays[indx+1]]]
-
-      assay1 <- get_assay_dynamics(list_of_assays[indx])
-      assay2 <- get_assay_dynamics(list_of_assays[indx+1])
-      res <- which_is_faster(assay1, assay2)
-      if (assay1$short_assayname != res$faster$short_assayname){
-        stop('assay list must be from fastest to slowest')
-      }
-    }
+#    for (indx in 1:(length(list_of_assays)-1)){
+#
+##      assay1 <- all_assay_dynamics[[list_of_assays[indx]]]
+##      assay2 <- all_assay_dynamics[[list_of_assays[indx+1]]]
+#
+#      assay1 <- get_assay_dynamics(list_of_assays[indx])
+#      assay2 <- get_assay_dynamics(list_of_assays[indx+1])
+#      res <- which_is_faster(assay1, assay2)
+#      if (assay1$short_assayname != res$faster$short_assayname){
+#        stop('assay list must be from fastest to slowest')
+#      }
+#    }
+    order_ok <- check_assay_order(list_of_assays, verbose = FALSE)
+    stopifnot(order_ok)
   }
   
   # draw result for each assay until first negative result
