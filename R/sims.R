@@ -50,11 +50,53 @@ sim_dx_results <- function(tsi, list_of_assays, skip_order_check = TRUE){
 #' @export
 
 sim_sc_times <- function(list_of_assays, skip_order_check = TRUE){
+  if (FALSE){ # DEBUGGING notes
+    assay_dynamics <- all_assay_dynamics[['geenius_fr_weib3_delaney']]
+    list_of_assays <- c("iscav2_weib3_delaney_and_tosiano", "taqman_weib3_delaney_and_manufacturer", 
+                        "architect_weib3_delaney", "geenius_indet_weib3_delaney", 
+                        "geenius_fr_weib3_delaney")
+    skip_order_check = TRUE
+  }
+  sc_times <- list()
   # check that assay list is in correct order
   if (!skip_order_check){
     order_ok <- check_assay_order(list_of_assays, verbose = FALSE)
     stopifnot(order_ok)
   }
+
+  # draw result for each assay
+  for (c_assay in list_of_assays){
+    assay_dynamics <- all_assay_dynamics[[c_assay]]
+  
+    evaluate_dynamics <- function(x){ #x is time since infection event
+      assay_dynamics$params$x <- x
+      return(do.call(assay_dynamics$fun, assay_dynamics$params))
+    }
+
+    min_sc <- 0
+    sc <- -1
+    counter <- 0
+
+    while (sc < min_sc){ # enforce expected assay seroconversion time order
+      counter <- counter + 1
+      stopifnot(counter < 100)
+      u <- runif(1)
+      if (evaluate_dynamics(150) < u){
+        warning('Simulated seroconversion date more than 150 days after infection date - this is not supported - returning 150. Proceed with caution')
+        sc <- 150
+      } else {
+        sc <- optimize(f = function(y){(evaluate_dynamics(y) - u)^2},
+                       interval = c(0, 150),
+                       tol = 2.220446e-16)
+        sc <- sc$minimum
+        min_sc <- sc
+        stopifnot(abs(evaluate_dynamics(sc) - u) < 0.02)
+      }
+    }
+  
+    sc_times[[c_assay]] <- sc
+  }
+  return(sc_times)
 }
 
 
