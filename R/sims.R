@@ -4,6 +4,8 @@
 #'
 #' The first negative test result will stop the procedure since then it is known that all other assays will also produce negative results.
 #'
+#' A key shortcoming of this function is that successive calls are independent. Thus if you want to construct a diagnostic history this function is inappropriate. See the sim-dx-history vignette.
+#'
 #' @param tsi The time since infection in days. tsi = 0 is the day of infection.
 #' @param list_of_assays ORDERED list of assays for which test results should be produced. They must be ordered with the fastest assay first (fastest = assay with the shortest window period)
 #' @param skip_order_check When set to TRUE (the default), it is assumed that the order of the list_of_assays is correct. It is EXTREMELY important that this order is correct. This option defaults to TRUE since this step is very slow, so run it the first time only to check that your list is ordered correctly (by setting skip_order_check = FALSE).
@@ -48,5 +50,57 @@ sim_dx_results <- function(tsi, list_of_assays, skip_order_check = TRUE){
   }
   return(dx_results)
 }
+
+#' Simulate time to seroconversion
+#'
+#' Given a list of assays (ordered according to window period - from short to long) assume that the infecting exposure occurred at time zero and simulate at what time each assay will start to produce positive results. This output can then be combined with a visit schedule to simulate test results for a diagnostic history.
+#'
+#' @param list_of_assays ORDERED list of assays for which test results should be produced. They must be ordered with the fastest assay first (fastest = assay with the shortest window period)
+#' @param skip_order_check When set to TRUE (the default), it is assumed that the order of the list_of_assays is correct. It is EXTREMELY important that this order is correct. This option defaults to TRUE since this step is very slow, so run it the first time only to check that your list is ordered correctly (by setting skip_order_check = FALSE).
+#' @export
+
+sim_sc_times <- function(list_of_assays, skip_order_check = TRUE){
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

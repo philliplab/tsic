@@ -18,4 +18,6 @@ Given the time since infection, this function will draw from the window period d
 }
 \details{
 The first negative test result will stop the procedure since then it is known that all other assays will also produce negative results.
+
+A key shortcoming of this function is that successive calls are independent. Thus if you want to construct a diagnostic history this function is inappropriate. See the sim-dx-history vignette.
 }
