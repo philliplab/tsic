@@ -21,13 +21,12 @@ library(ggplot2)
 library(tsic)
 ```
 
-IN PROGRESS
-
 This is a guide for simulating diagnostic test histories. It uses the window period distributions built into `tsic` to simulate histories that have the exact assumptions that `tsic` uses.
 
 * Producing an ordered list of diagnostic tests.
 * Simulating diagnostic test results if you know the time since infection.
-* Simulating the time until first positive (TODO)
+* Simulating the time until first positive
+* Simulating an `ihist`
 
 ## Producing an ordered list of diagnostic tests.
 
@@ -88,4 +87,15 @@ ggplot(all_results, aes(x = tsi, y = test)) +
 ```
 
 Figure: Repeated calls to `sim_dx_results` on each of the first 60 days since infection. Not the incongruence between some subsequent days driven by the independence of the subsequent calls.
+
+## Simulating the time until first positive
+
+To get around the issues associated with using the `sim_dx_results` function for constructing an ihist, the `sim_sc_times` function is recommended. It assumes that the true infection time is at time zero and then simulates the time until seroconversion for a list of assays. The seroconversion times are simulated subject to the constraint that the time until seroconversion of a person on an assay with a longer window period must be longer than the time until seroconversion on an assay with a shorter window period.
+
+```{r}
+sim_sc_times(list_of_assays)
+```
+
+
+
 
