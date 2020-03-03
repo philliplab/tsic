@@ -7,6 +7,15 @@
 combine_sc_and_visit_times(sc_times, visit_times,
   true_infection_date = 17000.5, ptid = "?")
 }
+\arguments{
+\item{sc_times}{A list with names giving the assay names and elements the seroconversion time of that assay relative to the true infection time as produced by sim_sc_times.}
+
+\item{visit_times}{A vector of visit times relative to the time of true infection, with true infection at time = 0. Thus -5 indicates a visit 5 days before true infection.}
+
+\item{true_infection_date}{The true of the true infection expressed as the number of days since 1970-01-01. This will be used to shift all the dates in the resulting ihist.}
+
+\item{ptid}{The value to assign to the ptid column of the resulting ihist.}
+}
 \description{
 Given a list of sc times as produced by sim_sc_times, and a vector of visit times relative to the time of true infection (t = 0 is the time of true infection) produce an ihist. This is done by comparing the visit time with the seroconversion times and deducing the result for the relevant test at the visit. Lastly, the dates are converted so that the true infection time is at an appropriate calendar date and not t = 0.
 }

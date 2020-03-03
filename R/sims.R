@@ -108,7 +108,11 @@ sim_sc_times <- function(list_of_assays, skip_order_check = TRUE){
 #'
 #' TODO: Should there be an option that places the first positive visit at t = 0?
 #'
-#' 
+#' @param sc_times A list with names giving the assay names and elements the seroconversion time of that assay relative to the true infection time as produced by sim_sc_times.
+#' @param visit_times A vector of visit times relative to the time of true infection, with true infection at time = 0. Thus -5 indicates a visit 5 days before true infection.
+#' @param true_infection_date The true of the true infection expressed as the number of days since 1970-01-01. This will be used to shift all the dates in the resulting ihist.
+#' @param ptid The value to assign to the ptid column of the resulting ihist.
+#' @export
 
 combine_sc_and_visit_times <- function(sc_times, visit_times, true_infection_date = 17000.5, ptid = '?'){
   if (FALSE){ #debugging notes
@@ -143,13 +147,6 @@ combine_sc_and_visit_times <- function(sc_times, visit_times, true_infection_dat
   return(ihist)
 }
 
-#  ihist <- data.frame(
-#    ptid = c('p0', 'p0'),
-#    sample_date = c(as.numeric(as.Date('2016-03-01')) + 0.5, as.numeric(as.Date('2016-09-01')) + 0.5),
-#    test = c('step_unit_testing', 'step_unit_testing'),
-#    result = c('-', '+'),
-#    stringsAsFactors = FALSE
-#  )
 
 
 
