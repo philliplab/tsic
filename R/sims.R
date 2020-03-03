@@ -51,6 +51,7 @@ sim_dx_results <- function(tsi, list_of_assays, skip_order_check = TRUE){
 
 sim_sc_times <- function(list_of_assays, skip_order_check = TRUE){
   if (FALSE){ # DEBUGGING notes
+    devtools::load_all()
     assay_dynamics <- all_assay_dynamics[['geenius_fr_weib3_delaney']]
     list_of_assays <- c("iscav2_weib3_delaney_and_tosiano", "taqman_weib3_delaney_and_manufacturer", 
                         "architect_weib3_delaney", "geenius_indet_weib3_delaney", 
@@ -101,7 +102,54 @@ sim_sc_times <- function(list_of_assays, skip_order_check = TRUE){
   return(sc_times)
 }
 
+#' Produce ihist from sc and visit times
+#'
+#' Given a list of sc times as produced by sim_sc_times, and a vector of visit times relative to the time of true infection (t = 0 is the time of true infection) produce an ihist. This is done by comparing the visit time with the seroconversion times and deducing the result for the relevant test at the visit. Lastly, the dates are converted so that the true infection time is at an appropriate calendar date and not t = 0.
+#'
+#' TODO: Should there be an option that places the first positive visit at t = 0?
+#'
+#' 
 
+combine_sc_and_visit_times <- function(sc_times, visit_times, true_infection_date = 17000.5, ptid = '?'){
+  if (FALSE){ #debugging notes
+    devtools::load_all()
+    visit_times <- (-3:10)*5 + 2
+    list_of_assays <- c("iscav2_weib3_delaney_and_tosiano", "taqman_weib3_delaney_and_manufacturer", 
+                        "architect_weib3_delaney", "geenius_indet_weib3_delaney", 
+                        "geenius_fr_weib3_delaney")
+    sc_times <- sim_sc_times(list_of_assays)
+    true_infection_date = 17000.5
+    ptid = '?'
+  }
+  ihist <- NULL
+  for (c_visit_time in visit_times){
+    c_ihist <- NULL
+    for (c_test in names(sc_times)){
+      if (c_visit_time > sc_times[[c_test]]){
+        res <- '+'
+      } else {
+        res <- '-'
+      }
+      c_ihist <- rbind(c_ihist,
+        data.frame(ptid = ptid,
+                   sample_date = c_visit_time + true_infection_date,
+                   test = c_test,
+                   result = res,
+                   stringsAsFactors = FALSE),
+        stringsAsFactors = FALSE)
+    }
+    ihist <- rbind(ihist, c_ihist)
+  }
+  return(ihist)
+}
+
+#  ihist <- data.frame(
+#    ptid = c('p0', 'p0'),
+#    sample_date = c(as.numeric(as.Date('2016-03-01')) + 0.5, as.numeric(as.Date('2016-09-01')) + 0.5),
+#    test = c('step_unit_testing', 'step_unit_testing'),
+#    result = c('-', '+'),
+#    stringsAsFactors = FALSE
+#  )
 
 
 
