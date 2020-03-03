@@ -93,8 +93,52 @@ Figure: Repeated calls to `sim_dx_results` on each of the first 60 days since in
 To get around the issues associated with using the `sim_dx_results` function for constructing an ihist, the `sim_sc_times` function is recommended. It assumes that the true infection time is at time zero and then simulates the time until seroconversion for a list of assays. The seroconversion times are simulated subject to the constraint that the time until seroconversion of a person on an assay with a longer window period must be longer than the time until seroconversion on an assay with a shorter window period.
 
 ```{r}
-sim_sc_times(list_of_assays)
+sc_times <- sim_sc_times(list_of_assays)
+print(sc_times)
 ```
+
+## Simulating an `ihist`
+
+To simulate an `ihist` the seroconversion times of `sim_sc_times` need to be combined with a set of visit times. The function `combine_sc_and_visit_times` performs this function. It has the following parameters:
+
+* `sc_times`: A list with names giving the assay names and elements the seroconversion time of that assay relative to the true infection time as produced by `sim_sc_times`.
+* `visit_times`: A vector of visit times relative to the time of true infection, with true infection at time = 0. Thus -5 indicates a visit 5 days before true infection.
+* `true_infection_date`: The true of the true infection expressed as the number of days since 1970-01-01. This will be used to shift all the dates in the resulting ihist.
+* `ptid`: The value to assign to the ptid column of the resulting ihist.
+
+An example where there is a visit every day for comparison to the figure for `sim_dx_results`.
+
+```{r fig.width=7, fig.height=2}
+ihist <- combine_sc_and_visit_times(sc_times = sc_times,
+                                    visit_times = (0:60),
+                                    true_infection_date = as.numeric(as.Date('2018-05-05')),
+                                    ptid = 'p001')
+head(ihist)
+ihist$test <- ordered(ihist$test, levels = list_of_assays)
+print(
+ggplot(ihist, aes(x = sample_date, y = test)) +
+  geom_point(aes(col = result), size = 2)
+)
+```
+
+A realistic example with a visit every 28 days with the last negative 10 days before the true infection time (by passing in `visit_times = (0:4)*28 - 10`).
+
+```{r fig.width=7, fig.height=2, echo = FALSE}
+ihist <- combine_sc_and_visit_times(sc_times = sc_times,
+                                    visit_times = (0:4)*28 - 10,
+                                    true_infection_date = as.numeric(as.Date('2018-05-05')),
+                                    ptid = 'p001')
+ihist$test <- ordered(ihist$test, levels = list_of_assays)
+print(
+ggplot(ihist, aes(x = sample_date, y = test)) +
+  geom_point(aes(col = result), size = 2)
+)
+```
+
+
+
+
+
 
 
 
