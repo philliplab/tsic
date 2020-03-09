@@ -417,6 +417,8 @@ select_most_informative_results <- function(ihist, fastest_to_slowest_tests = NU
       }
     }
   }
+  kept_ihist <- kept_ihist[with(kept_ihist, order(sample_date, test, result)), ]
+  rm_ihist <- rm_ihist[with(rm_ihist, order(sample_date, test, result)), ]
   return(list(kept_ihist = kept_ihist,
               rm_ihist   = rm_ihist))
 }
