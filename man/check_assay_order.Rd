@@ -4,8 +4,11 @@
 \alias{check_assay_order}
 \title{Check that assays are ordered by window period}
 \usage{
-check_assay_order(list_of_assays, short_window_period_first = TRUE,
-  verbose = TRUE)
+check_assay_order(
+  list_of_assays,
+  short_window_period_first = TRUE,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{list_of_assays}{A character vector specifying the names of the assays. The order of this list will be checked.}

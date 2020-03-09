@@ -4,8 +4,7 @@
 \alias{linear_assay_dynamics}
 \title{Linear Assay Dynamics}
 \usage{
-linear_assay_dynamics(x, diagnostic_delay, spread = 1.5,
-  abs_spread = NULL)
+linear_assay_dynamics(x, diagnostic_delay, spread = 1.5, abs_spread = NULL)
 }
 \arguments{
 \item{x}{The time since infection}

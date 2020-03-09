@@ -4,8 +4,11 @@
 \alias{remove_strongly_dependent_results}
 \title{Removes strongly dependent results at the same timepoint}
 \usage{
-remove_strongly_dependent_results(ihist, more_sensitive_test,
-  less_sensitive_test)
+remove_strongly_dependent_results(
+  ihist,
+  more_sensitive_test,
+  less_sensitive_test
+)
 }
 \arguments{
 \item{ihist}{The diagnostic history from which to remove such cases}

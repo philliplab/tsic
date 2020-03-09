@@ -4,8 +4,12 @@
 \alias{combine_sc_and_visit_times}
 \title{Produce ihist from sc and visit times}
 \usage{
-combine_sc_and_visit_times(sc_times, visit_times,
-  true_infection_date = 17000.5, ptid = "?")
+combine_sc_and_visit_times(
+  sc_times,
+  visit_times,
+  true_infection_date = 17000.5,
+  ptid = "?"
+)
 }
 \arguments{
 \item{sc_times}{A list with names giving the assay names and elements the seroconversion time of that assay relative to the true infection time as produced by sim_sc_times.}

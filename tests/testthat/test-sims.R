@@ -45,6 +45,22 @@ test_that("sim_sc_times is sane", {
 
 })
 
+test_that('fix_draw parameter of sim_sc_times works', {
+  list_of_assays <- c("iscav2_weib3_delaney_and_tosiano", "taqman_weib3_delaney_and_manufacturer", 
+                      "architect_weib3_delaney", "geenius_indet_weib3_delaney", 
+                      "geenius_fr_weib3_delaney")
+  x <- sim_sc_times(list_of_assays, fix_draw = 0.5)
+  expect_lte(max(x$iscav2_weib3_delaney_and_tosiano/8.760281, 8.760281/x$iscav2_weib3_delaney_and_tosiano),
+             1.01)
+  expect_lte(max(x$taqman_weib3_delaney_and_manufacturer/12.1334, 12.1334/x$taqman_weib3_delaney_and_manufacturer),
+             1.01)
+  expect_lte(max(x$architect_weib3_delaney/17.87017, 17.87017/x$architect_weib3_delaney),
+             1.01)
+  expect_lte(max(x$geenius_indet_weib3_delaney/27.0469, 27.0469/x$geenius_indet_weib3_delaney),
+             1.01)
+  expect_lte(max(x$geenius_fr_weib3_delaney/32.87321, 32.87321/x$geenius_fr_weib3_delaney),
+             1.01)
+})
 
 
 

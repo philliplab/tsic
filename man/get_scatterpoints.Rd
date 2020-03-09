@@ -4,8 +4,14 @@
 \alias{get_scatterpoints}
 \title{Evaluates a function over a range}
 \usage{
-get_scatterpoints(fun, seedpoints, max_delta = 0.02, min_length = 0.01,
-  n_new_segments = 20, verbose = FALSE)
+get_scatterpoints(
+  fun,
+  seedpoints,
+  max_delta = 0.02,
+  min_length = 0.01,
+  n_new_segments = 20,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{fun}{The function to evaluate.}

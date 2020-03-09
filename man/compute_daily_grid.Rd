@@ -4,9 +4,15 @@
 \alias{compute_daily_grid}
 \title{Computes probability that infection was on each of a range of days}
 \usage{
-compute_daily_grid(agg_fun, tauc, range_start, range_end,
-  end_mass_thresh = 1/1e+10, max_days_extend = 100,
-  expansion_size = 20)
+compute_daily_grid(
+  agg_fun,
+  tauc,
+  range_start,
+  range_end,
+  end_mass_thresh = 1/1e+10,
+  max_days_extend = 100,
+  expansion_size = 20
+)
 }
 \arguments{
 \item{agg_fun}{The aggregate curve associated with the ihist of interest as computed by construct_aggregate_interpreter.}

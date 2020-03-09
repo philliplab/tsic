@@ -4,10 +4,20 @@
 \alias{plot_iihist}
 \title{Plots an individual history}
 \usage{
-plot_iihist(ihist, lb_med_ub, range_start, range_end, x_breaks = NULL,
-  produce_plot = TRUE, save_plot = FALSE, verbose = FALSE,
-  plot_aggregate = TRUE, show_test_dates = FALSE,
-  custom_aggregate_label = NULL, scales = "fixed")
+plot_iihist(
+  ihist,
+  lb_med_ub,
+  range_start,
+  range_end,
+  x_breaks = NULL,
+  produce_plot = TRUE,
+  save_plot = FALSE,
+  verbose = FALSE,
+  plot_aggregate = TRUE,
+  show_test_dates = FALSE,
+  custom_aggregate_label = NULL,
+  scales = "fixed"
+)
 }
 \description{
 Will produce the interpretation itself.

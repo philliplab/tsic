@@ -378,7 +378,6 @@ select_most_informative_results <- function(ihist, fastest_to_slowest_tests = NU
       print(c("IN", fastest_to_slowest_tests[i], fastest_to_slowest_tests[i+1]))
       print(c("OUT", res$faster$full_assayname, res$slower$full_assayname))
     }
-    devtools::load_all()
     dat <- load_dsmb_nov_2019_data(file_name = '/fridge/data/AMP/DSMB_timing_nov_2019/AMP_diagnostic_testing_history_DSMB_2019_Nov.csv')
     ihist <- subset(dat, ptid == "p_703-0013")
   } # end of debugging tools

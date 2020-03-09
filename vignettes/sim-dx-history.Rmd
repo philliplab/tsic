@@ -106,7 +106,7 @@ To simulate an `ihist` the seroconversion times of `sim_sc_times` need to be com
 * `true_infection_date`: The true of the true infection expressed as the number of days since 1970-01-01. This will be used to shift all the dates in the resulting ihist.
 * `ptid`: The value to assign to the ptid column of the resulting ihist.
 
-An example where there is a visit every day for comparison to the figure for `sim_dx_results`.
+An example where there is a visit every day for comparison to the figure for `sim_dx_results`. Note how once a test returns a positive result, it continues to return positive results and contrast that with `sim_dx_results`.
 
 ```{r fig.width=7, fig.height=2}
 ihist <- combine_sc_and_visit_times(sc_times = sc_times,

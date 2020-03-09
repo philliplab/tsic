@@ -47,9 +47,10 @@ sim_dx_results <- function(tsi, list_of_assays, skip_order_check = TRUE){
 #'
 #' @param list_of_assays ORDERED list of assays for which test results should be produced. They must be ordered with the fastest assay first (fastest = assay with the shortest window period)
 #' @param skip_order_check When set to TRUE (the default), it is assumed that the order of the list_of_assays is correct. It is EXTREMELY important that this order is correct. This option defaults to TRUE since this step is very slow, so run it the first time only to check that your list is ordered correctly (by setting skip_order_check = FALSE).
+#' @param fix_draw Provides the option to fix the draws so that it is no longer random. Useful for constructing examples and systematic evaluations.
 #' @export
 
-sim_sc_times <- function(list_of_assays, skip_order_check = TRUE){
+sim_sc_times <- function(list_of_assays, skip_order_check = TRUE, fix_draw = NULL){
   if (FALSE){ # DEBUGGING notes
     devtools::load_all()
     assay_dynamics <- all_assay_dynamics[['geenius_fr_weib3_delaney']]
@@ -62,6 +63,9 @@ sim_sc_times <- function(list_of_assays, skip_order_check = TRUE){
   if (!skip_order_check){
     order_ok <- check_assay_order(list_of_assays, verbose = FALSE)
     stopifnot(order_ok)
+  }
+  if (!is.null(fix_draw)){
+    stopifnot(fix_draw<1 & fix_draw>0)
   }
 
   # draw result for each assay
@@ -82,7 +86,11 @@ sim_sc_times <- function(list_of_assays, skip_order_check = TRUE){
     while (sc < min_sc){ # enforce expected assay seroconversion time order
       counter <- counter + 1
       stopifnot(counter < 100)
-      u <- runif(1, min = r_unif_lb) #use r_unif_lb to reduce number of iterations before valid sc pattern.
+      if (is.null(fix_draw)){
+        u <- runif(1, min = r_unif_lb) #use r_unif_lb to reduce number of iterations before valid sc pattern.
+      } else {
+        u <- fix_draw
+      }
       if (evaluate_dynamics(150) < u){
         warning('Simulated seroconversion date more than 150 days after infection date - this is not supported - returning 150. Proceed with caution')
         sc <- 150
@@ -95,7 +103,11 @@ sim_sc_times <- function(list_of_assays, skip_order_check = TRUE){
       }
       r_unif_lb <- u
     }
-    min_sc <- sc
+    if (is.null(fix_draw)){
+      min_sc <- sc
+    } else {
+      min_sc <- 0
+    }
   
     sc_times[[c_assay]] <- sc
   }
