@@ -62,6 +62,25 @@ test_that('fix_draw parameter of sim_sc_times works', {
              1.01)
 })
 
+test_that('sim_sc_times, combine_sc_and_visit_times and select_most_informative_results works together', {
+  list_of_assays <- c("iscav2_weib3_delaney_and_tosiano", "taqman_weib3_delaney_and_manufacturer", 
+                      "architect_weib3_delaney", "geenius_indet_weib3_delaney", 
+                      "geenius_fr_weib3_delaney")
+  sc_times <- sim_sc_times(list_of_assays, fix_draw = 0.5)
+  visit_times <- ((0:2)*28) - 14
+  ihist <- combine_sc_and_visit_times(sc_times, visit_times)
+  mihist <- select_most_informative_results(ihist)
+
+  expected_mihist <- structure(list(
+    ptid = c("?", "?", "?", "?"), 
+    sample_date = c(16986.5, 17014.5, 17014.5, 17042.5), 
+    test = c("iscav2_weib3_delaney_and_tosiano", "architect_weib3_delaney", 
+             "taqman_weib3_delaney_and_manufacturer", "geenius_fr_weib3_delaney"), 
+    result = c("-", "-", "+", "+")), 
+    row.names = c( 1L, 8L, 7L, 15L), 
+    class = "data.frame")
+  expect_equal(mihist$kept_ihist, expected_mihist)
+})
 
 
 
