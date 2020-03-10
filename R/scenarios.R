@@ -60,6 +60,8 @@ recognize_scenario <- function(ihist, scenario_mapping = NULL){
       matching_scenarios <- c(matching_scenarios, c_scenario_name)
     }
   }
-  return(matching_scenarios)
+  stopifnot(length(matching_scenarios) < 2)
+  return(list('matching_scenarios' = matching_scenarios,
+              'lnfp_gap' = fp_date - ln_date))
 }
 
