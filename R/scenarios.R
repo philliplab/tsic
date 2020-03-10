@@ -21,5 +21,34 @@ recognize_scenario <- function(ihist, scenario_mapping = NULL){
                                              "geenius_fr_weib3_delaney" = '-')
     scenario_mapping[['Scenario 5']] <- list("geenius_fr_weib3_delaney" = '+')
   }
-  return(scenario_mapping)
+  # get FP
+  fp_date <- min(subset(ihist, result = '+')$sample_date)
+  ln_date <- max(ihist$sample_date[ihist$sample_date < fp_date])
+
+  # get most inform only
+  m_ihist <- select_most_informative_results(ihist)
+
+  # scan mapping
+  matching_scenarios <- NULL
+  fpm_ihist <- subset(m_ihist, sample_date == fp_date)
+  for (c_scenario_name in names(scenario_mapping)){
+    c_scenario_spec <- scenario_mapping[[c_scenario_name]]
+    it_is_this_scenario <- TRUE
+    for (c_test in names(c_scenario_spec)){
+      if (c_test %in% fpm_ihist$test){
+        if (c_scenario_spec[[c_test]] == fpm_ihist$result[fpm_ihist$test == c_test]){
+          it_is_this_scenario <- it_is_this_scenario & TRUE
+        } else {
+          it_is_this_scenario <- FALSE
+        }
+      } else {
+        it_is_this_scenario <- FALSE
+      }
+    }
+    if (it_is_this_scenario) {
+      matching_scenarios <- c(matching_scenarios, c_scenario_name)
+    }
+  }
+  return(matching_scenarios)
 }
+
