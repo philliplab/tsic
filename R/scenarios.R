@@ -9,6 +9,17 @@
 #' @export
 
 recognize_scenario <- function(ihist, scenario_mapping = NULL){
+  if (FALSE){
+    list_of_assays <- c("iscav2_weib3_delaney_and_tosiano", "taqman_weib3_delaney_and_manufacturer",
+                        "architect_weib3_delaney", "geenius_indet_weib3_delaney", "geenius_fr_weib3_delaney")
+    sc_times <- sim_sc_times(list_of_assays, fix_draw = 0.5)
+    
+    f_ihist_s1 <- combine_sc_and_visit_times(sc_times,
+                                             ((0:2)*28-46),
+                                             true_infection_date = as.numeric(as.Date('2019-03-01'))+46.5)
+    m_ihist_s1 <- select_most_informative_results(f_ihist_s1)$kept_ihist
+    ihist <- f_ihist_s1
+  }
   if (is.null(scenario_mapping)){
     scenario_mapping <- list()
     scenario_mapping[['Scenario 1']] <- list("iscav2_weib3_delaney_and_tosiano" = '+',
@@ -22,11 +33,11 @@ recognize_scenario <- function(ihist, scenario_mapping = NULL){
     scenario_mapping[['Scenario 5']] <- list("geenius_fr_weib3_delaney" = '+')
   }
   # get FP
-  fp_date <- min(subset(ihist, result = '+')$sample_date)
+  fp_date <- min(subset(ihist, result == '+')$sample_date)
   ln_date <- max(ihist$sample_date[ihist$sample_date < fp_date])
 
   # get most inform only
-  m_ihist <- select_most_informative_results(ihist)
+  m_ihist <- select_most_informative_results(ihist)$kept_ihist
 
   # scan mapping
   matching_scenarios <- NULL
