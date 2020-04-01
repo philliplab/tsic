@@ -4,6 +4,8 @@
 #'
 #' Note that this function will apply the 'select_most_informative_results' function to the ihist, so that places some limits on how exotic the scenario description can be.
 #'
+#' TODO: This function will be much more useful if it is extended to handle different assays that may produce the same result. For example, allowing the scenario 1 case to be defined by a negative on with Taqman or Abbott Real Time.
+#'
 #' @param ihist The ihist from which the scenario must be detected.
 #' @param scenario_mapping A list of lists where the names in the outer list names the scenarios and the inner lists provides the test patterns that are associated with that scenario. If no scenario_mapping is specified, the AMP Taqman/Architect mapping will be used.
 #' @export
@@ -64,4 +66,3 @@ recognize_scenario <- function(ihist, scenario_mapping = NULL){
   return(list('matching_scenarios' = matching_scenarios,
               'lnfp_gap' = fp_date - ln_date))
 }
-

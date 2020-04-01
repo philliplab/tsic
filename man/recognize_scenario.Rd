@@ -16,4 +16,6 @@ Given a scenario mapping and an ihist, this function will detect what scenario t
 }
 \details{
 Note that this function will apply the 'select_most_informative_results' function to the ihist, so that places some limits on how exotic the scenario description can be.
+
+TODO: This function will be much more useful if it is extended to handle different assays that may produce the same result. For example, allowing the scenario 1 case to be defined by a negative on with Taqman or Abbott Real Time.
 }
