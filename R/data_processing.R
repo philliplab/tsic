@@ -102,3 +102,25 @@ select_most_informative_results <- function(ihist, fastest_to_slowest_tests = NU
               rm_ihist   = rm_ihist))
 }
 
+#' Annotates an ihist with visit_numbers and rel_sample_dates
+#'
+#' Given an ihist with the four main columns, add a visit_number column with the first visit at which any test was positive as 0. The visit immediately before the first positive visit is visit_number -1 while the visit immediately after the first positive visit is visit_number 1.
+#'
+#' @param ihist An ihist.
+#' @export
+
+visit_labeller <- function(ihist){
+  ihist$rel_sample_date <- NA_real_
+  ihist$visit_number <- NA_real_
+  fp_date <- min(subset(ihist, result == '+')$sample_date)
+  uniq_sample_dates <- sort(unique(ihist$sample_date))
+  rel_sample_dates <- uniq_sample_dates - fp_date
+  visit_numbers <- order(rel_sample_dates)
+  visit_numbers <- visit_numbers - which(rel_sample_dates == 0)
+  for (indx in 1:length(uniq_sample_dates)){
+    ihist_indx <- ihist$sample_date == uniq_sample_dates[indx]
+    ihist$rel_sample_date[ihist_indx] <- rel_sample_dates[indx]
+    ihist$visit_number[ihist_indx] <- visit_numbers[indx]
+  }
+  return(ihist)
+}
