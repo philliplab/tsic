@@ -101,10 +101,18 @@ test_that('select_most_informative_results works', {
   expect_equal(inf_ihist, expected_result)
 })
 
-
-
-
-
-
-
-
+test_that('visit_labeller is working', {
+  ihist <- data.frame(
+    ptid = c("p314", "p314", "p314", "p314", "p314", "p314", "p314", "p314", "p314"), 
+    sample_date = c(16860.5, 16910.5, 16921.5, 16921.5, 16910.5, 16921.5, 16921.5, 16910.5, 16860.5), 
+    test = c("architect_weib3_delaney", "architect_weib3_delaney", "architect_weib3_delaney", 
+             "geenius_fr_weib3_delaney", "geenius_indet_weib3_delaney", "geenius_indet_weib3_delaney", 
+             "taqman_weib3_delaney_and_manufacturer", "taqman_weib3_delaney_and_manufacturer", 
+             "taqman_weib3_delaney_and_manufacturer"), 
+    result = c("-", "+", "+", "+", "-", "+", "+", "+", "-"),
+    stringsAsFactors = FALSE)
+  ihist <- ihist[order(ihist$sample_date, ihist$test),]
+  l_ihist <- visit_labeller(ihist)
+  expect_equal(c(-50, 0, 11), sort(unique(l_ihist$rel_sample_date)))
+  expect_equal(c(-1, 0, 1), sort(unique(l_ihist$visit_number)))
+})
