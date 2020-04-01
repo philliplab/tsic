@@ -286,3 +286,79 @@ get_assay_dynamics <- function(assay = NULL){
   }
 }
 
+which_is_faster <- function(assay1, assay2, comp_range = (8000:10005)/10){
+  if (FALSE) { #DEBUGGING NOTES
+    assay1 <- get_assay_dynamics('architect_weib3_delaney')
+    assay2 <- get_assay_dynamics('aptima_weib3_delaney')
+    comp_range <- (8000:10005)/10
+    which_is_faster(assay1, assay2)
+  }
+
+  # ensure intervals between comp_range elements are equal.
+  interval_length <- unique(round(comp_range[2:length(comp_range)] - comp_range[1:(length(comp_range)-1)],5))
+  stopifnot(length(interval_length) == 1)
+
+  a1i <- construct_assay_result_interpreter(assay1, '+', max(comp_range))
+  a2i <- construct_assay_result_interpreter(assay2, '+', max(comp_range))
+  r1_less_r2 <- rep(NA_real_, length(comp_range))
+  indx <- 1
+  for (i in comp_range){
+    r1 <- a1i(i)
+    r2 <- a2i(i)
+    r1_less_r2[indx] <- (r1 - r2)*interval_length
+    indx <- indx+1
+  }
+  area_under_1_less_area_under_2 <- sum(r1_less_r2)
+  if (area_under_1_less_area_under_2 >= 0){
+    return(list(faster = assay1,
+                slower = assay2,
+                diff = area_under_1_less_area_under_2))
+  } else {
+    return(list(faster = assay2,
+                slower = assay1,
+                diff = area_under_1_less_area_under_2))
+  }
+}
+
+#' Check that assays are ordered by window period
+#'
+#' Given a list (format: character vector of names) of assays, compare pairs of sequential assays using which_is_faster to ensure that they are ordered correctly. If the order is correct, then TRUE will be returned. If not, then FALSE will be returned and a warning will be raised if verbose = TRUE.
+#'
+#' @param list_of_assays A character vector specifying the names of the assays. The order of this list will be checked.
+#' @param short_window_period_first If True, check that the vector is ordered from the assay with the shortest window period to the assay with the longest window period.
+#' @param verbose If the order is incorrect, a warning will be raised specifying each sequential pair that is incorrectly ordered. 
+#' @export
+
+check_assay_order <- function(list_of_assays, short_window_period_first = TRUE, verbose = TRUE){
+  ordered_comp <- function(x, y){
+    if (short_window_period_first){
+      return(x != y)
+    } else {
+      return(x == y)
+    }
+  }
+
+  all_good <- TRUE
+  for (indx in 1:(length(list_of_assays)-1)){
+    assay1 <- all_assay_dynamics[[list_of_assays[indx]]]
+    assay2 <- all_assay_dynamics[[list_of_assays[indx+1]]]
+
+    res <- which_is_faster(assay1, assay2)
+    if (ordered_comp(assay1$short_assayname, res$faster$short_assayname)){
+      if (verbose){
+        warning(paste0(assay1$short_assayname, ' and ', assay2$short_assayname, ' ordered incorrectly'))
+      }
+      all_good <- FALSE
+    }
+  }
+  return(all_good)
+}
+
+#' Selects most informative test results only
+#'
+#' Given a diagnostic history and an ordered list of tests by window period, this function will return a restricted diagnostic history that only contains the most informative test results for each sample date. The most informative results are the test with the shortest window period that produced a negative result and the test with the longest window period that produced a positive result. The motivation for doing this is to ensure that the aggregate function is constructed using independent results.
+#'
+#' @param ihist The diagnostic test history of the individual.
+#' @param fastest_to_slowest_tests A vector listing the tests in the order from the test with the shortest window period to the test with the longest window period. This ordering will be consulted in conjunction with the test result to decide which tests are the most informative.
+#' @export
+
