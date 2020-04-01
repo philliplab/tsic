@@ -49,3 +49,4 @@ test_that('scenario_recognizer recognizes scenarios', {
   expect_equal(recognize_scenario(ihist = f_ihist_s4)$lnfp_gap, 28)
   expect_equal(recognize_scenario(ihist = m_ihist_s5)$lnfp_gap, 28)
 })
+
