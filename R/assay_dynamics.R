@@ -353,12 +353,3 @@ check_assay_order <- function(list_of_assays, short_window_period_first = TRUE, 
   }
   return(all_good)
 }
-
-#' Selects most informative test results only
-#'
-#' Given a diagnostic history and an ordered list of tests by window period, this function will return a restricted diagnostic history that only contains the most informative test results for each sample date. The most informative results are the test with the shortest window period that produced a negative result and the test with the longest window period that produced a positive result. The motivation for doing this is to ensure that the aggregate function is constructed using independent results.
-#'
-#' @param ihist The diagnostic test history of the individual.
-#' @param fastest_to_slowest_tests A vector listing the tests in the order from the test with the shortest window period to the test with the longest window period. This ordering will be consulted in conjunction with the test result to decide which tests are the most informative.
-#' @export
-

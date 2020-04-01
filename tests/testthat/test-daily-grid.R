@@ -1,9 +1,5 @@
 context('daily grid')
 
-if(FALSE){
-  devtools::load_all()
-}
-
 test_that('Daily Grid works on known distributions', {
   agg_fun <- function(x){dnorm(x, 17500, 10)}
   x <- compute_daily_grid(agg_fun, 1, 17400, 17600)

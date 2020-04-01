@@ -1,9 +1,5 @@
 context("test-result_interpretation")
 
-if (FALSE) {
-  devtools::load_all()
-}
-
 test_that("assay_result_interpreter gets build correctly", {
   assay_dynamics <- get_assay_dynamics(assay = 'step_unit_testing')
   result <- '+'
@@ -26,7 +22,6 @@ test_that("assay_result_interpreter gets build correctly", {
   expect_equal(foo(as.numeric(as.Date('2018-05-30'))), 1)
   expect_equal(foo(as.numeric(as.Date('2018-06-30'))), 1)
 })
-
 
 test_that("mucking about in the outer scope does not mess with the closure", {
   # These tests are only necessary because I am not that familiar with closures
@@ -67,9 +62,6 @@ test_that("mucking about in the outer scope does not mess with the closure", {
 })
 
 test_that("aggregate_interpreter gets build correctly in a basic case", {
-            if (FALSE) {
-              devtools::load_all()
-            }
   diagnostic_history <- data.frame(
     ptid = c('p0', 'p0'),
     sample_date = c(as.numeric(as.Date('2016-03-01')), as.numeric(as.Date('2016-09-01'))),
@@ -239,15 +231,9 @@ test_that('get_scatterpoints + reduce_x_points do not produce a little "trail" f
   scatterpoints <- get_scatterpoints(fun = foo, seedpoints = x, 
                                      max_delta = 0.001, min_length = 0.01,
                                      n_new_segments = 20, verbose = FALSE)
-#  data.frame(x = scatterpoints$x, y=scatterpoints$y)
 
   result <- reduce_x_points(x = scatterpoints$x, y = scatterpoints$y, min_delta = 0.0001)
   result <- data.frame(x = result$x, y = result$y)
-
-  if (FALSE){
-    devtools::load_all()
-    reduce_x_points <- reduce_x_points_new
-  }
 
   for (i in 1:(nrow(result)-1)){
     if (any(result$y[i+0:1] %in% c(0,1)) & any(!(result$y[i+0:1] %in% c(0,1)))){
@@ -255,12 +241,7 @@ test_that('get_scatterpoints + reduce_x_points do not produce a little "trail" f
     }
   }
 
-#TODO: fix these
   expect_false(any(duplicated(result)))
-#  # duplication issues only when the assay do not start at zero at range start
-#  
-#  # Just such horrible hacky algoritms, just make them pretty.
-#  expect_equal(1, "elegant", label = "get_scatterpoints and reduce_x_points are")
 })
 
 test_that('reduce_x_points works in a trivial case', {
@@ -441,172 +422,4 @@ test_that('PERFORMANCE: get_scatterpoints and reduce_x_points on Weib3 large int
   interpolated <- approx(x = result$x, y = result$y, xout = scatterpoints$x)
   expect_true(all(abs(interpolated$y - scatterpoints$y) < min_delta))
 })
-
-test_that('which_is_faster works', {
-  check_which_is_faster <- function(faster, slower){
-    if (FALSE){
-      faster <- "iscav2_weib3_delaney_and_tosiano"
-      slower <- "geenius_fr_weib3_delaney"
-    }
-    devtools::load_all()
-    faster <- get_assay_dynamics(faster)
-    slower <- get_assay_dynamics(slower)
-    resultfs <- which_is_faster(assay1 = faster, assay2 = slower)
-    resultsf <- which_is_faster(assay1 = slower, assay2 = faster)
-    expect_equal(resultfs$diff, -resultsf$diff)
-    expect_equal(resultfs$faster, faster)
-    expect_equal(resultfs$slower, slower)
-    expect_equal(resultsf$faster, faster)
-    expect_equal(resultsf$slower, slower)
-  }
-  check_which_is_faster(faster = "iscav2_weib3_delaney_and_tosiano", 
-                        slower = "geenius_fr_weib3_delaney")
-  check_which_is_faster(faster = "architect_weib3_delaney", 
-                        slower = "geenius_fr_weib3_delaney")
-  check_which_is_faster(faster = "gs_combo_weib3_delaney", 
-                        slower = "geenius_fr_weib3_delaney")
-  check_which_is_faster(faster = "aptima_weib3_delaney", 
-                        slower = "gs_combo_weib3_delaney")
-  check_which_is_faster(faster = "aptima_weib3_delaney", 
-                        slower = "architect_weib3_delaney")
-
-  check_which_is_faster(faster = "iscav2_weib3_delaney_and_tosiano", 
-                        slower = "abbott_real_time_weib3_delaney_and_manufacturer")
-  check_which_is_faster(faster = "iscav2_weib3_delaney_and_tosiano", 
-                        slower = "taqman_weib3_delaney_and_manufacturer")
-  check_which_is_faster(faster = "taqman_weib3_delaney_and_manufacturer", 
-                        slower = "gs_combo_weib3_delaney")
-  check_which_is_faster(faster = "abbott_real_time_weib3_delaney_and_manufacturer", 
-                        slower = "architect_weib3_delaney")
-  check_which_is_faster(faster = "iscav2_weib3_delaney_and_tosiano", 
-                        slower = "abbott_real_time_weib3_delaney_and_manufacturer")
-  check_which_is_faster(faster = "iscav2_weib3_delaney_and_tosiano", 
-                        slower = "taqman_weib3_delaney_and_manufacturer")
-})
-
-test_that('check_assay_order works', {
-  list_of_assays <- c("iscav2_weib3_delaney_and_tosiano", "taqman_weib3_delaney_and_manufacturer",
-                      "architect_weib3_delaney", "geenius_indet_weib3_delaney",
-                      "geenius_fr_weib3_delaney")
-  expect_true(check_assay_order(list_of_assays))
-  expect_false(check_assay_order(c(list_of_assays[5], list_of_assays[1:4]), verbose = FALSE))
-  expect_warning(check_assay_order(c(list_of_assays[5], list_of_assays[1:4]), verbose = TRUE))
-  expect_false(check_assay_order(rev(list_of_assays), verbose = FALSE))
-
-  expect_true(check_assay_order(rev(list_of_assays), short_window_period_first = FALSE))
-  expect_false(check_assay_order(c(list_of_assays[5], list_of_assays[1:4]), short_window_period_first = FALSE, verbose = FALSE))
-  expect_warning(check_assay_order(c(list_of_assays[5], list_of_assays[1:4]), short_window_period_first = FALSE, verbose = TRUE))
-  expect_false(check_assay_order(list_of_assays, short_window_period_first = FALSE, verbose = FALSE))
-})
-
-if (FALSE) {
-  devtools::load_all()
-}
-
-test_that('select_most_informative_results works', {
-  # input checking
-  ihist <- data.frame(
-    ptid = c('p0', 'p1'),
-    sample_date = c(as.numeric(as.Date('2016-03-01')) + 0.5, as.numeric(as.Date('2016-09-01')) + 0.5),
-    test = c('step_unit_testing', 'step_unit_testing'),
-    result = c('-', '+'),
-    stringsAsFactors = FALSE
-  )
-  expect_error(select_most_informative_results(ihist, NULL))
-
-  ihist <- data.frame(
-    ptid = c('p0', 'p0'),
-    sample_date = c(as.numeric(as.Date('2016-03-01')) + 0.5, as.numeric(as.Date('2016-09-01')) + 0.5),
-    test = c('step_unit_testing', 'step_unit_testing'),
-    result = c('-', '+'),
-    stringsAsFactors = FALSE
-  )
-  expect_error(select_most_informative_results(ihist, NULL))
-
-  basic_checks_most_infor <- function(ihist, inf_ihist){
-    expect_true(class(inf_ihist) == 'list')
-    expect_true(all(sort(names(inf_ihist)) == c('kept_ihist', 'rm_ihist')))
-    expect_true(all(sort(unique(ihist$sample_date)) == sort(unique(inf_ihist$kept_ihist$sample_date))))
-    expect_equal(nrow(ihist), nrow(inf_ihist$kept_ihist) + nrow(inf_ihist$rm_ihist))
-    counts <- with(inf_ihist$kept_ihist, tapply(test, list(sample_date, result), length))
-    expect_lte(max(counts, na.rm = TRUE), 1)
-    expect_gte(min(counts, na.rm = TRUE), 0)
-  }
-
-  # simple controlled cases
-  ihist <- data.frame(
-    ptid = c('p0', 'p0'),
-    sample_date = c(as.numeric(as.Date('2016-03-01')) + 0.5, as.numeric(as.Date('2016-03-01')) + 0.5),
-    test = c('architect_weib3_delaney', 'taqman_weib3_delaney_and_manufacturer'),
-    result = c('+', '+'),
-    stringsAsFactors = FALSE
-  )
-  inf_ihist <- select_most_informative_results(ihist)
-  basic_checks_most_infor(ihist, inf_ihist)
-  expect_equal(nrow(inf_ihist$kept_ihist), 1)
-  expect_equal(inf_ihist$kept_ihist$test, 'architect_weib3_delaney')
-  expect_equal(nrow(inf_ihist$rm_ihist), 1)
-  expect_equal(inf_ihist$rm_ihist$test, 'taqman_weib3_delaney_and_manufacturer')
-
-  # simple controlled cases
-  ihist <- data.frame(
-    ptid = c('p0', 'p0'),
-    sample_date = c(as.numeric(as.Date('2016-03-01')) + 0.5, as.numeric(as.Date('2016-05-01')) + 0.5),
-    test = c('architect_weib3_delaney', 'taqman_weib3_delaney_and_manufacturer'),
-    result = c('+', '+'),
-    stringsAsFactors = FALSE
-  )
-  inf_ihist <- select_most_informative_results(ihist)
-  basic_checks_most_infor(ihist, inf_ihist)
-  expect_equal(nrow(inf_ihist$kept_ihist), 2)
-  expect_equal(nrow(inf_ihist$rm_ihist), 0)
-
-  # big realistic case
-
-  ihist <- data.frame(
-    ptid = c("p314", "p314", "p314", "p314", "p314", "p314", "p314", "p314", "p314"), 
-    sample_date = c(16860.5, 16910.5, 16921.5, 16921.5, 16910.5, 16921.5, 16921.5, 16910.5, 16860.5), 
-    test = c("architect_weib3_delaney", "architect_weib3_delaney", "architect_weib3_delaney", 
-             "geenius_fr_weib3_delaney", "geenius_indet_weib3_delaney", "geenius_indet_weib3_delaney", 
-             "taqman_weib3_delaney_and_manufacturer", "taqman_weib3_delaney_and_manufacturer", 
-             "taqman_weib3_delaney_and_manufacturer"), 
-    result = c("-", "+", "+", "+", "-", "+", "+", "+", "-"),
-    stringsAsFactors = FALSE)
-  expected_result <- list(
-    kept_ihist = structure(list(
-        ptid = c("p314", "p314", "p314", "p314"), 
-        sample_date = c(16860.5, 16910.5, 16910.5, 16921.5), 
-        test = c("taqman_weib3_delaney_and_manufacturer", "architect_weib3_delaney", "geenius_indet_weib3_delaney", 
-                 "geenius_fr_weib3_delaney"), 
-        result = c("-", "+", "-", "+")), 
-      row.names = c(9L, 2L, 5L, 4L), 
-      class = "data.frame"), 
-    rm_ihist = structure(list(
-        ptid = c("p314", "p314", "p314", "p314", "p314"), 
-        sample_date = c(16860.5, 16910.5, 16921.5, 16921.5, 16921.5), 
-        test = c("architect_weib3_delaney", "taqman_weib3_delaney_and_manufacturer", "architect_weib3_delaney", 
-                 "geenius_indet_weib3_delaney", "taqman_weib3_delaney_and_manufacturer"), 
-        result = c("-", "+", "+", "+", "+")), 
-      row.names = c(1L, 8L, 3L, 6L, 7L), 
-      class = "data.frame"))
-
-
-  inf_ihist <- select_most_informative_results(ihist)
-  expect_equal(inf_ihist, expected_result)
-  basic_checks_most_infor(ihist, inf_ihist)
-  expect_true(class(inf_ihist) == 'list')
-  expect_true(all(sort(names(inf_ihist)) == c('kept_ihist', 'rm_ihist')))
-  expect_true(all(sort(unique(ihist$sample_date)) == sort(unique(inf_ihist$kept_ihist$sample_date))))
-  expect_equal(nrow(ihist), nrow(inf_ihist$kept_ihist) + nrow(inf_ihist$rm_ihist))
-  counts <- with(inf_ihist$kept_ihist, tapply(test, list(sample_date, result), length))
-  expect_lte(max(counts, na.rm = TRUE), 1)
-  expect_gte(min(counts, na.rm = TRUE), 0)
-  expect_equal(inf_ihist, expected_result)
-})
-
-
-
-
-
-
 

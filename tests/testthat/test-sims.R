@@ -1,10 +1,5 @@
 context("test-sims")
 
-if (FALSE){
-  library(testthat)
-  devtools::load_all()
-}
-
 test_that("sim_dx_results is sane", {
   list_of_assays <- c("iscav2_weib3_delaney_and_tosiano", "taqman_weib3_delaney_and_manufacturer", 
                       "architect_weib3_delaney", "geenius_indet_weib3_delaney", 

@@ -33,5 +33,5 @@ estimate_lb_med_ub(
 \item{date_splits}{Compute the AOC to the left of each of the dates listed in this parameter. If NULL, this process will be skipped.}
 }
 \description{
-Various hacks required to work around the inadequacy of R's numerical analysis tools.
+Various hacks required to get the numerical integration and optimization working.
 }

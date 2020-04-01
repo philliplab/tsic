@@ -1,6 +1,6 @@
 #' Estimates the 2.5, 50 and 97.5 percentiles and much more
 #'
-#' Various hacks required to work around the inadequacy of R's numerical analysis tools.
+#' Various hacks required to get the numerical integration and optimization working.
 #'
 #' @param fun The function whose percentiles are required
 #' @param range_start Start of interval containing the percentiles
