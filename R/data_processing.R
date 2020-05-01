@@ -150,7 +150,60 @@ visit_labeller <- function(ihist){
 #' @return
 
 compute_result_summary <- function(ihist, assay_name, faster_assays = NULL){
-  warning('in progress - somethings still need to be figured out')
+  if (FALSE){
+    devtools::load_all('..')
+    list_of_assays <- c("iscav2_weib3_delaney_and_tosiano", "taqman_weib3_delaney_and_manufacturer", 
+                        "architect_weib3_delaney", "geenius_indet_weib3_delaney", 
+                        "geenius_fr_weib3_delaney")
+    sc_times <- sim_sc_times(list_of_assays)
+    ihist_src <- combine_sc_and_visit_times(sc_times = sc_times,
+                                        visit_times = c(-14, 14, 22, 30),
+                                        true_infection_date = as.numeric(as.Date('2018-05-05')),
+                                        ptid = 'p001')
+    ihist_src <- structure(list(ptid = c("p001", "p001", "p001", "p001", "p001",
+"p001", "p001", "p001", "p001", "p001", "p001", "p001", "p001",
+"p001", "p001", "p001", "p001", "p001", "p001", "p001"), sample_date = c(17642,
+17642, 17642, 17642, 17642, 17670, 17670, 17670, 17670, 17670,
+17678, 17678, 17678, 17678, 17678, 17686, 17686, 17686, 17686,
+17686), test = c("iscav2_weib3_delaney_and_tosiano", "taqman_weib3_delaney_and_manufacturer",
+"architect_weib3_delaney", "geenius_indet_weib3_delaney", "geenius_fr_weib3_delaney",
+"iscav2_weib3_delaney_and_tosiano", "taqman_weib3_delaney_and_manufacturer",
+"architect_weib3_delaney", "geenius_indet_weib3_delaney", "geenius_fr_weib3_delaney",
+"iscav2_weib3_delaney_and_tosiano", "taqman_weib3_delaney_and_manufacturer",
+"architect_weib3_delaney", "geenius_indet_weib3_delaney", "geenius_fr_weib3_delaney",
+"iscav2_weib3_delaney_and_tosiano", "taqman_weib3_delaney_and_manufacturer",
+"architect_weib3_delaney", "geenius_indet_weib3_delaney", "geenius_fr_weib3_delaney"
+), result = c("-", "-", "-", "-", "-", "+", "+", "-", "-", "-",
+"+", "+", "-", "-", "-", "+", "+", "+", "+", "+")), row.names = c(NA,
+-20L), class = "data.frame")
+    ihist_src <- visit_labeller(ihist_src)
+
+#    # this all is failing
+#    # go slower and figure out the cases on paper and then try again.
+#    #with missing slow
+#    ihist_ms <- ihist_src[!(ihist_src$sample_date == 17678 & grepl('geenius', ihist_src$test)),]
+#
+#    #with missing fast
+#    ihist_mf <- ihist_src[!(ihist_src$sample_date == 17686 & ihist_src$test == 'architect_weib3_delaney'),]
+#
+#    all_assays <- c("iscav2_weib3_delaney_and_tosiano", "taqman_weib3_delaney_and_manufacturer",
+#"architect_weib3_delaney", "geenius_indet_weib3_delaney", "geenius_fr_weib3_delaney"
+#)
+#    slower_assays <- ''
+#    faster_assays <- ''
+#
+#    ihist <- ihist_mf
+#    assay_name <- 'architect_weib3_delaney'
+#    slower_assays <- c("geenius_indet_weib3_delaney", "geenius_fr_weib3_delaney")
+#    faster_assays <- c("iscav2_weib3_delaney_and_tosiano", "taqman_weib3_delaney_and_manufacturer")
+#
+#    ihist <- ihist_ms
+#    assay_name <- 'geenius_indet_weib3_delaney'
+#    slower_assays <- c("geenius_fr_weib3_delaney")
+#    faster_assays <- c("iscav2_weib3_delaney_and_tosiano", "taqman_weib3_delaney_and_manufacturer", 'architect_weib3_delaney')
+  }
+
+  warning('in progress - some things still need to be figured out')
   fp_date <- min(subset(ihist, test == assay_name & result == '+')$sample_date)
   ln_date <- max(subset(ihist, test == assay_name & sample_date < fp_date)$sample_date)
   rel_fp_date <- min(subset(ihist, test == assay_name & result == '+')$rel_sample_date)
@@ -174,7 +227,8 @@ compute_result_summary <- function(ihist, assay_name, faster_assays = NULL){
   }
 
   assay_not_inf <- fp_date != Inf & ln_date != -Inf
-  return(data.frame(ptid = unique(ihist$ptid),
+  return(
+         data.frame(ptid = unique(ihist$ptid),
                     test = assay_name,
                     assay_sane = assay_sane,
                     ln_date = ln_date,
@@ -185,5 +239,6 @@ compute_result_summary <- function(ihist, assay_name, faster_assays = NULL){
                     rel_latest_faster_ln_date = rel_latest_faster_ln_date,
                     useful_rel_ln_date = max(rel_ln_date, rel_latest_faster_ln_date),
                     assay_not_inf = assay_not_inf,
-                    stringsAsFactors = FALSE))
+                    stringsAsFactors = FALSE)
+         )
 }
