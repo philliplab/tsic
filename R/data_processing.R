@@ -178,29 +178,17 @@ compute_result_summary <- function(ihist, assay_name, faster_assays = NULL){
 -20L), class = "data.frame")
     ihist_src <- visit_labeller(ihist_src)
 
-#    # this all is failing
-#    # go slower and figure out the cases on paper and then try again.
-#    #with missing slow
-#    ihist_ms <- ihist_src[!(ihist_src$sample_date == 17678 & grepl('geenius', ihist_src$test)),]
-#
-#    #with missing fast
-#    ihist_mf <- ihist_src[!(ihist_src$sample_date == 17686 & ihist_src$test == 'architect_weib3_delaney'),]
-#
-#    all_assays <- c("iscav2_weib3_delaney_and_tosiano", "taqman_weib3_delaney_and_manufacturer",
-#"architect_weib3_delaney", "geenius_indet_weib3_delaney", "geenius_fr_weib3_delaney"
-#)
-#    slower_assays <- ''
-#    faster_assays <- ''
-#
-#    ihist <- ihist_mf
-#    assay_name <- 'architect_weib3_delaney'
-#    slower_assays <- c("geenius_indet_weib3_delaney", "geenius_fr_weib3_delaney")
-#    faster_assays <- c("iscav2_weib3_delaney_and_tosiano", "taqman_weib3_delaney_and_manufacturer")
-#
-#    ihist <- ihist_ms
-#    assay_name <- 'geenius_indet_weib3_delaney'
-#    slower_assays <- c("geenius_fr_weib3_delaney")
-#    faster_assays <- c("iscav2_weib3_delaney_and_tosiano", "taqman_weib3_delaney_and_manufacturer", 'architect_weib3_delaney')
+    ihist <- ihist_src
+
+    assay_name <- 'gs_combo_weib3_delaney'
+    slower_assays <- c("geenius_indet_weib3_delaney", "geenius_fr_weib3_delaney")
+    faster_assays <- c("iscav2_weib3_delaney_and_tosiano", "taqman_weib3_delaney_and_manufacturer")
+
+    ihist <- ihist_src
+    assay_name <- 'like_geenius_indet'
+    slower_assays <- c("geenius_fr_weib3_delaney")
+    faster_assays <- c("iscav2_weib3_delaney_and_tosiano", "taqman_weib3_delaney_and_manufacturer", 'architect_weib3_delaney')
+
   }
 
   warning('in progress - some things still need to be figured out')
