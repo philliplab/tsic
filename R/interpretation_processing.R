@@ -101,13 +101,18 @@ estimate_lb_med_ub <- function(fun, range_start, range_end, verbose = FALSE, lab
     start_indx <- max(which(probs < value - width_toggle))
     end_indx <- min(which(probs > value + width_toggle))
 
-    m2_start_indx <- max(which( probs < ((value - width_toggle + 1)/2) ))
+    m2_start_indx <- max(which( probs < ((value - width_toggle+1)/2) ))
     m2_end_indx <- min(which(probs > ((value + width_toggle)/2) ))
+    
+    m3_start_indx <- max(which( probs < ((value - width_toggle)/2) ))
+    m3_end_indx <- min(which(probs > ((value + width_toggle)/2) ))
 
     tight_range_start <- x[start_indx]
     tight_range_end <- x[end_indx]
     m2_range_start <- x[m2_start_indx]
     m2_range_end <- x[m2_end_indx]
+    m3_range_start <- x[m3_start_indx]
+    m3_range_end <- x[m3_end_indx]
 #    print(c(range_start, range_end, 
 #          tight_range_start, tight_range_end, 
 #          (tight_range_start + range_start)/2, (tight_range_end + range_end)/2))
@@ -122,8 +127,14 @@ estimate_lb_med_ub <- function(fun, range_start, range_end, verbose = FALSE, lab
                          interval = c((tight_range_start + range_start)/2, 
                                       (tight_range_end + range_end)/2),
                          tol = 2.220446e-16)
-    c_perc_m2 <- optimize(f = function(x){abs(integrated_fun(x) - value)},
+    c_perc_m2 <- try(optimize(f = function(x){abs(integrated_fun(x) - value)},
                          interval = c(m2_range_start, m2_range_end),
+                         tol = 2.220446e-16))
+    if (class(c_perc_m2) == 'try-error'){
+      c_perc_m2 <- list(objective = Inf)
+    }
+    c_perc_m3 <- optimize(f = function(x){abs(integrated_fun(x) - value)},
+                         interval = c(m3_range_start, m3_range_end),
                          tol = 2.220446e-16)
 
     if (c_perc_w$objective < c_perc_t$objective){
@@ -136,6 +147,9 @@ estimate_lb_med_ub <- function(fun, range_start, range_end, verbose = FALSE, lab
     }
     if (c_perc_m2$objective < c_perc$objective){
       c_perc <- c_perc_m2
+    }
+    if (c_perc_m3$objective < c_perc$objective){
+      c_perc <- c_perc_m3
     }
 
     return(c_perc)

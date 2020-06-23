@@ -206,6 +206,15 @@ compute_result_summary <- function(ihist, assay_name, faster_assays = NULL){
     }
   }
 
+  # compute the lastest faster LN date
+  rel_earliest_slower_fp_date <- Inf
+  for (c_assay in rev(slower_assays)){
+    rel_c_fp_date <- min(subset(ihist, test == c_assay & result == '+')$rel_sample_date)
+    if (rel_earliest_slower_fp_date > rel_c_fp_date){
+      rel_earliest_slower_fp_date <- rel_c_fp_date
+    }
+  }
+
   # check that fp date is reasonable given other fp dates
   faster_assays <- c(faster_assays, assay_name)
   assay_sane <- TRUE
@@ -226,6 +235,8 @@ compute_result_summary <- function(ihist, assay_name, faster_assays = NULL){
                     rel_fp_date = rel_fp_date,
                     rel_latest_faster_ln_date = rel_latest_faster_ln_date,
                     useful_rel_ln_date = max(rel_ln_date, rel_latest_faster_ln_date),
+                    rel_earliest_slower_fp_date = rel_earliest_slower_fp_date,
+                    useful_rel_fp_date = min(rel_fp_date, rel_earliest_slower_fp_date),
                     assay_not_inf = assay_not_inf,
                     stringsAsFactors = FALSE)
          )
